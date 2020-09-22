@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/png">
+        <file>png/microphone.png</file>
+        <file>png/microphone2.ico</file>
+        <file>png/microphone_px32.png</file>
+        <file>png/close.png</file>
+        <file>png/max.png</file>
+        <file>png/mini.png</file>
+        <file>png/recording_32.png</file>
+        <file>png/recording_128.png</file>
+        <file>png/voice.png</file>
+        <file>png/set.png</file>
+        <file>png/stop.png</file>
+        <file>png/pause.png</file>
+        <file>png/pause_click.png</file>
+        <file>png/pause_hover.png</file>
+        <file>png/stop_click.png</file>
+        <file>png/stop_hover.png</file>
+        <file>png/start.png</file>
+        <file>png/start_click.png</file>
+        <file>png/start_hover.png</file>
+        <file>png/Silence.png</file>
+    </qresource>
+</RCC>

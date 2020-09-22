@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=kylin-recording
+Name[zh_CN]=麒麟录音
+Exec=/usr/bin/kylin-recording %u
+Icon=kylin-recording
+Type=Application
+Categories=GNOME;Utility;

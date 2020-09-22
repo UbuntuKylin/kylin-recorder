@@ -1,0 +1,21 @@
+Source: kylin-recording
+Section: utils
+Priority: optional
+Maintainer: baijincheng <baijincheng@kylinos.cn>
+Build-Depends: debhelper,
+               qtbase5-dev (>= 5.1),
+               qt5-qmake,
+               qtchooser,
+               qttools5-dev-tools,
+               qtbase5-dev-tools,
+               libx11-dev,
+Standards-Version: 4.4.1
+Homepage: <insert the upstream URL, if relevant>
+#Vcs-Browser: https://salsa.debian.org/debian/kylin-usb-creator
+#Vcs-Git: https://salsa.debian.org/debian/kylin-usb-creator.git
+
+Package: kylin-recording
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: <insert up to 60 chars description>
+ <insert long description, indented with spaces>
