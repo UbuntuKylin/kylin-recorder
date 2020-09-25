@@ -1,5 +1,5 @@
-kylin-recording (1.0.1kord) v101; urgency=medium
+kylin-recording (1.0.4kord) v101; urgency=medium
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * first commit
 
- -- baijincheng <baijincheng@kylinos.cn>  Wed, 16 Sep 2020 15:06:06 +0800
+ -- liuyuhui <liuyuhui@kylinos.cn>  Wed, 16 Sep 2020 16:06:06 +0800

@@ -18,13 +18,11 @@ target.source +=$$TARGET
 desktop.files = kylin-recording.desktop
 desktop.path = /usr/share/applications/
 
-appdesktop.files += kylin-recording.desktop
-appdesktop.path = /usr/share/applications/
 
-icons.files += /png/png/recording_32.png
+icons.files = png/recording_32.png
 icons.path = /usr/share/pixmaps/
 
-INSTALLS += target desktop appdesktop icons
+INSTALLS += target desktop icons
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings

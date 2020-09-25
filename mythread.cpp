@@ -79,6 +79,7 @@ void MyThread::record_pressed()
 {
     qDebug()<<"开始录音:";
 
+
     my_time->start(120);//每隔xms检测一次，波形图缓慢刷新
     InitMonitor();
     file =new QFile();
@@ -181,6 +182,10 @@ void MyThread::InitMonitor()
         qDebug()<<"输入！！！";
     }
     //CreateAudioInput();
+    //************************************************2020.9.24
+    inputDevSound=nullptr;
+    audioInputSound=nullptr;
+    audioOutputSound=nullptr;
     if (inputDevSound != 0) {
         disconnect(inputDevSound, 0, this, 0);
         inputDevSound = 0;

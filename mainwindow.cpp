@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     setButton->setStyleSheet("QToolButton{border-radius:4px;}"
                              "QToolButton:hover{background-color:#E5E5E5;opacity:0.1;}"
                              "QToolButton:pressed{background-color:#D9D9D9;opacity:0.15;}");
+    setButton->hide();//********************2020.9.24当前设置不可点击。
     //最大最小化按钮
     max_minButton->setIcon(QIcon(":/png/png/max.png"));
     max_minButton->setFixedSize(30,30);
@@ -221,12 +222,15 @@ void MainWindow::stop_clicked()//停止按钮
         showTimelb->setText("00:00:00");
         //showTimelb->setStyleSheet("font: bold; font-size:20px;");
         stop=false;
-        stopButton->setEnabled(false);//停止后不可点击。
+//        stopButton->setEnabled(false);//停止后不可点击。
     }
     else
     {
-
+        maxNum.clear();
+        for(int i=0;i<rectangleCount;i++)maxNum.append(5);
         emit startRecord();
+        if(slider->value()==0)
+        slider->setValue(50);
         stopButton->setIcon(QIcon(":/png/png/stop_click.png"));
         play_pauseButton->setEnabled(true);//按下后，开始录音可以按暂停
         play_pauseButton->setIcon(QIcon(":/png/png/pause.png"));
@@ -257,9 +261,8 @@ void MainWindow::mainWindow_page2()
 {
 
     slider =new QSlider(this);
-    connect(slider, SIGNAL(valueChanged(int)),myThread, SLOT(OnSliderValueChanged(int)));
+    connect(slider, SIGNAL(valueChanged(int)),myThread, SLOT(OnSliderValueChanged(int))); 
     connect(myThread,&MyThread::changeVoicePicture,this,&MainWindow::changeVoicePicture);
-
     stopButton= new QToolButton(this);
     play_pauseButton= new QToolButton(this);
 

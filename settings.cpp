@@ -138,6 +138,9 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
              radioButton_2->setChecked(1);
 
          }
+
+
+
 }
 void Settings::gotosave(){
 
