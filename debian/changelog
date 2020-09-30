@@ -1,0 +1,15 @@
+kylin-recording (1.0.2) unstable; urgency=medium
+
+  * 解决禅道bug20622 : 添加快捷方式到桌面，图标比其它应用的快捷方式图标要小
+  * 解决禅道bug20565 : 开始录音，CPU占用率达到100%及以上
+  * 解决禅道bug20538 : 最小化到任务栏，缩略图窗口名未汉化
+  * 解决禅道bug20536 : 任务栏图标为中尺寸和大尺寸时，麒麟录音最小化到任务栏图标过小
+  * 解决禅道bug20533 : 保存文件的确定按钮未汉化
+
+ -- baijincheng <baijincheng@kylinos.cn>  Wed, 30 Sep 2020 15:06:06 +0800
+
+kylin-recording (1.0.1) unstable; urgency=medium
+
+  * 初始化麒麟录音项目
+
+ -- baijincheng <baijincheng@kylinos.cn>  Wed, 16 Sep 2020 15:06:06 +0800
