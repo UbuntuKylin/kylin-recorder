@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     int WIDTH=360;
     int HEIGHT=300;
-
+    this->setWindowIcon(QIcon(":/png/png/recording_64.png"));
     setButton=new QToolButton(this);
     max_minButton=new QToolButton(this);
     closeButton= new QToolButton(this);
@@ -45,14 +45,13 @@ MainWindow::MainWindow(QWidget *parent)
     });
     this->resize(WIDTH,HEIGHT);
     setWindowFlags((Qt::FramelessWindowHint));//设置窗体无边框
+    setWindowTitle("麒麟录音");
     QLabel *lb=new QLabel(this);
     QLabel *piclb=new QLabel(this);//窗体左上角图片Label
 
     piclb->setStyleSheet("QLabel{border-image: url(:/png/png/recording_32.png);}");
     piclb->setFixedSize(25,25);
-//    lb->setGeometry(25,0,28,20);
     lb->setText("麒麟录音");//？字体待修改
-//    lb->setStyleSheet("font: bold; font-size:20px;");
 
 
 
@@ -101,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent)
     //屏幕中间
     this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
     //this->setWindowIcon(QIcon(":/png/png/recording_32.png"));//设置窗口可执行图标
-    this->setWindowIcon(QIcon::fromTheme("recording_32", QIcon(":/png/png/recording_32.png")));
+
 
     mainWid = new QWidget(this);
     titleWid = new QWidget(this);
@@ -166,7 +165,7 @@ void MainWindow::play_pause_clicked()
        int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
        qDebug()<<t;
        this->baseTime = this->baseTime.addSecs(t);
-       this->pTimer->start();
+       this->pTimer->start(10);
        strat_pause=false;
        //点击完之后要修改悬停样式。
        play_pauseButton->setStyleSheet("QToolButton:hover{border-image: url(:/png/png/pause_hover.png);}" );
@@ -236,7 +235,7 @@ void MainWindow::stop_clicked()//停止按钮
         play_pauseButton->setIcon(QIcon(":/png/png/pause.png"));
         baseTime = this->baseTime.currentTime();
         //qDebug()<<baseTime.currentTime().toString();//输出当前时间
-        pTimer->start();
+        pTimer->start(10);
         stop=true;
     }
 
