@@ -11,8 +11,8 @@ Build-Depends: debhelper,
                qtmultimedia5-dev,
 Standards-Version: 4.4.1
 Homepage: <insert the upstream URL, if relevant>
-#Vcs-Browser: https://salsa.debian.org/debian/kylin-usb-creator
-#Vcs-Git: https://salsa.debian.org/debian/kylin-usb-creator.git
+#Vcs-Browser: https://salsa.debian.org/debian/kylin-recording
+#Vcs-Git: https://salsa.debian.org/debian/kylin-recording.git
 
 Package: kylin-recording
 Architecture: any

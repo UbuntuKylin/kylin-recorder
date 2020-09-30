@@ -1,4 +1,4 @@
-kylin-recording (1.0.2) unstable; urgency=medium
+kylin-recording (1.0.5) v101; urgency=medium
 
   * 解决禅道bug20622 : 添加快捷方式到桌面，图标比其它应用的快捷方式图标要小
   * 解决禅道bug20565 : 开始录音，CPU占用率达到100%及以上
