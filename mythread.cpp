@@ -139,7 +139,12 @@ qDebug()<<"成功停止！";
         fileName=Date;
 //        qDebug()<<fileName;
         if( addWavHeader( "record.raw", (desktop_path+tr("/")+fileName+tr("-")+str+tr(".wav")).toLocal8Bit().data() ) > 0 )
-            QMessageBox::information(NULL, tr("保存"), tr("保存成功 :") + fileName+tr("-")+str);
+        {
+            //WrrMsg = new QMessageBox(QMessageBox::NoIcon,tr("保存"), tr("保存成功 :") + fileName+tr("-")+str, QMessageBox::Ok, 0);
+            WrrMsg = new QMessageBox(QMessageBox::Question, tr("保存"), tr("保存成功：")+ fileName+tr("-")+str, QMessageBox::Yes );
+            WrrMsg->button(QMessageBox::Yes)->setText("确 定");
+            WrrMsg->exec();
+        }
 
         QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
         code->fromUnicode(fileName).data();

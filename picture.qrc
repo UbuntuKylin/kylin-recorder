@@ -20,5 +20,6 @@
         <file>png/start_click.png</file>
         <file>png/start_hover.png</file>
         <file>png/Silence.png</file>
+        <file>png/recording_64.png</file>
     </qresource>
 </RCC>
