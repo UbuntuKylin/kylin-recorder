@@ -21,5 +21,14 @@
         <file>png/start_hover.png</file>
         <file>png/Silence.png</file>
         <file>png/recording_64.png</file>
+        <file>png/bianji.png</file>
+        <file>png/bofang_select.png</file>
+        <file>png/bofang.png</file>
+        <file>png/delete_select.png</file>
+        <file>png/jianji_select .png</file>
+        <file>png/left_prev.png</file>
+        <file>png/right_prev.png</file>
+        <file>png/zanting_slect.png</file>
+        <file>png/zanting.png</file>
     </qresource>
 </RCC>

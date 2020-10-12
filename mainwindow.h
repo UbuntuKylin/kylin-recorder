@@ -22,6 +22,7 @@
 #include <QDesktopWidget>
 #include <QtMultimedia>//使用多媒体时要引用这个并且在pro中加QT += multimedia multimediawidgets
 #include <QAudioRecorder>
+
 #include <QFile>
 #include <QStackedLayout>//此类提供了多页面切换的布局，一次只能看到一个界面
 
@@ -38,12 +39,14 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    QMessageBox *WrrMsg;
     Settings set;
       Save saveas;
       //QString fileName;
       QString daultfileName;
       QString desktop_path;
       int ad = 1;
+      int tag=0;//是否检测到输入设备
 private:
     QThread *thread;//主线程
     MyThread *myThread;//子线程
@@ -108,7 +111,6 @@ private://音频相关
     QSlider *slider;
 
     QVector<myWave*> mywave;
-    QTimer *updateTimer31;
 
 
 

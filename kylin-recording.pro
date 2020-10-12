@@ -21,7 +21,7 @@ desktop.path = /usr/share/applications/
 appdesktop.files += kylin-recording.desktop
 appdesktop.path = /usr/share/applications/
 
-icons.files = png/recording_64.png
+icons.files = png/recording_128.png
 icons.path = /usr/share/pixmaps/
 
 INSTALLS += target desktop appdesktop icons

@@ -19,13 +19,11 @@ struct WAVFILEHEADER
     uint32_t DataLength;//实际音频数据的大小
 
 };
-
 MyThread::MyThread(QWidget *parent) : QMainWindow(parent)
 {
     pTimer = new QTimer;
     audioInputSound = nullptr;
     audioOutputSound = nullptr;
-
     inputDevSound = nullptr;
 
     my_time=new QTimer;//延时检测
@@ -101,8 +99,8 @@ void MyThread::record_pressed()
     format.setSampleType(QAudioFormat::SignedInt);//平声道（8bit），QAudioFormat::UnSignedInt已足够。
 
     QAudioDeviceInfo info = QAudioDeviceInfo::defaultInputDevice();//获取设备信息
-    QString str=info.deviceName();//获取设备名
-    qDebug()<<"使用的录音设备是:"<<str;
+    //QString str=info.deviceName();//获取设备名
+    //qDebug()<<"使用的录音设备是:"<<str;
     if(!info.isFormatSupported(format))
     {
         format = info.nearestFormat(format);
