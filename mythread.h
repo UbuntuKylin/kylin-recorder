@@ -38,6 +38,7 @@ public:
     explicit MyThread(QWidget *parent = nullptr);
 
     QMessageBox *WrrMsg;
+
     Settings set;
     Save saveas;
     QString fileName;
