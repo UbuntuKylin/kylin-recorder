@@ -26,7 +26,6 @@
 #include <QIODevice>
 #include "settings.h"
 #include "save.h"
-#include "wavfileheader.h"
 //==================
 
 #define BufferSize     35280
