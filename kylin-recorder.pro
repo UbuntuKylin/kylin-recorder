@@ -9,16 +9,16 @@ RC_FILE += mypng.rc
 OTHER_FILES += mypng.rc
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 QT += multimedia multimediawidgets
-TARGET = kylin-recording
+TARGET = kylin-recorder
 TEMPLATE = app
 
 target.path = /usr/bin
 target.source +=$$TARGET
 
-desktop.files = kylin-recording.desktop
+desktop.files = kylin-recorder.desktop
 desktop.path = /usr/share/applications/
 
-appdesktop.files += kylin-recording.desktop
+appdesktop.files += kylin-recorder.desktop
 appdesktop.path = /usr/share/applications/
 
 icons.files = png/recording_128.png

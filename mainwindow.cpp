@@ -147,6 +147,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->setCentralWidget(mainWid);
     this->setAttribute(Qt::WA_TranslucentBackground);//主窗体透明
+    this->setStyleSheet("border-radius:12px;");
     mainWid->setStyleSheet("border-radius:12px;background-color:#FFFFFF;");//自定义窗体(圆角+背景色)
 
     maxNum.clear();
