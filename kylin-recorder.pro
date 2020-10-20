@@ -42,6 +42,7 @@ SOURCES += \
         lineedit.cpp \
         main.cpp \
         mainwindow.cpp \
+        miniwindow.cpp \
         mythread.cpp \
         mywave.cpp \
         save.cpp \
@@ -50,6 +51,7 @@ SOURCES += \
 HEADERS += \
         lineedit.h \
         mainwindow.h \
+        miniwindow.h \
         mythread.h \
         mywave.h \
         save.h \

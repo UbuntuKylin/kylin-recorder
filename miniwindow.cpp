@@ -1,0 +1,199 @@
+#include "miniwindow.h"
+#include "mainwindow.h"
+
+MiniWindow::MiniWindow(QWidget *parent) : QMainWindow(parent)
+{
+    initMiniWindow();
+}
+void MiniWindow::mousePressEvent(QMouseEvent *event){
+    if(event->button() == Qt::LeftButton){
+        this->isPress = true;
+        this->winPos = this->pos();
+        this->dragPos = event->globalPos();
+        event->accept();
+    }
+}
+
+void MiniWindow::mouseReleaseEvent(QMouseEvent *event){
+    this->isPress = false;
+    this->setCursor(Qt::ArrowCursor);
+
+}
+
+void MiniWindow::mouseMoveEvent(QMouseEvent *event){
+    if(this->isPress){
+        this->move(this->winPos - (this->dragPos - event->globalPos()));
+        this->setCursor(Qt::ClosedHandCursor);
+        event->accept();
+    }
+}
+void MiniWindow::initMiniWindow()
+{
+    setFixedSize(WIDTH,HEIGHT);
+    setWindowFlags(Qt::FramelessWindowHint);
+    setWindowTitle("麒麟录音");
+    //this->setStyleSheet("border-radius:6px;");//mini窗体圆角6px
+    pTimer = new QTimer;//第二个页面的控件初始化
+    recordBtn=new QToolButton(this);//录制按钮
+    stopBtn=new QToolButton(this);//停止按钮
+    start_pauseBtn=new QToolButton(this);//开始和暂停按钮
+    timelb=new QLabel(this);//显示录制时间的标签
+    timelb->setText("00:00:00");
+    timelb->setStyleSheet("font-size:18px;");//修改字体显示
+    timelb->setFixedSize(83,15);
+    max_minBtn=new QToolButton(this);//最大最小按钮
+    closeBtn=new QToolButton(this);//关闭按钮
+
+    connect(pTimer,&QTimer::timeout,this,&MiniWindow::timeDisplay);
+    connect(recordBtn,&QToolButton::clicked,this,&MiniWindow::switchPage);
+    connect(max_minBtn,&QToolButton::clicked,this,&MiniWindow::maxShow);
+    connect(closeBtn,&QToolButton::clicked,this,&MiniWindow::closeWindow);
+    connect(start_pauseBtn,&QToolButton::clicked,this,&MiniWindow::start_pauseSlot);
+    connect(stopBtn,&QToolButton::clicked,this,&MiniWindow::finishSlot);
+
+
+    //recordBtn->setFixedSize(24,24);
+    recordBtn->setStyleSheet("QToolButton{image: url(:/png/png/recording_24.png);}");
+    stopBtn->setStyleSheet("QToolButton{image: url(:/png/png/finish_mini.png);}"
+                           "QToolButton:hover{image:url(:/png/png/finish_mini_hover.png);}"
+                           "QToolButton:pressed{image:url(:/png/png/finish_mini_click.png);}");
+    //初始按钮为暂停按钮。因为只要点击录音按钮就要开始录制了
+    start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini.png);}"
+                             "QToolButton:hover{image:url(:/png/png/pause_mini_hover.png);}"
+                             "QToolButton:pressed{image:url(:/png/png/pause_mini_click.png);}");
+    max_minBtn->setFixedSize(24,24);
+    max_minBtn->setStyleSheet("QToolButton{border-radius:4px;}"
+                              "QToolButton{image:url(:/png/png/max.png);}"
+                              "QToolButton:hover{background-color:#E5E5E5;opacity:0.1;}"
+                              "QToolButton:pressed{background-color:#D9D9D9;opacity:0.15;}");
+    closeBtn->setFixedSize(24,24);
+    closeBtn->setStyleSheet("QToolButton{border-radius:4px;}"
+                            "QToolButton{image:url(:/png/png/close.png);}"
+                            "QToolButton:hover{background-color:#F04234}"
+                            "QToolButton:pressed{background-color:#D83436}");
+
+
+    miniWid=new QWidget(this);//mini主窗体的Wid
+    recordWid=new QWidget(this);//录制按钮的Wid
+    pageTwoWid=new QWidget(this);//包括停止、开始/暂停两个按钮的Wid
+    max_minAndCloseWid=new QWidget(this);//最大最小和关闭的Wid
+    line = new QFrame(this);//分割线
+    line->setFrameShape(QFrame::VLine);
+    line->setStyleSheet("border-radius: 6px; background-color:#EFE4E1;");
+
+    miniLayout=new QHBoxLayout(this);
+    pageTwoLayout=new QHBoxLayout(this);
+    max_minAndCloseLayout=new QHBoxLayout(this);
+
+    pageTwoLayout->addWidget(stopBtn);
+    pageTwoLayout->addWidget(start_pauseBtn);
+    pageTwoWid->setLayout(pageTwoLayout);
+
+    recordStackedLayout=new QStackedLayout(this);//堆叠布局
+    recordStackedLayout->addWidget(recordBtn);
+    recordStackedLayout->addWidget(pageTwoWid);
+    recordWid->setLayout(recordStackedLayout);
+
+    max_minAndCloseLayout->addWidget(line);
+    max_minAndCloseLayout->addWidget(max_minBtn);
+    max_minAndCloseLayout->addWidget(closeBtn);
+    max_minAndCloseLayout->setSpacing(0);
+    max_minAndCloseLayout->setMargin(0);
+    max_minAndCloseWid->setLayout(max_minAndCloseLayout);
+
+    miniLayout->addWidget(recordWid,0,Qt::AlignCenter);
+    miniLayout->addWidget(timelb);
+    miniLayout->addWidget(max_minAndCloseWid);
+    miniLayout->setSpacing(0);
+    miniLayout->setMargin(0);
+    miniWid->setLayout(miniLayout);
+    setCentralWidget(miniWid);
+
+    miniWid->setStyleSheet("border-radius:6px;background-color:#FBEFED;");//自定义窗体(圆角+背景色)
+
+    setAttribute(Qt::WA_TranslucentBackground);//主窗体透明
+    move((QApplication::desktop()->width() - WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
+
+}
+
+void MiniWindow::maxShow()
+{
+    MainWindow::mutual->show();
+    this->hide();
+}
+void MiniWindow::closeWindow()//关闭mini和主窗体
+{
+     this->close();
+     MainWindow::mutual->thread->quit();
+     MainWindow::mutual->thread->wait();
+     MainWindow::mutual->close();
+
+}
+void MiniWindow::start_pauseSlot()
+{
+    static QTime pauseTime;
+    if(start_pause)
+    {
+        QTime cut = QTime::currentTime();//记录开始时的时间
+        qDebug()<<cut;
+        int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
+        qDebug()<<t;
+        baseTime = baseTime.addSecs(t);
+        pTimer->start(1);
+        start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini.png);}"
+                       "QToolButton:hover{image:url(:/png/png/pause_mini_hover.png);}"
+                       "QToolButton:pressed{image:url(:/png/png/pause_mini_click.png);}");
+        MainWindow::mutual->strat_pause=true;//区分迷你模式中的start_pause
+        MainWindow::mutual->play_pause_clicked();//开始录制
+        start_pause=false;
+    }
+    else
+    {
+        pTimer->stop();
+        pauseTime = QTime::currentTime();//记录一下当前暂停时的时间
+        start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/start_mini.png);}"
+                       "QToolButton:hover{image:url(:/png/png/start_mini_hover.png);}"
+                       "QToolButton:pressed{image:url(:/png/png/start_mini_click.png);}");
+        MainWindow::mutual->strat_pause=false;//区分迷你模式中的start_pause
+        MainWindow::mutual->play_pause_clicked();//暂停录制
+        start_pause=true;
+    }
+
+}
+void MiniWindow::finishSlot()//结束录音，并保存文件
+{
+    qDebug()<<"录音结束！";
+    pTimer->stop();//计时停止
+    MainWindow::mutual->stop_clicked();//主线程停止录音
+    //mythr.stop_btnPressed();
+    if(start_pause)
+    {
+        //记得恢复初始状态
+        start_pause = false;
+    }
+    timelb->setText("00:00:00");
+    recordStackedLayout->setCurrentIndex(0);//mini模式切换至录音按钮
+    MainWindow::mutual->m_pStackedLayout->setCurrentIndex(0);//主界面切换至录音按钮
+}
+void MiniWindow::timeDisplay()
+{
+    QTime currTime = QTime::currentTime();
+    int t = this->baseTime.secsTo(currTime);
+    QTime showTime(0,0,0);
+    showTime = showTime.addSecs(t);
+    this->timeStr = showTime.toString("hh:mm:ss");
+    //qDebug()<<"*********"<<timeStr;
+    this->timelb->setText(timeStr);
+}
+void MiniWindow::switchPage()//换页
+{
+    baseTime = baseTime.currentTime();
+    pTimer->start(1);
+    mythr.soundVolume = 50;//初始录音要有音量大小，否则默认音量为0，检测的声音就是0了
+    start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini.png);}"
+                   "QToolButton:hover{image:url(:/png/png/pause_mini_hover.png);}"
+                   "QToolButton:pressed{image:url(:/png/png/pause_mini_click.png);}");
+    MainWindow::mutual->switchPage();//主线程开始录音
+    MainWindow::mutual->m_pStackedLayout->setCurrentIndex(1);//mini模式切换至两个按钮页面
+    recordStackedLayout->setCurrentIndex(1);//主界面切换至两个按钮页面
+}

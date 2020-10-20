@@ -12,10 +12,12 @@
 #define BufferSize         35280
 //const qint64 TIME_TRANSFORM = 1000 * 1000;              // 微妙转秒;
 #define rectangleCount 40//矩形条个数
+MainWindow *MainWindow::mutual=nullptr;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
 
+    mutual=this;
     int WIDTH=360;
     int HEIGHT=300;
     this->resize(WIDTH,HEIGHT);
@@ -115,7 +117,7 @@ MainWindow::MainWindow(QWidget *parent)
     recordButton->setIcon(QIcon(":/png/png/recording_128.png"));
     recordButton->setStyleSheet("border: 0px");//消除边框，取消点击效果
 
-    connect(max_minButton, &QToolButton::clicked,this,&MainWindow::max_minShow);
+    connect(max_minButton, &QToolButton::clicked,this,&MainWindow::miniShow);
     connect(closeButton,&QToolButton::clicked,this,&MainWindow::close);
     connect(recordButton, &QPushButton::clicked, this, &MainWindow::switchPage);
     connect(setButton, &QToolButton::clicked, this, &MainWindow::goset);
@@ -157,21 +159,34 @@ MainWindow::~MainWindow()
 {
 
 }
-void MainWindow::max_minShow()
-{
-    if(max_min)
-    {
-        this->showNormal();
-        max_minButton->setIcon(QIcon(":/png/png/max.png"));
-        max_min = false;
-    }
-    else
-    {
-        this->showMaximized();
-        max_minButton->setIcon(QIcon(":/png/png/mini.png"));
-        max_min = true;
+void MainWindow::mousePressEvent(QMouseEvent *event){
+    if(event->button() == Qt::LeftButton){
+        this->isPress = true;
+        this->winPos = this->pos();
+        this->dragPos = event->globalPos();
+        event->accept();
     }
 }
+
+void MainWindow::mouseReleaseEvent(QMouseEvent *event){
+    this->isPress = false;
+    this->setCursor(Qt::ArrowCursor);
+
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event){
+    if(this->isPress){
+        this->move(this->winPos - (this->dragPos - event->globalPos()));
+        this->setCursor(Qt::ClosedHandCursor);
+        event->accept();
+    }
+}
+void MainWindow::miniShow()
+{
+    this->hide();
+    mini.show();
+}
+
 //开始和暂停
 void MainWindow::play_pause_clicked()
 {
@@ -180,12 +195,16 @@ void MainWindow::play_pause_clicked()
     {
        emit playRecord();
        QTime cut = QTime::currentTime();//记录开始时的时间
-       qDebug()<<cut;
        int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
-       qDebug()<<t;
        baseTime = baseTime.addSecs(t);
        pTimer->start(1);
+       mini.baseTime=mini.baseTime.addSecs(t);
+       mini.pTimer->start(1);
+       mini.start_pause=false;
        strat_pause=false;
+       mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini.png);}"
+                                          "QToolButton:hover{image:url(:/png/png/pause_mini_hover.png);}"
+                                          "QToolButton:pressed{image:url(:/png/png/pause_mini_click.png);}");
        //点击完之后要修改悬停样式。
        play_pauseButton->setStyleSheet("QToolButton{image: url(:/png/png/pause.png);}"
                    "QToolButton:hover{image: url(:/png/png/pause_hover.png);}"
@@ -196,9 +215,14 @@ void MainWindow::play_pause_clicked()
         qDebug()<<"pause";
         emit pauseRecord();
         pTimer->stop();
+        mini.pTimer->stop();
         pauseTime = QTime::currentTime();//记录一下当前暂停时的时间
+        mini.start_pause = true;
         strat_pause = true;
         //点击完之后要修改悬停样式。
+        mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/start_mini.png);}"
+                                          "QToolButton:hover{image:url(:/png/png/start_mini_hover.png);}"
+                                          "QToolButton:pressed{image:url(:/png/png/start_mini_click.png);}");
         play_pauseButton->setStyleSheet("QToolButton{image: url(:/png/png/start.png);}"
                     "QToolButton:hover{image: url(:/png/png/start_hover.png);}"
                     "QToolButton:pressed{image: url(:/png/png/start_click.png);}");
@@ -221,6 +245,7 @@ void MainWindow::stop_clicked()//停止按钮
     if(stop)
     {
         pTimer->stop();//计时停止
+        mini.pTimer->stop();
         emit stopRecord();
         if(strat_pause)
         {
@@ -232,9 +257,11 @@ void MainWindow::stop_clicked()//停止按钮
                     "QToolButton:hover{image: url(:/png/png/start_hover.png);}"
                     "QToolButton:pressed{image: url(:/png/png/start_click.png);}");
         showTimelb->setText("00:00:00");
+        mini.timelb->setText("00:00:00");
         //showTimelb->setStyleSheet("font: bold; font-size:20px;");
         stop=false;
         m_pStackedLayout->setCurrentIndex(0);
+        mini.recordStackedLayout->setCurrentIndex(0);
     }
 
 }
@@ -273,6 +300,8 @@ void MainWindow::mainWindow_page2()
                 "QToolButton:pressed{image: url(:/png/png/pause_click.png);}"                    );
     baseTime = baseTime.currentTime();
     pTimer->start(1);
+    mini.baseTime=mini.baseTime.currentTime();
+    mini.pTimer->start(1);
     stop=true;
 
     stopButton->setIconSize(QSize(56,56));//重置图标大小
@@ -348,6 +377,7 @@ void MainWindow::switchPage()
     // 当需要显示的页面索引大于等于总页面时，切换至首页
     if (nIndex >= nCount)
         nIndex = 0;
+    mini.recordStackedLayout->setCurrentIndex(nIndex);
     m_pStackedLayout->setCurrentIndex(nIndex);
 }
 void MainWindow::changeVoicePicture()
