@@ -30,5 +30,21 @@
         <file>png/right_prev.png</file>
         <file>png/zanting_slect.png</file>
         <file>png/zanting.png</file>
+        <file>png/finish_mini_click.png</file>
+        <file>png/finish_mini_hover.png</file>
+        <file>png/finish_mini.png</file>
+        <file>png/pause_mini_click.png</file>
+        <file>png/pause_mini_clickWhite2.png</file>
+        <file>png/pause_mini_hover.png</file>
+        <file>png/pause_mini_hoverWhiteæ¬.png</file>
+        <file>png/pause_mini_white.png</file>
+        <file>png/pause_mini.png</file>
+        <file>png/start_mini_click.png</file>
+        <file>png/start_mini_hover.png</file>
+        <file>png/start_mini_hoverWhite.png</file>
+        <file>png/start_mini_hoverWhite2.png</file>
+        <file>png/start_mini_white.png</file>
+        <file>png/start_mini.png</file>
+        <file>png/recording_24.png</file>
     </qresource>
 </RCC>

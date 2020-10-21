@@ -32,6 +32,7 @@
 #include "mythread.h"
 #include "settings.h"
 #include "save.h"
+#include "miniwindow.h"
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -47,13 +48,18 @@ public:
       QString desktop_path;
       int ad = 1;
       int tag=0;//是否检测到输入设备
+      QThread *thread;//主线程
+      MyThread *myThread;//子线程
+      MiniWindow mini;
+      static MainWindow *mutual;//指针类型静态成员变量
+      bool strat_pause=false;//开始和暂停1
+      QStackedLayout *m_pStackedLayout;//堆叠布局
 private:
-    QThread *thread;//主线程
-    MyThread *myThread;//子线程
+
 
     QList<int> maxNum;//存储振幅的大小的整型列表
     bool stop=false;//停止
-    bool strat_pause=false;//开始和暂停1
+
     bool max_min=false;//最大最小化
 
     QAudioRecorder *audioRecorder;
@@ -74,7 +80,7 @@ private:
     QHBoxLayout *btnLayout;
     QVBoxLayout *mainLayout;
 
-    QStackedLayout *m_pStackedLayout;//堆叠布局
+
     QHBoxLayout *layout1;
     QHBoxLayout *layout2;
     QHBoxLayout *layout3;
@@ -96,6 +102,12 @@ private:
     QTimer *my_time;
     //显示的时间
     QString timeStr;
+    bool isPress;
+    QPoint winPos;
+    QPoint dragPos;
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
 
 signals://主线程的信号
     void startThread();
@@ -116,7 +128,6 @@ private://音频相关
 
 public slots:
     void recordPaint(int);
-    void max_minShow();
     void mainWindow_page2();
     void switchPage();
     void play_pause_clicked();
@@ -127,6 +138,7 @@ public slots:
     void setuserdirectory();
     void goset();//弹出设置窗体
 
+    void miniShow();
 };
 
 #endif // MAINWINDOW_H

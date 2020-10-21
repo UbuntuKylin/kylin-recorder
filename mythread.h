@@ -37,7 +37,7 @@ public:
     explicit MyThread(QWidget *parent = nullptr);
 
     QMessageBox *WrrMsg;
-
+    int soundVolume=0;//音量大小
     Settings set;
     Save saveas;
     QString fileName;
@@ -67,7 +67,7 @@ private:
     QTimer *my_time;
     bool canMonitor=true;//
     int value;
-    int soundVolume=0;//音量大小
+
     int MaxValue;
     QIODevice *inputDevSound;
     QIODevice *outputDevSound;
