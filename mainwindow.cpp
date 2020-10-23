@@ -17,14 +17,17 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
 
+    checkSingle();//检查单例模式
     mutual=this;
     int WIDTH=360;
     int HEIGHT=300;
     this->resize(WIDTH,HEIGHT);
-    this->setWindowIcon(QIcon(":/png/png/recording_64.png"));
+    this->setWindowIcon(QIcon(":/svg/svg/recording_128.svg"));
     //屏幕中间
     this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
 
+    lb=new QLabel(this);
+    piclb=new QLabel(this);//窗体左上角图片Label
     setButton=new QToolButton(this);
     max_minButton=new QToolButton(this);
     closeButton= new QToolButton(this);
@@ -77,8 +80,7 @@ MainWindow::MainWindow(QWidget *parent)
     });
     setWindowFlags((Qt::FramelessWindowHint));//设置窗体无边框
     setWindowTitle("麒麟录音");
-    QLabel *lb=new QLabel(this);
-    QLabel *piclb=new QLabel(this);//窗体左上角图片Label
+
 
     piclb->setStyleSheet("QLabel{border-image: url(:/png/png/recording_32.png);}");
     piclb->setFixedSize(25,25);
@@ -86,9 +88,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 //    recordButton->setFlat(true);//就是这句能够实现按钮透明，用png图片时很有用
 //    recordButton->setStyleSheet("border: 0px");//消除边框，取消点击效果
-    QIcon myicon; //新建QIcon对象
-    myicon.addFile(tr(":/png/png/recording_128.png")); //让QIcon对象指向想要的图标
-    recordButton->setIcon(myicon); //给按钮添加图标
+//    QIcon myicon; //新建QIcon对象
+//    myicon.addFile(tr(":/png/png/recording_128.png")); //让QIcon对象指向想要的图标
+//    recordButton->setIcon(myicon); //给按钮添加图标
     recordButton->setIconSize(QSize(130,130));//重置图标大小
     recordButton->setStyleSheet("QToolButton{image: url(:/png/png/recording_128.png}");
     recordButton->setStyleSheet("background-color:transparent");
@@ -102,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent)
                              "QToolButton:pressed{background-color:#D9D9D9;opacity:0.15;}");
     setButton->hide();//********************2020.9.24当前设置不可点击。
     //最大最小化按钮
-    max_minButton->setIcon(QIcon(":/png/png/max.png"));
+    max_minButton->setIcon(QIcon(":/png/png/mini.png"));
     max_minButton->setFixedSize(30,30);
     max_minButton->setStyleSheet("QToolButton{border-radius:4px;}"
                                  "QToolButton:hover{background-color:#E5E5E5;opacity:0.1;}"
@@ -154,6 +156,21 @@ MainWindow::MainWindow(QWidget *parent)
 
     maxNum.clear();
     for(int i=0;i<rectangleCount;i++)maxNum.append(5);
+}
+void MainWindow::checkSingle()//检查单例模式
+{
+    QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
+    //qDebug()<<homePath;
+    QString lockPath = homePath.at(0) + "/.config/kylin-recorder-lock";
+    qDebug()<<lockPath;
+    int fd = open(lockPath.toUtf8().data(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+
+    if (fd < 0) { exit(1); }
+
+    if (lockf(fd, F_TLOCK, 0)) {
+        qDebug()<<"Can't lock single file, kylin-recorder is already running!";
+        exit(0);
+    }
 }
 MainWindow::~MainWindow()
 {
