@@ -1,10 +1,19 @@
+kylin-recorder (1.0.9) v101; urgency=medium
+
+  * 解决禅道bug#22385 : 正常模式和mini模式窗口改变按钮图标相同
+  * 解决禅道bug#22368 : 打开非单例
+  * 更新图标主题适配
+  
+
+ -- baijincheng <baijincheng@kylinos.cn>  Fri, 23 Oct 2020 09:30:00 +0800
+
 kylin-recorder (1.0.8) v101; urgency=medium
 
   * 解决禅道bug20967 ： 界面边界处无法拖拽
   * 解决禅道bug21055 ： 通过拖拽麒麟录音到桌面顶部实现最大化时，mini图标没有变化且界面四角为圆角
   * 解决禅道bug21263 ： 4K屏录音工具图标未适配
 
- -- baijincheng <baijincheng@kylinos.cn>  Wed, 19 Oct 2020 19:30:00 +0800
+ -- baijincheng <baijincheng@kylinos.cn>  Mon, 19 Oct 2020 19:30:00 +0800
 
 
 kylin-recorder (1.0.7) v101; urgency=medium

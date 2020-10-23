@@ -47,4 +47,8 @@
         <file>png/start_mini.png</file>
         <file>png/recording_24.png</file>
     </qresource>
+    <qresource prefix="/svg">
+        <file>svg/recording_24.svg</file>
+        <file>svg/recording_128.svg</file>
+    </qresource>
 </RCC>

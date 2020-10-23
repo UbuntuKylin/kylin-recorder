@@ -33,6 +33,9 @@
 #include "settings.h"
 #include "save.h"
 #include "miniwindow.h"
+
+#include <unistd.h>
+#include <fcntl.h>
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -64,6 +67,8 @@ private:
 
     QAudioRecorder *audioRecorder;
     QProgressBar *process;
+    QLabel *lb;
+    QLabel *piclb;//窗体左上角图片Label
     QToolButton *setButton;
     QToolButton *max_minButton;//最大最小化切换按钮
 
@@ -109,6 +114,7 @@ private:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
 
+    void checkSingle();//检查单例模式
 signals://主线程的信号
     void startThread();
     void closeSignal();
