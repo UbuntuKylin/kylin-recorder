@@ -28,11 +28,13 @@
         <file>png/jianji_select .png</file>
         <file>png/left_prev.png</file>
         <file>png/right_prev.png</file>
-        <file>png/zanting_slect.png</file>
         <file>png/zanting.png</file>
+        <file>png/delete.png</file>
+        <file>png/recording_24.png</file>
+        <file>png/finish_mini.png</file>
+        <file>png/zanting_select.png</file>
         <file>png/finish_mini_click.png</file>
         <file>png/finish_mini_hover.png</file>
-        <file>png/finish_mini.png</file>
         <file>png/pause_mini_click.png</file>
         <file>png/pause_mini_clickWhite2.png</file>
         <file>png/pause_mini_hover.png</file>
@@ -45,10 +47,19 @@
         <file>png/start_mini_hoverWhite2.png</file>
         <file>png/start_mini_white.png</file>
         <file>png/start_mini.png</file>
-        <file>png/recording_24.png</file>
     </qresource>
     <qresource prefix="/svg">
+        <file>svg/bianji.svg</file>
+        <file>svg/bofang_select.svg</file>
+        <file>svg/bofang.svg</file>
+        <file>svg/delete_select.svg</file>
+        <file>svg/delete.svg</file>
+        <file>svg/left_prev.svg</file>
+        <file>svg/right_prev.svg</file>
+        <file>svg/zanting.svg</file>
         <file>svg/recording_24.svg</file>
         <file>svg/recording_128.svg</file>
+        <file>svg/jianji_select.svg</file>
+        <file>svg/zanting_select.svg</file>
     </qresource>
 </RCC>

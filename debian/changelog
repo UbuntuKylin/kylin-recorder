@@ -1,20 +1,38 @@
+kylin-recorder (1.2.0) v101; urgency=medium
+
+  * 麒麟录音新版本迭代
+  * 修复bug#23480 ：最大化之后拖拽回正常大小时，概率性不正常
+  * 修复bug#23473 ：界面无边框
+  * 修复bug#23420 ：开始菜单麒麟录音图标显示异常，与任务栏麒麟录音图标不一致
+  * 修复bug#23022 ：正常窗口和mini窗口切换图标颠倒
+  * 修复bug#23020 ：打开时任务栏没有图标显示
+  * 修复bug#22437 ：mini模式时任务栏图标显示不正确
+  * 修复bug#20859 ：建议添加选择录音保存路径的功能
+  * 修复bug#20857 ：建议添加命名录音文件的功能
+
+ -- baijincheng <baijincheng@kylinos.cn>  Wed, 4 Nov 2020 10:50:00 +0800
+
+kylin-recorder (1.0.10) v101; urgency=medium
+
+  * 单例模式兼容VNC
+
+ -- baijincheng <baijincheng@kylinos.cn>  Mon, 26 Oct 2020 19:09:00 +0800
+  
 kylin-recorder (1.0.9) v101; urgency=medium
 
   * 解决禅道bug#22385 : 正常模式和mini模式窗口改变按钮图标相同
   * 解决禅道bug#22368 : 打开非单例
   * 更新图标主题适配
   
-
  -- baijincheng <baijincheng@kylinos.cn>  Fri, 23 Oct 2020 09:30:00 +0800
 
 kylin-recorder (1.0.8) v101; urgency=medium
 
-  * 解决禅道bug20967 ： 界面边界处无法拖拽
-  * 解决禅道bug21055 ： 通过拖拽麒麟录音到桌面顶部实现最大化时，mini图标没有变化且界面四角为圆角
-  * 解决禅道bug21263 ： 4K屏录音工具图标未适配
+  * 解决禅道bug#20967 ： 界面边界处无法拖拽
+  * 解决禅道bug#21055 ： 通过拖拽麒麟录音到桌面顶部实现最大化时，mini图标没有变化且界面四角为圆角
+  * 解决禅道bug#21263 ： 4K屏录音工具图标未适配
 
  -- baijincheng <baijincheng@kylinos.cn>  Mon, 19 Oct 2020 19:30:00 +0800
-
 
 kylin-recorder (1.0.7) v101; urgency=medium
 
@@ -24,35 +42,35 @@ kylin-recorder (1.0.7) v101; urgency=medium
 
 kylin-recorder (1.0.6) v101; urgency=medium
 
-  * 解决禅道bug20854 : 录音无声音
+  * 解决禅道bug#20854 : 录音无声音
 
  -- baijincheng <baijincheng@kylinos.cn>  Wed, 7 Oct 2020 15:30:00 +0800
 
 kylin-recorder (1.0.5) v101; urgency=medium
 
-  * 解决禅道bug20984 : 首次进入录音界面时，暂停继续按钮图标显示不当
+  * 解决禅道bug#20984 : 首次进入录音界面时，暂停继续按钮图标显示不当
 
  -- baijincheng <baijincheng@kylinos.cn>  Wed, 7 Oct 2020 08:50:06 +0800
 
 kylin-recorder (1.0.4) v101; urgency=medium
 
-  * 解决禅道bug20968 : 界面按钮与设计存在差异
+  * 解决禅道bug#20968 : 界面按钮与设计存在差异
 
  -- baijincheng <baijincheng@kylinos.cn>  Wed, 30 Sep 2020 17:06:06 +0800
 
 kylin-recorder (1.0.3) v101; urgency=medium
 
-  * 解决禅道bug20679 : 开始菜单图标尺寸异常
+  * 解决禅道bug#20679 : 开始菜单图标尺寸异常
 
  -- baijincheng <baijincheng@kylinos.cn>  Wed, 30 Sep 2020 16:06:06 +0800
 
 kylin-recorder (1.0.2) v101; urgency=medium
 
-  * 解决禅道bug20622 : 添加快捷方式到桌面，图标比其它应用的快捷方式图标要小
-  * 解决禅道bug20565 : 开始录音，CPU占用率达到100%及以上
-  * 解决禅道bug20538 : 最小化到任务栏，缩略图窗口名未汉化
-  * 解决禅道bug20536 : 任务栏图标为中尺寸和大尺寸时，麒麟录音最小化到任务栏图标过小
-  * 解决禅道bug20533 : 保存文件的确定按钮未汉化
+  * 解决禅道bug#20622 : 添加快捷方式到桌面，图标比其它应用的快捷方式图标要小
+  * 解决禅道bug#20565 : 开始录音，CPU占用率达到100%及以上
+  * 解决禅道bug#20538 : 最小化到任务栏，缩略图窗口名未汉化
+  * 解决禅道bug#20536 : 任务栏图标为中尺寸和大尺寸时，麒麟录音最小化到任务栏图标过小
+  * 解决禅道bug#20533 : 保存文件的确定按钮未汉化
 
  -- baijincheng <baijincheng@kylinos.cn>  Wed, 30 Sep 2020 15:06:06 +0800
 

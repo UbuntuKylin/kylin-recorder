@@ -9,10 +9,15 @@
 
 Save::Save(QWidget *parent) : QMainWindow(parent)
 {
+    saveData=new QGSettings(KYLINRECORDER);
+    //qDebug()<<KYLINRECORDER;
     int WIDTH=360;
     int HEIGHT=300;
-    this->resize(WIDTH,HEIGHT);
+    this->setFixedSize(WIDTH,HEIGHT);
     setWindowFlags(Qt::FramelessWindowHint);
+    setWindowTitle("麒麟录音");
+    this->setWindowIcon(QIcon(":/svg/svg/recording_128.svg"));
+    //setStyleSheet(QString::fromUtf8("border-radius:12px;background-color:#FFFFFF;border-width:1px;"));
 
     QLabel *lb=new QLabel(this);
     QLabel *piclb=new QLabel(this);//窗体左上角图片Label
@@ -28,7 +33,7 @@ Save::Save(QWidget *parent) : QMainWindow(parent)
     connect(closeButton,&QToolButton::clicked,this,&Save::close);
 
     titleWid = new QWidget(this);
-    titleLayout= new QHBoxLayout(this);
+    titleLayout= new QHBoxLayout();
     titleLayout->addWidget(piclb);
     titleLayout->addWidget(lb);
     titleLayout->addWidget(closeButton);
@@ -40,8 +45,9 @@ Save::Save(QWidget *parent) : QMainWindow(parent)
     label1 = new QLabel("名称");
     label2 = new QLabel("位置");
     label3 = new QLabel("标签");
+    QString Date=QDate::currentDate().toString(Qt::ISODate);
 
-    lineEdit1 = new QLineEdit("2020.8.20");
+    lineEdit1 = new QLineEdit(Date);
     lineEdit2 = new LineEdit(this);
     desktop_path = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
     lineEdit2->setText(desktop_path);
@@ -62,17 +68,17 @@ Save::Save(QWidget *parent) : QMainWindow(parent)
 
     saveButton= new QToolButton(this);
     saveButton->setText("保存");
+    connect(saveButton,&QToolButton::clicked,this,&Save::saveToRecorder);//有点问题，需要修改
 
-    connect(saveButton,&QToolButton::clicked,this,&Save::close);//有点问题，需要修改
     mainWid = new QWidget(this);
     Wid = new QWidget();
     QGridLayout *pd=new QGridLayout();
 
-    class save
-    {
-    public:
-        save();
-    };
+//    class save
+//    {
+//    public:
+//        save();
+//    };
     pd->addWidget(label1,0,1,1,2);
     //    pg->setColumnStretch(0, 1);//protected:
     //    virtual void mousePressEvent(QMouseEvent *event);
@@ -81,24 +87,66 @@ Save::Save(QWidget *parent) : QMainWindow(parent)
     pd->addWidget(lineEdit2,1,2,1,4);
     pd->addWidget(label3,2,1,1,2);
     pd->addWidget(combobox,2,2,1,4);
-    pd->addWidget(cancelButton,3,2,1,2);
-    pd->addWidget(saveButton,3,4,1,2);
+    //pd->addWidget(cancelButton,3,2,1,2);
+    //pd->addWidget(saveButton,3,4,1,2);
     Wid->setLayout(pd);
 
 
-    mainLayout= new QVBoxLayout(this);
+    mainLayout= new QVBoxLayout();
     mainLayout->addWidget(titleWid);
     mainLayout->addWidget(Wid);
     mainWid->setLayout( mainLayout);
     this->setCentralWidget(mainWid);
+    this->setAttribute(Qt::WA_TranslucentBackground);//窗体透明
     this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
+    mainWid->setObjectName("mainWid");//设置命名空间
+    mainWid->setStyleSheet("#mainWid{border-radius:12px;background-color:#FFFFFF;border:1px solid #262626;}");//自定义窗体(圆角+背景色)
+
+
 }
 void Save::savefile()
 {
 
 //connect(this,SIGNAL(QLineEdit::clicked),MainWindow,SLOT(select()));
-    MyThread *diaoyong = new MyThread(this);
-    diaoyong->select();
-    lineEdit2->setText(diaoyong->fileName);
+    MyThread *myth = new MyThread(this);
+
+    if(saveData->get("type").toInt()==1)
+    {
+        myth->fileName = QFileDialog::getSaveFileName(
+                          this,
+                          tr("选择一个文件存储目录"),
+                              QDir::currentPath(),
+                              "Mp3(*.mp3)");
+        myth->selectMp3();
+
+
+    }
+    else if(saveData->get("type").toInt()==3)
+    {
+        myth->fileName = QFileDialog::getSaveFileName(
+                          this,
+                          tr("选择一个文件存储目录"),
+                              QDir::currentPath(),
+                              "Wav(*.wav)");
+        myth->selectWav();
+    }
+    else
+    {
+
+    }
+    lineEdit2->setText(myth->fileName);
+
 
 }
+void Save::saveToRecorder()
+{
+//    qDebug()<<lineEdit1->text();
+//    QString str=QFileDialog::getOpenFileName(
+//                this,
+//                tr("选择一个文件存储目录"),
+//                    QDir::currentPath(),
+//                    "Wav(*.wav)");
+//    qDebug()<<str;
+
+}
+
