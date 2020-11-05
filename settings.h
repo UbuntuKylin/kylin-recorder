@@ -14,18 +14,25 @@
 #include <QButtonGroup>
 #include <QGridLayout>
 #include <QSettings>
+#include <QGSettings>
 
 class Settings : public QMainWindow
 {
     Q_OBJECT
 public:
     explicit Settings(QWidget *parent = nullptr);
-    QSettings my_ini;
-    int save_default = 1;
+    QGSettings  *Data= nullptr;
+    //int save_default = 1;
     QRadioButton *radioButton;
     //    QLabel *label_2;
     QRadioButton *radioButton_2;
     QString desktop_path;
+
+    QRadioButton *radioButton_3;
+    QLabel *label_5;
+
+    QRadioButton *radioButton_6;
+    QLabel *label_8;
 private:
     QToolButton *closeButton;
     QButtonGroup *buttonGroup;
@@ -49,14 +56,13 @@ private:
     QLabel *label_3_2;
     QLineEdit *lineEdit;
     QLabel *label_4;
-    QRadioButton *radioButton_3;
-    QLabel *label_5;
+
+
     QRadioButton *radioButton_4;
     QLabel *label_6;
     QRadioButton *radioButton_5;
     QLabel *label_7;
-    QRadioButton *radioButton_6;
-    QLabel *label_8;
+
     QRadioButton *radioButton_7;
     QLabel *label_9;
     QRadioButton *radioButton_8;
@@ -65,6 +71,10 @@ private:
 public slots:
     void closesave();
     void gotosave();
+    void saveTypeMp3();
+    void saveTypeWav();
+    void allAudio();
+    void microphone();
 signals:
 
 };

@@ -2,6 +2,6 @@
 Name=kylin-recorder
 Name[zh_CN]=麒麟录音
 Exec=/usr/bin/kylin-recorder %u
-Icon=kylin-recorder
+Icon=/usr/share/pixmaps/recording_128.svg
 Type=Application
 Categories=GNOME;Utility;

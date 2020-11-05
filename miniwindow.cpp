@@ -32,6 +32,7 @@ void MiniWindow::initMiniWindow()
     setFixedSize(WIDTH,HEIGHT);
     setWindowFlags(Qt::FramelessWindowHint);
     setWindowTitle("麒麟录音");
+    setWindowIcon(QIcon(":/svg/svg/recording_128.svg"));
     //this->setStyleSheet("border-radius:6px;");//mini窗体圆角6px
     pTimer = new QTimer;//第二个页面的控件初始化
     recordBtn=new QToolButton(this);//录制按钮
@@ -73,23 +74,23 @@ void MiniWindow::initMiniWindow()
                             "QToolButton:pressed{background-color:#D83436}");
 
 
-    miniWid=new QWidget(this);//mini主窗体的Wid
-    recordWid=new QWidget(this);//录制按钮的Wid
-    pageTwoWid=new QWidget(this);//包括停止、开始/暂停两个按钮的Wid
-    max_minAndCloseWid=new QWidget(this);//最大最小和关闭的Wid
-    line = new QFrame(this);//分割线
+    miniWid=new QWidget();//mini主窗体的Wid
+    recordWid=new QWidget();//录制按钮的Wid
+    pageTwoWid=new QWidget();//包括停止、开始/暂停两个按钮的Wid
+    max_minAndCloseWid=new QWidget();//最大最小和关闭的Wid
+    line = new QFrame();//分割线
     line->setFrameShape(QFrame::VLine);
     line->setStyleSheet("border-radius: 6px; background-color:#EFE4E1;");
 
-    miniLayout=new QHBoxLayout(this);
-    pageTwoLayout=new QHBoxLayout(this);
-    max_minAndCloseLayout=new QHBoxLayout(this);
+    miniLayout=new QHBoxLayout();
+    pageTwoLayout=new QHBoxLayout();
+    max_minAndCloseLayout=new QHBoxLayout();
 
     pageTwoLayout->addWidget(stopBtn);
     pageTwoLayout->addWidget(start_pauseBtn);
     pageTwoWid->setLayout(pageTwoLayout);
 
-    recordStackedLayout=new QStackedLayout(this);//堆叠布局
+    recordStackedLayout=new QStackedLayout();//堆叠布局
     recordStackedLayout->addWidget(recordBtn);
     recordStackedLayout->addWidget(pageTwoWid);
     recordWid->setLayout(recordStackedLayout);

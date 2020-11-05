@@ -12,13 +12,13 @@
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QMouseEvent>
-
+#include <QGSettings>
 class Save : public QMainWindow
 {
     Q_OBJECT
 public:
     explicit Save(QWidget *parent = nullptr);
-
+    QGSettings *saveData= nullptr;
     QGridLayout *pd;
     QLabel *label;
     QLabel *label1;
@@ -46,7 +46,7 @@ signals:
     void clicked();
 public slots:
     void savefile();
-
+    void saveToRecorder();
 
 };
 
