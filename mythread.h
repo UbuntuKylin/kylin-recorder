@@ -28,15 +28,19 @@
 #include "settings.h"
 #include "save.h"
 #include "mp3encoder.h"
+#include "itemswindow.h"
 //==================
 
 #define BufferSize     35280
-#define rectangleCount 40//矩形条个数
+//#define cutRectangleCount 109//矩形条个数
 class MyThread : public QMainWindow
 {
     Q_OBJECT
 public:
     explicit MyThread(QWidget *parent = nullptr);
+
+    int count;
+
 
     int type=1;
     QMessageBox *WrrMsg;
@@ -56,6 +60,7 @@ public:
     void writeNumList(int num);
     void onChangeCurrentRecordList(QString filePath);
 
+    void updateAmplitudeList(int valueArray[]);//更新振幅列表
     void test();
 
 signals:

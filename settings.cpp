@@ -11,6 +11,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 {
 
     Data = new QGSettings(KYLINRECORDER);
+    darkData=new QGSettings(FITTHEMEWINDOW);
     //setWindowFlags(Qt::CustomizeWindowHint|Qt::FramelessWindowHint);
         int WIDTH=360;
         int HEIGHT=300;
@@ -132,12 +133,25 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         mainLayout->addWidget(Wid);
         mainWid->setLayout( mainLayout);
         this->setCentralWidget(mainWid);
-        this->move((QApplication::desktop()->width() -WIDTH)/3, (QApplication::desktop()->height() - HEIGHT)/3);
+
         this->setAttribute(Qt::WA_TranslucentBackground);//窗体透明
+        this->setStyleSheet("border-radius:12px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
+        if(darkData->get("style-name").toString()=="ukui-dark"||darkData->get("style-name").toString() == "ukui-black")
+        {
+            mainWid->setStyleSheet("border-radius:12px;background-color:#131314;border:1px;");//自定义窗体(圆角+背景色)
+
+        }
+        else
+        {
+            mainWid->setObjectName("setmainWid");//设置命名空间
+            mainWid->setStyleSheet("#setmainWid{border-radius:12px;background-color:#FFFFFF;border:1px solid #262626;}");//自定义窗体(圆角+背景色)
+        }
+
+
+        this->move((QApplication::desktop()->width() -WIDTH)/3, (QApplication::desktop()->height() - HEIGHT)/3);
+
         //mainWid->setStyleSheet();
                                //自定义窗体(圆角+背景色)
-        mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{border-radius:12px;background-color:#FFFFFF;border:1px solid #262626;}");//自定义窗体(圆角+背景色)
 
         //    QSettings  *my_ini= new QSettings(, QSettings::IniFormat);
         //QSettings my_ini;//******************************存储为/默认为
