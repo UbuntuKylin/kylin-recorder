@@ -5,7 +5,7 @@
 # Jincheng Bai(BaiBai)
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui dbus x11extras KWindowSystem
 RC_FILE += mypng.rc
 OTHER_FILES += mypng.rc
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -13,6 +13,10 @@ QT += multimedia multimediawidgets
 TARGET = kylin-recorder
 TEMPLATE = app
 LIBS += -lmp3lame
+
+# 适配窗口管理器圆角阴影
+LIBS +=-lpthread
+LIBS +=-lX11 -lXrandr -lXinerama -lXi -lXcursor
 
 target.path = /usr/bin
 target.source +=$$TARGET
@@ -56,7 +60,8 @@ SOURCES += \
         mythread.cpp \
         mywave.cpp \
         save.cpp \
-        settings.cpp
+        settings.cpp \
+        xatom-helper.cpp
 
 HEADERS += \
         itemswindow.h \
@@ -67,7 +72,8 @@ HEADERS += \
         mythread.h \
         mywave.h \
         save.h \
-        settings.h
+        settings.h \
+        xatom-helper.h
 
 RESOURCES += \
     picture.qrc

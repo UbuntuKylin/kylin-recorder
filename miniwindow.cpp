@@ -124,20 +124,20 @@ void MiniWindow::initMiniWindow()
 
     if(darkData->get("style-name").toString() == "ukui-dark"||darkData->get("style-name").toString() == "ukui-black")
     {
-        start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini_white.png);}"
-                                           "QToolButton:hover{image:url(:/png/png/pause_mini_hoverWhite.png);}"
-                                           "QToolButton:pressed{image:url(:/png/png/pause_mini_clickWhite2.png);}");
+//        start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini_white.png);}"
+//                                           "QToolButton:hover{image:url(:/png/png/pause_mini_hoverWhite.png);}"
+//                                           "QToolButton:pressed{image:url(:/png/png/pause_mini_clickWhite2.png);}");
 
 
-        miniWid->setStyleSheet("border-radius:6px;background-color:#222222;");//后期适配主题颜s;
+//        miniWid->setStyleSheet("border-radius:6px;background-color:#222222;");//后期适配主题颜s;
     }
     else
     {
-        //初始按钮为暂停按钮。因为只要点击录音按钮就要开始录制了
-        start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini.png);}"
-                                 "QToolButton:hover{image:url(:/png/png/pause_mini_hover.png);}"
-                                 "QToolButton:pressed{image:url(:/png/png/pause_mini_click.png);}");
-        miniWid->setStyleSheet("border-radius:6px;background-color:#FBEFED;");//自定义窗体(圆角+背景色)
+//        //初始按钮为暂停按钮。因为只要点击录音按钮就要开始录制了
+//        start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini.png);}"
+//                                 "QToolButton:hover{image:url(:/png/png/pause_mini_hover.png);}"
+//                                 "QToolButton:pressed{image:url(:/png/png/pause_mini_click.png);}");
+//        miniWid->setStyleSheet("border-radius:6px;background-color:#FBEFED;");//自定义窗体(圆角+背景色)
 
     }
 

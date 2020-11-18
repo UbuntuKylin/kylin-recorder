@@ -78,21 +78,23 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     bool strat_pause=false;//开始和暂停1
     QStackedLayout *m_pStackedLayout;//堆叠布局
 
-
+    QLabel *lb;
+    QLabel *piclb;//窗体左上角图片Label
     ItemsWindow *itemswindow;
 
     QListWidget *list;
     QListWidgetItem *aItem;//列表的Item
-//    QListView *listview;
-//    QSortFilterProxyModel *m_proxyModel;
-//    QStandardItemModel *m_model;
-//    QStandardItem *Item;
+
     QLabel *fileListlb;//文件列表
     QFile *file;
-    void initGsetting();
+    void initThemeGsetting();
+    void initFunctionGsetting();
+    void themeButton(QString themeColor);
+    void themeStyle(QString themeColor);
+    void themeWindow(QString themeColor);
 
-    void themeTitleButton(QString theme);
-    void themeStyle(QString style);
+    void MainWindowLayout();
+
     QString playerTotalTime(QString filePath);
     int itemSelect=0;
 
@@ -220,6 +222,8 @@ public slots:
 
     void slotOnItemDoubleClicked(QListWidgetItem *item);
     void slotItemEntered(QListWidgetItem *item);
+
+    void slotListItemAdd(QString fileName,int i);
 };
 
 #endif // MAINWINDOW_H

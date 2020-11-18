@@ -25,6 +25,8 @@ class ItemsWindow : public QMainWindow
     Q_OBJECT
 public:
 
+    int initTag=0;
+
     QGSettings  *itemData= nullptr;
     QGSettings *darkData=nullptr;//主题的setting
     QWidget *itemsWid;
@@ -69,6 +71,8 @@ public:
 
 
     void createCutWave();
+
+
     //bool isplay=false;
 private:
 
@@ -105,10 +109,17 @@ private:
 
 
 private:
+
+    void initRectangleWave();//停止录音后再生成110个矩形框,防止多次初始化造成cpu占用率过高
+    void deleteWaves();
+
+    void initItemWid();
     void setItemWid();
+    void initClipper();
+    void setClipper();
     void stopReplayer();
     void playState();
-    void clipperFun();
+
 
 
 //    void mouseMoveEvent(QMouseEvent *event);

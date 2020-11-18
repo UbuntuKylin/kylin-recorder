@@ -95,11 +95,11 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         grp1->addButton(radioButton_2);
         QButtonGroup *grp2=new QButtonGroup(this);
         grp2->addButton(radioButton_3);
-        //grp2->addButton(radioButton_4);
+        //grp2->addButton(radioButton_4);//后期解封
         grp2->addButton(radioButton_5);
         QButtonGroup *grp3=new QButtonGroup(this);
         grp3->addButton(radioButton_6);
-        //grp3->addButton(radioButton_7);
+        //grp3->addButton(radioButton_7);//后期解封
         grp3->addButton(radioButton_8);
 
     //布局
@@ -150,13 +150,6 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
         this->move((QApplication::desktop()->width() -WIDTH)/3, (QApplication::desktop()->height() - HEIGHT)/3);
 
-        //mainWid->setStyleSheet();
-                               //自定义窗体(圆角+背景色)
-
-        //    QSettings  *my_ini= new QSettings(, QSettings::IniFormat);
-        //QSettings my_ini;//******************************存储为/默认为
-        //MyThread *myT=new MyThread;
-
         if(Data->get("savedefault").toInt()==1)
         {
               radioButton->setChecked(1);
@@ -194,11 +187,6 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         {
 
         }
-
-
-
-
-
 
 }
 void Settings::gotosave()

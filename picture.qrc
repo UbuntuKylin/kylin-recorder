@@ -77,7 +77,6 @@
         <file>svg/window-maximize.svg</file>
         <file>svg/window-restore.svg</file>
         <file>svg/open-menu.svg</file>
-        <file>svg/open-menu-symbolic.svg</file>
         <file>svg/dark-window-min.svg</file>
         <file>svg/window-min.svg</file>
     </qresource>
