@@ -25,7 +25,14 @@ MainWindow::MainWindow(QWidget *parent)
     this->setFixedSize(WIDTH,HEIGHT);
     this->setWindowIcon(QIcon(":/svg/svg/recording_128.svg"));
     //屏幕中间
-    this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
+    //this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
+    /*
+     * 显示在活动屏幕中间
+     */
+    QScreen *screen = QGuiApplication::primaryScreen();
+    move((screen->geometry().width() - WIDTH) / 2,
+         (screen->geometry().height() - HEIGHT) / 2);
+
 
     setButton=new QToolButton(this);
     max_minButton=new QToolButton(this);
@@ -245,7 +252,7 @@ QString MainWindow::playerTotalTime(QString filePath)
         file.close();
         return timeStr;
     }
-
+    return QString();
 }
 //初步配置文件例子
 void MainWindow::initGsetting()
@@ -335,7 +342,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event){
 void MainWindow::mouseReleaseEvent(QMouseEvent *event){
     this->isPress = false;
     this->setCursor(Qt::ArrowCursor);
-
+    QMainWindow::mouseReleaseEvent(event);
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event){
@@ -568,6 +575,7 @@ void MainWindow::setuserdirectory()
 }
 void MainWindow::slotOnItemDoubleClicked(QListWidgetItem *item)
 {
+    Q_UNUSED(item);
     //QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
 //    qDebug()<<list->currentRow();
 //    QWidget* getWid =list->itemWidget(item);
