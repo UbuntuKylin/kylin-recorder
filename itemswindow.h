@@ -127,7 +127,7 @@ private:
     void stopReplayer();
     void playState();
 
-
+    void rightClickedMenuRequest();//右击弹出Menu菜单选择另存为和打开文件位置
 
 //    void mouseMoveEvent(QMouseEvent *event);
 //    void mousePressEvent(QMouseEvent *e);
@@ -142,7 +142,7 @@ private slots:
     void setPosition(int position);
     bool eventFilter(QObject *obj, QEvent *event);
 
-    void rightClickedMenuRequest();//右击弹出Menu菜单选择另存为和打开文件位置
+
     void actionSaveasSlot();
     void actionOpenFolderSlot();
 

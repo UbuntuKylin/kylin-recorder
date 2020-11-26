@@ -10,6 +10,7 @@ kylin-recorder (1.2.5) v101; urgency=medium
 
  -- baijincheng <baijincheng@kylinos.cn>  Thu, 26 Nov 2020 11:05:00 +0800
 
+
 kylin-recorder (1.2.4) v101; urgency=medium
 
   * 增加运行依赖，文件列表可以播放
