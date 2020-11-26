@@ -252,7 +252,7 @@ bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点�
         {
             if (event->type() == QEvent::MouseButtonPress)
             {
-                rightClickedMenuRequest();
+                //rightClickedMenuRequest();//11.26禁止此功能
             }
 
         }

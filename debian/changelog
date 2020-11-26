@@ -1,3 +1,9 @@
+kylin-recorder (1.2.6) v101; urgency=medium
+
+  * 调整一些功能
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 26 Nov 2020 11:05:00 +0800
+
 kylin-recorder (1.2.5) v101; urgency=medium
 
   * 增加窗管圆角阴影适配
