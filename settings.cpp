@@ -19,7 +19,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         setWindowFlags(Qt::FramelessWindowHint);
         //setStyleSheet(QString::fromUtf8("border:1px solid red"));
         setFocusPolicy(Qt::ClickFocus);//this->setFocusPolicy(Qt::NoFocus);//设置焦点类型
-        setWindowTitle("麒麟录音");
+        setWindowTitle(tr("kylin-recorder"));
         this->setWindowIcon(QIcon(":/svg/svg/recording_128.svg"));
     //标题栏设置和布局
         QLabel *lb=new QLabel(this);
@@ -27,7 +27,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
         piclb->setStyleSheet("QLabel{border-image: url(:/png/png/recording_32.png);}");
         piclb->setFixedSize(25,25);
-        lb->setText("设置");//
+        lb->setText(tr("Settings"));//
 
         closeButton= new QToolButton(this);
         closeButton->setIcon(QIcon(":/png/png/close.png"));
@@ -52,31 +52,31 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     //网格布局设置界面主体内容
     //        QGridLayout *layout = new QGridLayout();
     //设置界面内容
-        label = new QLabel("文本存储");
+        label = new QLabel(tr("Storage"));
         radioButton = new QRadioButton(this);
     //    radioButton->setCheckable(1);
         //radioButton->setChecked(1);//默认选中状态
 
         connect(radioButton,&QRadioButton::clicked,this,&Settings::gotosave);
 
-        label_2 = new QLabel("存储为");
+        label_2 = new QLabel(tr("Save as"));
         radioButton_2 = new QRadioButton(this);
     //    connect(radioButton_2,&QRadioButton::clicked,this,&subMainWindow::userdirectory);
         connect(radioButton_2,&QRadioButton::clicked,this,&Settings::closesave);
 
-        label_3 = new QLabel("默认存储：");
+        label_3 = new QLabel(tr("Default storage："));
         lineEdit = new QLineEdit(this);
         desktop_path = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
         lineEdit->setText(desktop_path);
         lineEdit->setFocusPolicy(Qt::NoFocus);//设置不可编辑状态
-        label_4 = new QLabel("录音来源");
+        label_4 = new QLabel(tr("Source"));
         radioButton_3 = new QRadioButton(this);
-        label_5 = new QLabel("全部");
+        label_5 = new QLabel(tr("All"));
         radioButton_4 = new QRadioButton();
-        label_6 = new QLabel("系统内部");
+        label_6 = new QLabel(tr("Inside"));
         radioButton_5 = new QRadioButton(this);
-        label_7 = new QLabel("麦克风");
-        label_8 = new QLabel("文件格式");
+        label_7 = new QLabel(tr("Microphone"));
+        label_8 = new QLabel(tr("File format"));
 
         radioButton_6 = new QRadioButton(this);
         label_9 = new QLabel("mp3");
@@ -85,8 +85,10 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         radioButton_8 = new QRadioButton(this);
         label_11 = new QLabel("wav");
         connect(radioButton_6,&QRadioButton::clicked,this,&Settings::saveTypeMp3);
+        connect(radioButton_7,&QRadioButton::clicked,this,&Settings::saveTypeM4a);
         connect(radioButton_8,&QRadioButton::clicked,this,&Settings::saveTypeWav);
         connect(radioButton_3,&QRadioButton::clicked,this,&Settings::allAudio);
+        connect(radioButton_4,&QRadioButton::clicked,this,&Settings::inside);
         connect(radioButton_5,&QRadioButton::clicked,this,&Settings::microphone);
 
     //按钮分组，网格布局
@@ -95,11 +97,11 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         grp1->addButton(radioButton_2);
         QButtonGroup *grp2=new QButtonGroup(this);
         grp2->addButton(radioButton_3);
-        //grp2->addButton(radioButton_4);//后期解封
+        grp2->addButton(radioButton_4);//后期解封,系统内部声音
         grp2->addButton(radioButton_5);
         QButtonGroup *grp3=new QButtonGroup(this);
         grp3->addButton(radioButton_6);
-        //grp3->addButton(radioButton_7);//后期解封
+        grp3->addButton(radioButton_7);//后期解封m4a格式
         grp3->addButton(radioButton_8);
 
     //布局
@@ -115,17 +117,17 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         pg->addWidget(label_4,3,0,1,2);
         pg->addWidget(radioButton_3,3,2,1,1);
         pg->addWidget(label_5,3,3,1,1);
-        //pg->addWidget(radioButton_4,3,4,1,1);//系统内部
-        //pg->addWidget(label_6,3,5,1,1);
-        pg->addWidget(radioButton_5,3,5,1,1);//后期改为3611
-        pg->addWidget(label_7,3,6,1,1);//后期改为3711
+//        pg->addWidget(radioButton_4,3,4,1,1);//系统内部解封
+//        pg->addWidget(label_6,3,5,1,1);
+        pg->addWidget(radioButton_5,3,4,1,1);//后期改为3611
+        pg->addWidget(label_7,3,5,1,1);//后期改为3711
         pg->addWidget(label_8,4,0,1,2);
         pg->addWidget(radioButton_6,4,2,1,1);
         pg->addWidget(label_9,4,3,1,1);
 //        pg->addWidget(radioButton_7,4,4,1,1);//M4a格式
 //        pg->addWidget(label_10,4,5,1,1);
-        pg->addWidget(radioButton_8,4,5,1,1);//后期改为4611
-        pg->addWidget(label_11,4,6,1,1);//后期改为4711
+        pg->addWidget(radioButton_8,4,4,1,1);//后期改为4611
+        pg->addWidget(label_11,4,5,1,1);//后期改为4711
         Wid->setLayout(pg);
 
         mainLayout= new QVBoxLayout();
@@ -152,20 +154,22 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
         if(Data->get("savedefault").toInt()==1)
         {
-              radioButton->setChecked(1);
-
+            radioButton->setChecked(1);
         }
         else
         {
-             radioButton_2->setChecked(1);//开始是默认存储
-
+            radioButton_2->setChecked(1);//开始是默认存储
         }
 
         if(Data->get("source").toInt() == 1)
         {
             radioButton_3->setChecked(1);//开始录制声源为全部
         }
-        else if(Data->get("source").toInt() == 3)
+        else if(Data->get("source").toInt() == 2)//内部
+        {
+            radioButton_4->setChecked(1);
+        }
+        else if(Data->get("source").toInt() == 3)//麦克风
         {
             radioButton_5->setChecked(1);
         }
@@ -174,18 +178,18 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
         }
 
-
-        if(Data->get("type").toInt() == 1)
+        if(Data->get("type").toInt() == 1)//开始录制格式为mp3
         {
-            radioButton_6->setChecked(1);//开始录制格式为mp3
+            radioButton_6->setChecked(1);
         }
-        else if(Data->get("type").toInt() == 3)
+        else if(Data->get("type").toInt() == 2)//开始录制格式为m4a
         {
+            radioButton_7->setChecked(1);
+        }
+        else if(Data->get("type").toInt() == 3)//开始录制格式为wav
+        {
+
             radioButton_8->setChecked(1);
-        }
-        else
-        {
-
         }
 
 }
@@ -198,19 +202,27 @@ void Settings::closesave()
 {
     Data->set("savedefault",0);   
 }
-void Settings::saveTypeMp3()
+void Settings::saveTypeMp3()//mp3
 {
     Data->set("type",1);
 }
-void Settings::saveTypeWav()
+void Settings::saveTypeM4a()//m4a
+{
+    Data->set("type",2);
+}
+void Settings::saveTypeWav()//wav
 {
     Data->set("type",3);
 }
-void Settings::allAudio()
+void Settings::allAudio()//全部
 {
     Data->set("source",1);
 }
-void Settings::microphone()
+void Settings::inside()//内部声音
+{
+    Data->set("source",2);
+}
+void Settings::microphone()//麦克风
 {
     Data->set("source",3);
 }

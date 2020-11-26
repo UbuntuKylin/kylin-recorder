@@ -114,7 +114,7 @@ void Save::savefile()
     {
         myth->fileName = QFileDialog::getSaveFileName(
                           this,
-                          tr("选择一个文件存储目录"),
+                          tr("Select a file storage directory"),
                               QDir::currentPath(),
                               "Mp3(*.mp3)");
         myth->selectMp3();
@@ -125,7 +125,7 @@ void Save::savefile()
     {
         myth->fileName = QFileDialog::getSaveFileName(
                           this,
-                          tr("选择一个文件存储目录"),
+                          tr("Select a file storage directory"),
                               QDir::currentPath(),
                               "Wav(*.wav)");
         myth->selectWav();
@@ -143,7 +143,7 @@ void Save::saveToRecorder()
     qDebug()<<lineEdit1->text();
     QString str=QFileDialog::getOpenFileName(
                 this,
-                tr("选择一个文件存储目录"),
+                tr("Select a file storage directory"),
                     QDir::currentPath(),
                     "Wav(*.wav)");
     lineEdit2->setText(str);

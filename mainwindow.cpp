@@ -11,7 +11,7 @@
 #include <QFileDialog>
 #define BufferSize         35280
 //const qint64 TIME_TRANSFORM = 1000 * 1000;              // 微妙转秒;
-#define rectangleCount 35//矩形条个数
+#define rectangleCount 65//矩形条个数
 MainWindow *MainWindow::mutual = nullptr;//初始化！！！
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     setButton = new QToolButton(this);
     miniButton = new QToolButton(this);
     minButton = new QToolButton(this);
+    maxButton = new QToolButton(this);
     closeButton = new QToolButton(this);
     recordButton = new QToolButton(this);
     list = new QListWidget(this);
@@ -95,18 +96,19 @@ MainWindow::MainWindow(QWidget *parent)
         thread->quit();
           thread->wait();
     });
-//    setWindowFlags((Qt::FramelessWindowHint));//设置窗体无边框
-    setWindowTitle("麒麟录音");
+    //setWindowFlags((Qt::FramelessWindowHint));//设置窗体无边框
+
+    setWindowTitle(tr("kylin-recorder"));
     lb=new QLabel(this);
     piclb=new QLabel(this);//窗体左上角图片Label
 
     piclb->setStyleSheet("QLabel{border-image: url(:/png/png/recording_32.png);}");
     piclb->setFixedSize(25,25);
-    lb->setText("麒麟录音");//？字体待修改
+    lb->setText(tr("kylin-recorder"));//？字体待修改
     lb->setStyleSheet("font-size:14px;");//修改字体显示
     lb->setFixedHeight(25);
     fileListlb=new QLabel(this);
-    fileListlb->setText("  文件列表  ");
+    fileListlb->setText(tr("  File List  "));
     fileListlb->setStyleSheet("font: bold; font-size:18px;");//修改字体显示
 
     seatlb=new QLabel(this);
@@ -116,6 +118,7 @@ MainWindow::MainWindow(QWidget *parent)
     recordButton->setIconSize(QSize(128,128));//重置图标大小
     connect(miniButton, &QToolButton::clicked,this,&MainWindow::miniShow);
     connect(minButton, &QToolButton::clicked,this,&MainWindow::minShow);
+    connect(maxButton, &QToolButton::clicked,this,&MainWindow::maxShow);
     connect(closeButton,&QToolButton::clicked,this,&MainWindow::close);
     connect(recordButton, &QPushButton::clicked, this, &MainWindow::switchPage);
     connect(setButton, &QToolButton::clicked, this, &MainWindow::goset);
@@ -134,8 +137,7 @@ MainWindow::MainWindow(QWidget *parent)
     listLayout->addWidget(list);
     listLayout->setMargin(0);
 //    listLayout->setSpacing(4);
-    list->setViewMode(QListView::ListMode);
-    list->setAttribute(Qt::WA_TranslucentBackground);
+
     listWid->setLayout(listLayout);
 
     titleLeftLayout = new QHBoxLayout();//左标题布局
@@ -148,6 +150,8 @@ MainWindow::MainWindow(QWidget *parent)
     MainWindowLayout();//主窗体布局方法
     initThemeGsetting();
     initFunctionGsetting();
+    list->setViewMode(QListView::ListMode);
+    list->setAttribute(Qt::WA_TranslucentBackground);
 }
 
 MainWindow::~MainWindow()
@@ -168,6 +172,7 @@ void MainWindow::MainWindowLayout()
     titleRightLayout->addWidget(setButton);
     titleRightLayout->addWidget(miniButton);
     titleRightLayout->addWidget(minButton);
+    //titleRightLayout->addWidget(maxButton);//2020.11.20禁止最大化功能
     titleRightLayout->addWidget(closeButton);
     titleRightLayout->setSpacing(1);
     titleRightLayout->setMargin(5);
@@ -175,13 +180,10 @@ void MainWindow::MainWindowLayout()
     titleRightWid->setFixedHeight(35);
 
     m_pStackedLayout->addWidget(recordButton);
-    m_pStackedLayout->setSpacing(0);
-    m_pStackedLayout->setMargin(0);
     recordButtonWid->setLayout(m_pStackedLayout);
 
     leftMainWidLayout->addWidget(titleLeftWid);
     leftMainWidLayout->addWidget(recordButtonWid,0,Qt::AlignCenter);
-    leftMainWidLayout->setSpacing(0);
     leftMainWidLayout->setMargin(0);
     leftMainWid->setLayout(leftMainWidLayout);
     leftMainWid->setStyleSheet("background-color:#E5E5E5;opacity:0.1;"
@@ -207,18 +209,33 @@ void MainWindow::MainWindowLayout()
 
     this->setCentralWidget(mainWid);
     this->setAttribute(Qt::WA_TranslucentBackground);//主窗体透明
-   // this->setStyleSheet("border-radius:12px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
+    this->setStyleSheet("border-radius:12px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
 }
+
 void MainWindow::minShow()
 {
     this->showMinimized();
+}
+void MainWindow::maxShow()
+{
+    if(isMax)
+    {
+        this->showNormal();
+        isMax = false;
+    }
+    else
+    {
+        this->showFullScreen();
+        isMax = true;
+    }
+
 }
 void MainWindow::themeWindow(QString themeColor)
 {
     if(themeColor == "ukui-dark"||themeColor=="ukui-black")
     {
         listWid->setStyleSheet("background-color:#222222;");//后期适配主题颜色
-        list->setAttribute(Qt::WA_TranslucentBackground);
+        //list->setAttribute(Qt::WA_TranslucentBackground);
         leftMainWid->setStyleSheet("background-color:#141414;"
                                    "border-top-right-radius:0px;"
                                    "border-bottom-right-radius:0px;");
@@ -270,7 +287,7 @@ void MainWindow::themeWindow(QString themeColor)
         //设置界面
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
+        mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;border:1px solid #262626;}");//自定义窗体(圆角+背景色)
          //主界面
         itemswindow->setStyleSheet("border-top-right-radius:0px;"
                             "border-bottom-right-radius:0px;");//自定义窗体(圆角+背景色)
@@ -302,6 +319,12 @@ void MainWindow::themeButton(QString themeColor)
         minButton->setIcon(QIcon(":/svg/svg/dark-window-min.svg"));
         minButton->setFixedSize(30,30);
         minButton->setStyleSheet("QToolButton{border-radius:4px;}"
+                                 "QToolButton:hover{background-color:#E5E5E5;opacity:0.1;}"
+                                 "QToolButton:pressed{background-color:#D9D9D9;opacity:0.15;}");
+        //最大化按钮
+        maxButton->setIcon(QIcon(":/svg/svg/dark-window-maximize.svg"));
+        maxButton->setFixedSize(30,30);
+        maxButton->setStyleSheet("QToolButton{border-radius:4px;}"
                                  "QToolButton:hover{background-color:#E5E5E5;opacity:0.1;}"
                                  "QToolButton:pressed{background-color:#D9D9D9;opacity:0.15;}");
         //关闭按钮
@@ -337,7 +360,7 @@ void MainWindow::themeButton(QString themeColor)
 
         }
     }
-    else if(themeColor == "ukui-default"||themeColor=="ukui-white")
+    else
     {
         //list->setAttribute(Qt::WA_TranslucentBackground);
         list->setStyleSheet("QListWidget::item:selected{border:none;}"
@@ -360,6 +383,12 @@ void MainWindow::themeButton(QString themeColor)
         minButton->setIcon(QIcon(":/svg/svg/window-min.svg"));
         minButton->setFixedSize(30,30);
         minButton->setStyleSheet("QToolButton{border-radius:4px;}"
+                                 "QToolButton:hover{background-color:#E5E5E5;opacity:0.1;}"
+                                 "QToolButton:pressed{background-color:#D9D9D9;opacity:0.15;}");
+        //最大化按钮
+        maxButton->setIcon(QIcon(":/svg/svg/window-maximize.svg"));
+        maxButton->setFixedSize(30,30);
+        maxButton->setStyleSheet("QToolButton{border-radius:4px;}"
                                  "QToolButton:hover{background-color:#E5E5E5;opacity:0.1;}"
                                  "QToolButton:pressed{background-color:#D9D9D9;opacity:0.15;}");
         //关闭按钮
@@ -402,18 +431,27 @@ QString MainWindow::playerTotalTime(QString filePath)
 {
     QFile file(filePath);
     QFileInfo fileinfo(filePath);
-    qint64 fileSize;
+    qint64 fileSize ;
     qint64 time;
     QString timeStr;
     if (file.open(QIODevice::ReadOnly))
     {
+
         if(fileinfo.suffix().contains("mp3"))
         {
             fileSize = file.size();
+            qDebug()<<file.size();
             time = fileSize/16000;//时间长度=文件大小/比特率
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
 
+        }
+        else if(fileinfo.suffix().contains("m4a"))
+        {
+            fileSize = file.size();
+            time = fileSize/4550;//时间长度=文件大小/比特率
+            QTime totalTime(time/3600,(time%3600)/60,time%60);
+            timeStr=totalTime.toString("hh:mm:ss");
         }
         else if(fileinfo.suffix().contains("wav"))
         {
@@ -426,16 +464,15 @@ QString MainWindow::playerTotalTime(QString filePath)
         return timeStr;
     }
 
+
 }
 
 //初步配置文件
 void MainWindow::initThemeGsetting()
 {
     themeData = new QGSettings(FITTHEMEWINDOW);
-    connect(themeData, &QGSettings::changed, this, [=]  (const QString &key)
+    connect(themeData, &QGSettings::changed, this, [=]  ()
     {
-
-        //if (key != "styleName")return;
         theme = themeData->get("style-name").toString();
         themeStyle(theme);
     });
@@ -458,7 +495,7 @@ void MainWindow::initFunctionGsetting()
         QString filesuffix = fileinfo.suffix();//判断文件后缀
         //qDebug()<<fileinfo.isFile();//判断是否为文件，是文件就存在了,因为在本地删除后，同步文件列表下才打开时那个文件也没了
         //qDebug()<<filesuffix;
-        if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")))
+        if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
         {
             qDebug()<<"文件存在!";
             //qDebug()<<str.split("/").last();
@@ -611,11 +648,9 @@ void MainWindow::play_pause_clicked()
 
 void MainWindow::recordPaint(int value)
 {
-    //qDebug()<<"=========="<<value;
-
     maxNum.prepend(value/300);//将元素插入到Vector的开始
-    maxNum=maxNum.mid(0,rectangleCount);
-    for(int i=0;i<rectangleCount;i++)
+    maxNum = maxNum.mid(0,rectangleCount);
+    for(int i = 0;i<rectangleCount;i++)
     mywave.at(i)->setValue(maxNum.at(i));
 }
 
@@ -625,11 +660,15 @@ void MainWindow::stop_clicked()//停止按钮
     {
         pTimer->stop();//计时停止
         mini.pTimer->stop();
-
         emit stopRecord();
+        //停止之后把数组清0
+        for(int i = 0;i<110;i++)
+        {
+            valueArray[i] = 0;
+        }
         if(strat_pause)
         {
-            strat_pause=false;
+            strat_pause = false;
         }
         //停止按钮触发后的界面
         play_pauseButton->setEnabled(false);
@@ -726,9 +765,11 @@ void MainWindow::mainWindow_page2()
         wave->setRange(0,100);
         mywave.push_back(wave);
         layout2->addWidget(wave);
+
     }
+    layout2->setSpacing(2);
     waveWid->setLayout(layout2);
-    waveWid->setFixedHeight(70);
+    waveWid->setFixedHeight(120);
 
     layout3->addWidget(voicelb);
     layout3->addWidget(slider);
@@ -752,21 +793,22 @@ void MainWindow::mainWindow_page2()
 //与堆叠布局搭配使用效果更佳
 void MainWindow::switchPage()
 {
-    for( QAudioDeviceInfo &deviceInfo: QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
-    {
-        if(deviceInfo.deviceName().contains("auto_null"))
-        {
-            WrrMsg = new QMessageBox(QMessageBox::Warning,tr("警告"),tr("没检测到输入设备！"),QMessageBox::Yes );
-            WrrMsg->button(QMessageBox::Yes)->setText("确 定");
-            WrrMsg->exec();
-            return;
-        }
-        if(deviceInfo.deviceName().contains("alsa_input"))
-        {
-            qDebug()<<"录音设备是:"<<deviceInfo.deviceName();
-            break;
-        }
-    }
+//    for( QAudioDeviceInfo &deviceInfo: QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
+//    {
+//        if(deviceInfo.deviceName().contains("auto_null"))
+//        {
+//            WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning"),tr("No input device detected！"),QMessageBox::Yes );
+//            WrrMsg->button(QMessageBox::Yes)->setText("OK");
+//            WrrMsg->exec();
+//            return;
+//        }
+//        if(deviceInfo.deviceName().contains("alsa_input"))
+//        {
+//            qDebug()<<"录音设备是:"<<deviceInfo.deviceName();
+//            break;
+//        }
+
+//    }
     mainWindow_page2();
 
     int nCount = m_pStackedLayout->count();
@@ -790,12 +832,19 @@ void MainWindow::goset()
 {
     set.show();
 }
-
+void MainWindow::handlingSlot(QString handling)
+{
+    ItemsWindow *itemswindow = new ItemsWindow(this);
+    //添加当前录音文件的时长
+    itemswindow->timelengthlb->setText(handling);
+    //qDebug()<<itemswindow->timelengthlb->text();
+}
 void MainWindow::slotListItemAdd(QString fileName,int i)
 {
     qDebug()<<"更新";
-    ItemsWindow *itemswindow = new ItemsWindow;//初始化Item录音文件类
-    itemswindow->recordFileNamelb->setText("录音"+QString::number(i));
+    ItemsWindow *itemswindow = new ItemsWindow(this);//初始化Item录音文件类必须加this,
+                                                     //因为后期要判断子类的子控件
+    itemswindow->recordFileNamelb->setText(tr("recorder")+QString::number(i));
     //添加当前录音文件的文件名(以时间命名)
     itemswindow->dateTimelb->setText(fileName.split("/").last());
     //添加当前录音文件的时长

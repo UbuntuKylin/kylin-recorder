@@ -48,7 +48,7 @@ void MiniWindow::initMiniWindow()
 
     connect(pTimer,&QTimer::timeout,this,&MiniWindow::timeDisplay);
     connect(recordBtn,&QToolButton::clicked,this,&MiniWindow::switchPage);
-    connect(max_minBtn,&QToolButton::clicked,this,&MiniWindow::maxShow);
+    connect(max_minBtn,&QToolButton::clicked,this,&MiniWindow::normalShow);
     connect(closeBtn,&QToolButton::clicked,this,&MiniWindow::closeWindow);
     connect(start_pauseBtn,&QToolButton::clicked,this,&MiniWindow::start_pauseSlot);
     connect(stopBtn,&QToolButton::clicked,this,&MiniWindow::finishSlot);
@@ -148,9 +148,9 @@ void MiniWindow::initMiniWindow()
 
 }
 
-void MiniWindow::maxShow()
+void MiniWindow::normalShow()
 {
-    MainWindow::mutual->show();
+    MainWindow::mutual->showNormal();
     this->hide();
 }
 void MiniWindow::closeWindow()//关闭mini和主窗体

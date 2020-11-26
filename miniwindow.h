@@ -72,7 +72,7 @@ private:
 
 public slots:
     void switchPage();
-    void maxShow();
+    void normalShow();
     void closeWindow();
     void start_pauseSlot();
     void finishSlot();//结束录音并保存

@@ -56,7 +56,7 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QGSettings  *defaultPathData= nullptr;
     QGSettings *themeData=nullptr;//主题的setting
     QString theme = "ukui-default";
-
+    bool isMax = false;
     QTime cut;
     int valueArray[110];
 
@@ -117,6 +117,7 @@ private:
     QToolButton *setButton;
     QToolButton *miniButton;//mini模式切换按钮
     QToolButton *minButton;//最小化按钮
+    QToolButton *maxButton;//最大化按钮
     QToolButton *closeButton;
 
     QToolButton *recordButton;
@@ -219,10 +220,12 @@ public slots:
 
     void miniShow();
     void minShow();
+    void maxShow();
 
     void slotOnItemDoubleClicked(QListWidgetItem *item);
     void slotItemEntered(QListWidgetItem *item);
 
+    void handlingSlot(QString str);
     void slotListItemAdd(QString fileName,int i);
 };
 

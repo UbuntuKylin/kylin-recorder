@@ -96,8 +96,7 @@ void ItemsWindow::setItemWid()//设置ItemWid的界面
     timeLengthLayout->addWidget(timelengthlb,0,Qt::AlignCenter);
     firstWid->setLayout(timeLengthLayout);
 
-
-//    threeButtonLayout->addWidget(itemPlay_PauseButton);//2020.11.12 隐藏此播放，有问题。。。
+    threeButtonLayout->addWidget(itemPlay_PauseButton);//2020.11.12 隐藏此播放，有问题。。。
 //    threeButtonLayout->addWidget(clipButton);//2020.11.12 隐藏此剪裁，后续开发。。。
     threeButtonLayout->addWidget(deleteButton);
     threeButtonWid->setLayout(threeButtonLayout);
@@ -121,6 +120,7 @@ void ItemsWindow::setItemWid()//设置ItemWid的界面
     itemLayout->setMargin(0);
     itemLayout->setSpacing(0);
     itemsWid->setLayout(itemLayout);
+    //itemsWid->setStyleSheet("bckground-color:pink;");
     qDebug()<<darkData->get("style-name").toString();
     qDebug()<<MainWindow::mutual->theme;
 }
@@ -143,14 +143,14 @@ void ItemsWindow::initClipper()//初始化剪裁
 void ItemsWindow::setClipper()//设置剪裁界面
 {
     timelengthlb2->setStyleSheet("QToolButton{margin-left:0px;color:#303133;}");
-    cancelButton->setText("取消");
+    cancelButton->setText(tr("Cancel"));
     cancelButton->setFixedSize(40,25);
     //margin-left:0px;必须加上否则字体变白
     cancelButton->setStyleSheet("QToolButton{margin-left:0px;color:#303133;}"
                                 "QToolButton:hover{color:#F74175;}"
                                 "QToolButton:pressed{color:red;}");
 
-    finishButton->setText("完成");
+    finishButton->setText(tr("Finish"));
     finishButton->setFixedSize(40,25);
     //margin-left:0px;必须加上否则字体变白
     finishButton->setStyleSheet("QToolButton{margin-left:0px;color:#303133;}"
@@ -158,12 +158,13 @@ void ItemsWindow::setClipper()//设置剪裁界面
                                 "QToolButton:pressed{color:red;}");
     //原来有个剪裁布局:改为点击剪裁按钮才显示
 
-    cutWaveWid->setLayout(waveLayout);
-    cutWaveWid->setFixedHeight(20);
+
 
     bottomLayout->addWidget(timelengthlb2);
     bottomLayout->addWidget(cancelButton);
     bottomLayout->addWidget(finishButton);
+    bottomLayout->setSpacing(0);
+    bottomLayout->setMargin(0);
     bottomWid->setLayout(bottomLayout);
 
     clipperLayout->addWidget(cutWaveWid,0,Qt::AlignCenter);
@@ -196,6 +197,8 @@ void ItemsWindow::positionChange(qint64 position)
                                                 "QToolButton:hover{image: url(:/svg/svg/bofang_select.svg);}");
             play_pause = false;
             setPosition(position);
+            stackLayout->setCurrentIndex(0);//3个按钮布局切换至显示时间label
+            splitLinestackWid->setCurrentIndex(0);//播放条布局切换
         }
     }
 }
@@ -236,21 +239,20 @@ bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点�
         {
             if (event->type() == QEvent::MouseButtonPress)
             {
-
                 int nIndex = stackLayout->currentIndex();
                 //qDebug()<<MainWindow::mutual->list->currentRow();
                 // 获取下一个需要显示的页面索引
                 nIndex++;
                 // 当需要显示的页面索引大于等于总页面时，切换至首页s
                 stackLayout->setCurrentIndex(nIndex%2);//切换至录音按钮stackLayout
-                splitLinestackWid->setCurrentIndex(nIndex%2);//2020.11.12隐藏此滑动条功能
+              splitLinestackWid->setCurrentIndex(nIndex%2);//2020.11.12隐藏此滑动条功能
             }
         }
         else if(mouseEvent->button() == Qt::RightButton)
         {
             if (event->type() == QEvent::MouseButtonPress)
             {
-                qDebug()<<"按压了右键!";
+                rightClickedMenuRequest();
             }
 
         }
@@ -258,6 +260,42 @@ bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点�
     }
     return QObject::eventFilter(obj,event);
 }
+
+void ItemsWindow::rightClickedMenuRequest()//右击弹出Menu菜单
+{
+    qDebug()<<"按压了右键!弹出Menu菜单";
+    menu = new QMenu();
+    actionSave = new QAction();
+    actionOpenFolder = new QAction();
+
+    connect(actionSave,&QAction::triggered,this,&ItemsWindow::actionSaveasSlot);
+    connect(actionOpenFolder,&QAction::triggered,this,&ItemsWindow::actionOpenFolderSlot);
+    actionSave->setText(tr("Save as"));
+    actionOpenFolder->setText(tr("Open folder position"));
+
+
+    menu->addAction(actionSave);
+    menu->addAction(actionOpenFolder);
+
+    menu->exec(QCursor::pos());
+
+
+
+    delete menu;
+    delete actionSave;
+    delete actionOpenFolder;
+}
+
+void ItemsWindow::actionSaveasSlot()
+{
+    qDebug()<<"另存为!";
+}
+
+void ItemsWindow::actionOpenFolderSlot()
+{
+    qDebug()<<"打开文件路径!";
+}
+
 void ItemsWindow::slidePress() //滑动条鼠标按下
 {
      player->pause();
@@ -275,25 +313,27 @@ void ItemsWindow::slideRelease()   //滑动条鼠标弹起
 }
 void ItemsWindow::playState()//播放状态
 {
-    if(player->state()!=QMediaPlayer::PlayingState)
+    if(player->state()==QMediaPlayer::PlayingState)
     {
-        return ;
+        qDebug()<<"有正在播放的音频";
+        player->stop();
+        itemPlay_PauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/bofang.svg);border-radius: 16px; }"
+                              "QToolButton:hover{image: url(:/svg/svg/bofang_select.svg);}"
+                              "QToolButton:pressed{background-color:#F96E92;}");
+        play_pause=false;
     }
-    player->pause();
-    itemPlay_PauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/bofang.svg);border-radius: 16px; }"
-                          "QToolButton:hover{image: url(:/svg/svg/bofang_select.svg);}"
-                          "QToolButton:pressed{background-color:#F96E92;}");
-    play_pause=false;
+
+
 }
 
 void ItemsWindow::stopReplayer()//先暂停再播放！
 {
+    //qDebug()<<"22222222222222222222222222222222222";
     QList<ItemsWindow*> items=this->parent()->findChildren<ItemsWindow*>();//取此类的父类的所有ItemsWindow类；findChildren：找所有的子类，findChild为找一个子类
-    qDebug()<<this->parent()->findChildren<ItemsWindow*>();
+   // qDebug()<<this->parent()->findChildren<ItemsWindow*>();
     for(ItemsWindow *item:items)
     {
         item->playState();//判断播放状态
-
     }
 }
 //开始播放和暂停播放
@@ -321,9 +361,9 @@ void ItemsWindow::itemPlay_PauseClicked()
                 }
                 else
                 {
-                    WrrMsg = new QMessageBox(QMessageBox::Warning,tr("警告")
-                                             ,tr("文件路径不存在,或被删除!"),QMessageBox::Yes );
-                    WrrMsg->button(QMessageBox::Yes)->setText("确 定");
+                    WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
+                                             ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
+                    WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                     WrrMsg->exec();
                     return ;
                 }
@@ -352,9 +392,9 @@ void ItemsWindow::itemPlay_PauseClicked()
                 }
                 else
                 {
-                    WrrMsg = new QMessageBox(QMessageBox::Warning,tr("警告")
-                                             ,tr("文件路径不存在,或被删除!"),QMessageBox::Yes );
-                    WrrMsg->button(QMessageBox::Yes)->setText("确 定");
+                    WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
+                                             ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
+                    WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                     WrrMsg->exec();
                     return ;
                 }
@@ -379,9 +419,9 @@ void ItemsWindow::delFile()
     int m=myth->readNumList()-1;//因为配置文件初始为1
     if(m<=0)
     {
-        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("警告")
-                                 ,tr("当前列表文件数目为0"),QMessageBox::Yes );
-        WrrMsg->button(QMessageBox::Yes)->setText("确 定");
+        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
+                                 ,tr("The current number of list files is 0."),QMessageBox::Yes );
+        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
         WrrMsg->exec();
         return ;
     }
@@ -396,14 +436,14 @@ void ItemsWindow::delFile()
             {
                 QFileInfo fileinfo(str);
                 QString filesuffix = fileinfo.suffix();//判断文件后缀
-                if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")))
+                if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
                 {
                     qDebug()<<"文件存在!可以删除";
                     if(player->state()==QMediaPlayer::PlayingState)
                     {
-                        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("警告")
-                                                 ,tr("正在播放，请停止后再删除!"),QMessageBox::Yes );
-                        WrrMsg->button(QMessageBox::Yes)->setText("确 定");
+                        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
+                                                 ,tr("Playing, please stop and delete!"),QMessageBox::Yes );
+                        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                         WrrMsg->exec();
                         return ;
                     }
@@ -438,9 +478,9 @@ void ItemsWindow::delFile()
             }
             else
             {
-                WrrMsg = new QMessageBox(QMessageBox::Warning,tr("警告")
-                                         ,tr("文件路径不存在,或被删除!"),QMessageBox::Yes );
-                WrrMsg->button(QMessageBox::Yes)->setText("确 定");
+                WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
+                                         ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
+                WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                 WrrMsg->exec();
                 return ;
             }
@@ -518,7 +558,9 @@ void ItemsWindow::cancel()
     clipperstackWid->setCurrentIndex(0);//切换至录音按钮stackLayout
     stackLayout->setCurrentIndex(0);//3个按钮布局切换至显示时间label
     splitLinestackWid->setCurrentIndex(0);//播放条布局切换
-    // deleteWaves();
+    mywave.clear();
+    //deleteWaves();
+    //initRectangleWave();//就初始化1次就可以了
 }
 void ItemsWindow::finish()
 {
@@ -545,6 +587,8 @@ void ItemsWindow::initRectangleWave()//初始化矩形框
     }
     waveLayout->setMargin(0);
     waveLayout->setSpacing(1);
+    cutWaveWid->setLayout(waveLayout);
+    cutWaveWid->setFixedHeight(50);
 
 }
 void ItemsWindow::deleteWaves()

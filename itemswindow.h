@@ -13,6 +13,8 @@
 #include <QStackedLayout>
 #include <QStackedWidget>
 #include <QGSettings>
+#include <QMenu>
+#include <QAction>
 
 #include "mythread.h"
 #include "mywave.h"
@@ -67,6 +69,11 @@ public:
     QMediaPlayer *player;
 
     QStackedLayout *stackLayout;
+
+    QMenu *menu;
+    QAction *actionSave;//另存为
+    QAction *actionOpenFolder;//打开此音频所在文件夹
+
     bool play_pause=false;
 
 
@@ -134,6 +141,11 @@ private slots:
     void durationChange(qint64 duration);
     void setPosition(int position);
     bool eventFilter(QObject *obj, QEvent *event);
+
+    void rightClickedMenuRequest();//右击弹出Menu菜单选择另存为和打开文件位置
+    void actionSaveasSlot();
+    void actionOpenFolderSlot();
+
     // 拖动进度条
     void slidePress();
     //滑动条弹起

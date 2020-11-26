@@ -8,11 +8,9 @@ Mp3Encoder::Mp3Encoder(int rate, int channels,QObject *parent) : QObject(parent)
     lame_set_num_channels(gfp,channels);  //设置pcm数据的声道数
     lame_set_in_samplerate(gfp, rate); //采样率
     lame_set_brate(gfp,128);  // 128kbps 编码率
-
-    lame_set_mode(gfp, channels>=2 ? STEREO : MONO);    //设置输出的mp3数据的声道, 0==STEREO, 3==MONO
+    lame_set_mode(gfp,STEREO);    //设置输出的mp3数据的声道, 0==STEREO, 3==MONO
     lame_set_quality(gfp,2);   /* 2=high  5 = medium  7=low */
-
-    lame_init_params(gfp);
+    lame_init_params(gfp); // ret_code >= 0 表示成功
 }
 Mp3Encoder::~Mp3Encoder()
 {

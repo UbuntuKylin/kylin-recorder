@@ -77,8 +77,10 @@ public slots:
     void closesave();
     void gotosave();
     void saveTypeMp3();
+    void saveTypeM4a();
     void saveTypeWav();
     void allAudio();
+    void inside();
     void microphone();
 signals:
 
