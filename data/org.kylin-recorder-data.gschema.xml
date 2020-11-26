@@ -25,5 +25,11 @@
              <summary>source</summary>
              <description>source</description>
          </key>
+         <key name="amplitude" type="s" >
+             <default>""</default>
+             <summary>amplitude</summary>
+             <description>amplitude</description>
+         </key>
+
      </schema>
 </schemalist>

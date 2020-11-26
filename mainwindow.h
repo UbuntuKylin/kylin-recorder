@@ -44,6 +44,7 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -52,13 +53,19 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
     QMessageBox *WrrMsg;
+    QGSettings  *defaultPathData= nullptr;
+    QGSettings *themeData=nullptr;//主题的setting
+    QString theme = "ukui-default";
+    bool isMax = false;
+    QTime cut;
+    int valueArray[110];
 
     Settings set;
     Save saveas;
 
     //QString fileName;
     QString daultfileName;
-    QString desktop_path;
+
     int ad = 1;
     int tag=0;//是否检测到输入设备
 
@@ -71,23 +78,31 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     bool strat_pause=false;//开始和暂停1
     QStackedLayout *m_pStackedLayout;//堆叠布局
 
-
+    QLabel *lb;
+    QLabel *piclb;//窗体左上角图片Label
     ItemsWindow *itemswindow;
 
     QListWidget *list;
     QListWidgetItem *aItem;//列表的Item
-//    QListView *listview;
-//    QSortFilterProxyModel *m_proxyModel;
-//    QStandardItemModel *m_model;
-//    QStandardItem *Item;
+
     QLabel *fileListlb;//文件列表
     QFile *file;
-    void initGsetting();
+    void initThemeGsetting();
+    void initFunctionGsetting();
+    void themeButton(QString themeColor);
+    void themeStyle(QString themeColor);
+    void themeWindow(QString themeColor);
+
+    void MainWindowLayout();
+
     QString playerTotalTime(QString filePath);
     int itemSelect=0;
 
 
-
+    int pre=0;
+    int now=0;
+    QTimer *pTimer;//1
+    QTime baseTime;//1
 private:
 
 
@@ -98,10 +113,13 @@ private:
 
     QAudioRecorder *audioRecorder;
     QLabel *seatlb;
-    QToolButton *setButton;
-    QToolButton *max_minButton;//最大最小化切换按钮
 
+    QToolButton *setButton;
+    QToolButton *miniButton;//mini模式切换按钮
+    QToolButton *minButton;//最小化按钮
+    QToolButton *maxButton;//最大化按钮
     QToolButton *closeButton;
+
     QToolButton *recordButton;
 
 
@@ -152,12 +170,11 @@ private:
     QFrame *fm;
     QLabel *voicelb;
 
-    QTimer *pTimer;//1
-    QTime baseTime;//1
+
     //显示的时间
     QString timeStr;
 
-    QGSettings  *defaultPathData= nullptr;
+
     QString firstGetrecordList="";
 
     bool isPress;
@@ -179,6 +196,8 @@ signals://主线程的信号
     void playRecord();
     void pauseRecord();
     void pageChange();
+
+
 private://音频相关
 
     QSlider *slider;
@@ -197,13 +216,17 @@ public slots:
     void updateDisplay();
     void changeVoicePicture();
 
-    void setuserdirectory();
     void goset();//弹出设置窗体
 
     void miniShow();
+    void minShow();
+    void maxShow();
 
     void slotOnItemDoubleClicked(QListWidgetItem *item);
     void slotItemEntered(QListWidgetItem *item);
+
+    void handlingSlot(QString str);
+    void slotListItemAdd(QString fileName,int i);
 };
 
 #endif // MAINWINDOW_H

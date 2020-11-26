@@ -11,12 +11,26 @@
 #include <QListWidgetItem>
 #include <QTime>
 #include <QStackedLayout>
+#include <QStackedWidget>
+#include <QGSettings>
+#include <QMenu>
+#include <QAction>
+
 #include "mythread.h"
+#include "mywave.h"
 #include <QDebug>
+
+
+#define cutRectangleCount 110//剪裁界面的矩形条个数
 class ItemsWindow : public QMainWindow
 {
     Q_OBJECT
 public:
+
+    int initTag=0;
+
+    QGSettings  *itemData= nullptr;
+    QGSettings *darkData=nullptr;//主题的setting
     QWidget *itemsWid;
     QWidget *mainWid;
     QHBoxLayout *mainLayout;
@@ -28,8 +42,11 @@ public:
     QWidget *threeButtonWid;//三个按钮的Wid
 
     QWidget *clipperWid;//剪裁的总Wid
-    QWidget *clipperstackWid;//
-    QFrame *line;//剪裁线独自占一个
+    QStackedWidget *clipperstackWid;//用于切换剪裁的堆叠wid
+    QStackedWidget *splitLinestackWid;//分割线堆叠wid
+    QFrame *line;
+//    QFrame *line;
+    QWidget *cutWaveWid;//剪裁线独自占一个
     QWidget *bottomWid;//底部Wid
 
     QLabel *timelengthlb2;//音频时间
@@ -37,8 +54,9 @@ public:
     QToolButton *finishButton;//完成
     QHBoxLayout *bottomLayout;//底部布局
     QVBoxLayout *clipperLayout;//剪裁布局
-    QStackedLayout *clipperstackLayout;//剪裁堆叠布局
-
+    QHBoxLayout *waveLayout;//波形图布局
+//    QStackedLayout *clipperstackLayout;//剪裁堆叠布局
+    QList<int> amplitudeNum;//存储振幅的大小的整型列表
 
     QLabel *timelengthlb;//测试label
     QTime totalTime;
@@ -52,8 +70,22 @@ public:
 
     QStackedLayout *stackLayout;
 
-private:
+    QMenu *menu;
+    QAction *actionSave;//另存为
+    QAction *actionOpenFolder;//打开此音频所在文件夹
+
     bool play_pause=false;
+
+
+    void createCutWave();
+
+
+    //bool isplay=false;
+private:
+
+    QVector<myWave*> mywave;
+
+
     QLabel *fileListlb;//文件列表
     QSlider *playSlider;//播放划块条
 
@@ -84,14 +116,24 @@ private:
 
 
 private:
+
+    void initRectangleWave();//停止录音后再生成110个矩形框,防止多次初始化造成cpu占用率过高
+    void deleteWaves();
+
+    void initItemWid();
     void setItemWid();
+    void initClipper();
+    void setClipper();
+    void stopReplayer();
+    void playState();
+
+
+
 //    void mouseMoveEvent(QMouseEvent *event);
 //    void mousePressEvent(QMouseEvent *e);
 //    void enterEvent(QEvent *event);
 //    void leaveEvent(QEvent *event);
 
-    //当前播放的录音索引
-    int currentPlayIndex = -1;
 private slots:
 
     void itemPlay_PauseClicked();
@@ -99,6 +141,11 @@ private slots:
     void durationChange(qint64 duration);
     void setPosition(int position);
     bool eventFilter(QObject *obj, QEvent *event);
+
+    void rightClickedMenuRequest();//右击弹出Menu菜单选择另存为和打开文件位置
+    void actionSaveasSlot();
+    void actionOpenFolderSlot();
+
     // 拖动进度条
     void slidePress();
     //滑动条弹起
@@ -108,11 +155,11 @@ private slots:
     void clipper();
     //删除
     void delFile();
+
+    void cancel();
+    void finish();
 public slots:
 
-
-signals:
-    void judgePlay(int currentIndex);
 
 };
 

@@ -22,6 +22,7 @@ class Settings : public QMainWindow
 public:
     explicit Settings(QWidget *parent = nullptr);
     QGSettings  *Data= nullptr;
+    QGSettings  *darkData= nullptr;
     //int save_default = 1;
     QRadioButton *radioButton;
     //    QLabel *label_2;
@@ -33,6 +34,10 @@ public:
 
     QRadioButton *radioButton_6;
     QLabel *label_8;
+
+
+    QWidget *mainWid;
+
 private:
     QToolButton *closeButton;
     QButtonGroup *buttonGroup;
@@ -43,7 +48,7 @@ private:
     QVBoxLayout *mainLayout;
 
     QWidget *titleWid;
-    QWidget *mainWid;
+
     QWidget *Wid;
 
     QLabel *label;
@@ -72,8 +77,10 @@ public slots:
     void closesave();
     void gotosave();
     void saveTypeMp3();
+    void saveTypeM4a();
     void saveTypeWav();
     void allAudio();
+    void inside();
     void microphone();
 signals:
 

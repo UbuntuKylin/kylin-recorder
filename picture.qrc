@@ -38,7 +38,6 @@
         <file>png/pause_mini_click.png</file>
         <file>png/pause_mini_clickWhite2.png</file>
         <file>png/pause_mini_hover.png</file>
-        <file>png/pause_mini_hoverWhiteæ¬.png</file>
         <file>png/pause_mini_white.png</file>
         <file>png/pause_mini.png</file>
         <file>png/start_mini_click.png</file>
@@ -47,6 +46,16 @@
         <file>png/start_mini_hoverWhite2.png</file>
         <file>png/start_mini_white.png</file>
         <file>png/start_mini.png</file>
+        <file>png/dark_click_stop.png</file>
+        <file>png/dark_hover_stop.png</file>
+        <file>png/dark_pause_click.png</file>
+        <file>png/dark_pause_hover.png</file>
+        <file>png/dark_pause.png</file>
+        <file>png/dark_start_click.png</file>
+        <file>png/dark_start_hover.png</file>
+        <file>png/dark_start.png</file>
+        <file>png/dark_stop.png</file>
+        <file>png/pause_mini_hoverWhite.png</file>
     </qresource>
     <qresource prefix="/svg">
         <file>svg/bianji.svg</file>
@@ -61,5 +70,14 @@
         <file>svg/recording_128.svg</file>
         <file>svg/jianji_select.svg</file>
         <file>svg/zanting_select.svg</file>
+        <file>svg/dark-window-close.svg</file>
+        <file>svg/dark-window-maximize.svg</file>
+        <file>svg/dark-window-restore.svg</file>
+        <file>svg/window-close.svg</file>
+        <file>svg/window-maximize.svg</file>
+        <file>svg/window-restore.svg</file>
+        <file>svg/open-menu.svg</file>
+        <file>svg/dark-window-min.svg</file>
+        <file>svg/window-min.svg</file>
     </qresource>
 </RCC>

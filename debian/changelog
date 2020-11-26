@@ -1,3 +1,55 @@
+kylin-recorder (1.2.5) v101; urgency=medium
+
+  * 增加窗管圆角阴影适配
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 26 Nov 2020 11:05:00 +0800
+
+kylin-recorder (1.2.4) v101; urgency=medium
+
+  * 增加运行依赖，文件列表可以播放
+
+ -- baijincheng <baijincheng@kylinos.cn>  Mon, 23 Nov 2020 11:05:00 +0800
+
+kylin-recorder (1.2.3) v101; urgency=medium
+
+  * 修复bug#26008 ：文件列表中的录音文件时长显示不全
+  * 修复bug#24980 ：切换主题会导致录音软件卡死一会，卡死时间长短与已录制文件数成正比
+  * 修复bug#24631 ：设置存储路径为“存储为”，保存当前录音，再次进行一次新的录音，录音结束弹出的存储框中显示之前录音文件及路径
+  * 修复bug#24464 ：desktop没有comment字段
+  * 修复bug#24435 ：【台式机】录音无声音
+  * 修复bug#24304 ：文件列表区域已录制文件的录制时长显示不对
+  * 修复bug#24300 ：文件列表滑动条样式
+  * 修复bug#24291 ：录制时长超过1分零5秒时，本地文件类型和图标异常
+
+ -- baijincheng <baijincheng@kylinos.cn>  Mon, 20 Nov 2020 17:05:00 +0800
+
+kylin-recorder (1.2.2) v101; urgency=medium
+
+  * 藏文翻译desktop文件
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 19 Nov 2020 17:09:00 +0800
+
+kylin-recorder (1.2.1) v101; urgency=medium
+
+  * 修复bug#24635 ：设置存储路径“存储为”，结束录制音频后，弹窗显示存储路径，显示文件名，但是没有保存按钮，一定要在位置处重新选择路径才能保存
+  * 修复bug#24620 ：主题更改为深色模式，麒麟录音界面中“文件列表”四个字消失
+  * 修复bug#23420 ：开始菜单麒麟录音图标显示异常，与任务栏麒麟录音图标不一致
+  * 修复bug#24435 ：【台式机】录音无声音
+  * 修复bug#24365 ：录音格式为wav时，录制文件有较大嘈杂声
+  * 修复bug#24338 ：mini窗口时，开始录音响应区域异常
+  * 修复bug#24312 ：文件列表已录制文件不可播放
+  * 修复bug#24303 ：文件列表可以多个文件同时播放
+  * 修复bug#24300 ：文件列表滑动条样式
+  * 修复bug#24249 ：文件列表没有和本地文件同步删除
+  * 修复bug#24246 ：深色主题时，mini窗口界面显示异常
+  * 修复bug#24245 ：深色模式时设置弹窗异常
+  * 修复bug#24241 ：录音区域点击任意位置都可响应开始录音
+  * 修复bug#24240 ：深色主题时，界面异常显示
+  * 修复bug#24223 ：浅色主题时点击主界面之外区域时，文件裂变区域会有灰色背景
+  * 修复bug#24219 ：主界面区域划分不妥当
+
+ -- baijincheng <baijincheng@kylinos.cn>  Wed, 4 Nov 2020 10:50:00 +0800
+
 kylin-recorder (1.2.0) v101; urgency=medium
 
   * 麒麟录音新版本迭代
