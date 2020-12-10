@@ -1,31 +1,37 @@
 Source: kylin-recorder
 Section: utils
 Priority: optional
-Maintainer: baijincheng <baijincheng@kylinos.cn>
-Build-Depends: debhelper,
+Maintainer: Kylin Team <team+kylin@tracker.debian.org>
+Uploaders: baijincheng <baijincheng@kylinos.cn>
+Build-Depends: debhelper-compat (= 13),
                qtbase5-dev,
                qt5-qmake,
                qtchooser,
                qttools5-dev-tools,
                qtbase5-dev-tools,
                qtmultimedia5-dev,
-			   libmp3lame-dev,
-			   ffmpeg,
-			   libgsettings-qt-dev,
-			   libqt5x11extras5-dev,
+               libmp3lame-dev,
+               ffmpeg,
+               libgsettings-qt-dev,
+               libqt5x11extras5-dev,
                libkf5windowsystem-dev,
-			   pkgconf
-Standards-Version: 4.4.1
-Homepage: <insert the upstream URL, if relevant>
-#Vcs-Browser: https://salsa.debian.org/debian/kylin-recorder
-#Vcs-Git: https://salsa.debian.org/debian/kylin-recorder.git
+               pkgconf
+Standards-Version: 4.5.0
+Rules-Requires-Root: no
+Homepage: https://github.com/ukui/ukui-recorder.git
+Vcs-Browser: https://github.com/ukui/ukui-recorder
+Vcs-Git: https://github.com/ukui/ukui-paste.git
 
 Package: kylin-recorder
 Architecture: any
 Depends: libburner-media3-1,
          gstreamer1.0-plugins-good,
          gstreamer1.0-pulseaudio,
-         ${shlibs:Depends}, 
-		 ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+         ${shlibs:Depends},
+         ${misc:Depends}
+Description: Recorder tool for UKUI
+ A user-friendly and easy to operate recording
+ tool, supporting multi audio format recording,
+ such as MP3, WAV, etc., supporting playback,
+ clipping and other functions, to meet your
+ recording needs in various aspects.

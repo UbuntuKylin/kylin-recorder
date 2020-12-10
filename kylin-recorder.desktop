@@ -10,4 +10,5 @@ GenericName[bo_CN]=སྒྲ་ཕབ་ཡོ་བྱད།
 Exec=/usr/bin/kylin-recorder %u
 Icon=/usr/share/pixmaps/recording_128.svg
 Type=Application
+Keywords=recorder;
 Categories=GNOME;Utility;
