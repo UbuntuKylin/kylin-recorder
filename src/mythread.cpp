@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2020, KylinSoft Co., Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  Authors: baijincheng <baijincheng@kylinos.cn>
+ */
 #include "mythread.h"
 #include "mainwindow.h"
 
@@ -23,7 +41,7 @@ struct WAVFILEHEADER
 MyThread::MyThread(QWidget *parent) : QMainWindow(parent)
 {
 
-    qDebug()<<"MyThread::startThreadSlot QThread::currentThreadId()=="<<QThread::currentThreadId();
+    //qDebug()<<"线程MyThread::startThreadSlot QThread::currentThreadId()=="<<QThread::currentThreadId();
     pTimer = new QTimer;
     audioInputSound = nullptr;
     audioOutputSound = nullptr;
@@ -38,6 +56,7 @@ MyThread::MyThread(QWidget *parent) : QMainWindow(parent)
     });
     connect(this,&MyThread::listItemAddSignal,MainWindow::mutual,&MainWindow::slotListItemAdd);
     connect(this,&MyThread::handling,MainWindow::mutual,&MainWindow::handlingSlot);//处理中...
+
 }
 
 //pcm转换wav
@@ -69,7 +88,6 @@ qint64 MyThread::addWavHeader(QString catheFileName , QString filename)
     }
     int nSize = sizeof(WavFileHeader);
     qint64 nFileLen = cacheFile.bytesAvailable();
-
 //    WavFileHeader.RiffLength = nFileLen - 8 + nSize;
 //    WavFileHeader.DataLength = nFileLen;
 
@@ -85,8 +103,9 @@ qint64 MyThread::addWavHeader(QString catheFileName , QString filename)
 //pcm转换mp3
 qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
 {
+    endFileName = isSameFileName(mp3FileName);//判断是否文件名重复
     QFile cacheFile(catheFileName);
-    QFile mp3File(mp3FileName);
+    QFile mp3File(endFileName);
     if (!cacheFile.open(QIODevice::ReadWrite))
     {
         return -1;
@@ -102,13 +121,16 @@ qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
     //ffmpeg -y -f s16le -ar 16k -ac 1 -i input.raw output.mp3//ffmpeg命令真香
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
    // code->fromUnicode(catheFileName).data();
-    code->fromUnicode(mp3FileName).data();
-    QString cmd="ffmpeg -y -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+mp3FileName+"\"";
+    code->fromUnicode(endFileName).data();
+
+
+    QString cmd="ffmpeg -y -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+endFileName+"\"";
     //qDebug()<<"******"<<catheFileName<<"*"<<cmd<<"******";
     process->start(cmd);
     QString str = "处理中...";
     emit handling(str);
     process->waitForFinished();
+
 
     cacheFile.close();
     mp3File.close();
@@ -131,8 +153,8 @@ qint64 MyThread::toConvertM4a(QString catheFileName , QString m4aFileName)
     qint64 nFileLen = cacheFile.bytesAvailable();
     QByteArray ba = cacheFile.readAll();
 
-        qDebug() <<ba.size()<< nFileLen ;
-    //ffmpeg -y -f s16le -ar 16k -ac 1 -i input.raw output.mp3//ffmpeg命令真香
+    qDebug() <<ba.size()<< nFileLen ;
+    //ffmpeg -y -f s16le -ar 16k -ac 1 -i input.raw output.mp3//ffmpeg真香
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
    // code->fromUnicode(catheFileName).data();
     code->fromUnicode(m4aFileName).data();
@@ -202,9 +224,7 @@ void MyThread::record_pressed()
         exit(1);
     }
 
-
 //    QAudioDeviceInfo info = monitorVoiceSource(i);
-
 //    for( QAudioDeviceInfo &deviceInfo: QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
 //    {
 //        if(deviceInfo.deviceName().contains("alsa_output"))
@@ -252,6 +272,55 @@ QAudioFormat MyThread::Wav()
     format.setSampleType(QAudioFormat::SignedInt);//v10.1规定QAudioFormat::SignedInt。
     return format;
 }
+
+void MyThread::saveAs(QString oldFileName)//右键另存为可以选择存储音频格式
+{
+    QFileDialog *fileDialog = new QFileDialog;
+    QString fileType = "Mp3(*.mp3);;Wav(*.wav);;M4a(*.m4a)";
+    fileDialog->setNameFilter(fileType);
+    QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
+    qDebug()<<defaultPath;
+    QString newFileName = QFileDialog::getSaveFileName(this,
+                                                     tr("Select a file storage directory"),
+                                                     defaultPath+"/RecordFile.mp3",
+                                                     fileType);
+    if(newFileName =="")
+    {
+        return ;
+    }
+    if(oldFileName != newFileName)
+    {
+        if(newFileName.split(".").last() == "mp3")
+        {
+            qDebug() <<"旧文件名:"<<oldFileName<<"新文件名:"<<newFileName<<newFileName.split(".").last();
+            QString cmd="ffmpeg -y -i \""+oldFileName+"\" \""+newFileName+"\"";
+            process->start(cmd);
+        }
+        else if(newFileName.split(".").last() == "wav")
+        {
+            QString cmd="ffmpeg -y -i \""+oldFileName+"\" \""+newFileName+"\"";
+            process->start(cmd);
+        }
+        else if(newFileName.split(".").last() == "m4a")
+        {
+            QString cmd="ffmpeg -y -i \""+oldFileName+"\" \""+newFileName+"\"";
+            process->start(cmd);
+        }
+        //QFile::copy(oldFileName,newFileName);
+    }
+    else
+    {
+        if(QMessageBox::Yes)
+        {
+            qDebug()<<"确认";
+            QFile::copy(oldFileName,newFileName);
+        }
+    }
+    fileDialog->deleteLater();
+    return ;
+
+}
+
 void MyThread::stop_btnPressed()//停止录音
 {
 
@@ -334,21 +403,21 @@ void MyThread::stop_btnPressed()//停止录音
         QTime t1;
         t1=QTime::currentTime();
         QString str = QString::number(t1.hour())+":"+QString::number(t1.minute())+":"+QString::number(t1.second());
-        desktop_path = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+        default_Location = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
         QDateTime current_time = QDateTime::currentDateTime();
         //显示时间，格式为：年-月-日 时：分：秒 周几,可自行定义
         QString StrCurrentTime = current_time.toString("yyyy.MM.dd");
         fileName=StrCurrentTime;
         if(type==1)//1代表MP3
         {
-            if( toConvertMp3( "record.raw", (desktop_path+tr("/")+fileName+tr("-")+str+tr(".mp3")).toLocal8Bit().data())>0)
+            if( toConvertMp3( "record.raw", (default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3")).toLocal8Bit().data())>0)
             {
                 //MainWindow::mutual->playerTotalTime(desktop_path+tr("/")+fileName+tr("-")+str+tr(".mp3"));
                 //qDebug()<<"Yes";
                 //改变配置文件中的存储路径
                 //qDebug()<<desktop_path+tr("/")+fileName+tr("-")+str+tr(".mp3");
-                onChangeCurrentRecordList(desktop_path+tr("/")+fileName+tr("-")+str+tr(".mp3"));
-                listItemAdd(desktop_path+tr("/")+fileName+tr("-")+str+tr(".mp3"));
+                onChangeCurrentRecordList(default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3"));
+                listItemAdd(default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3"));
                 WrrMsg = new QMessageBox(QMessageBox::Question, tr("Save"), tr("Saved successfully：")+ fileName+tr("-")+str, QMessageBox::Yes );
                 WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                 WrrMsg->exec();
@@ -356,11 +425,11 @@ void MyThread::stop_btnPressed()//停止录音
         }
         else if(type==2)//2代表M4a
         {
-            if( toConvertM4a( "record.raw", (desktop_path+tr("/")+fileName+tr("-")+str+tr(".m4a")).toLocal8Bit().data() ) > 0 )
+            if( toConvertM4a( "record.raw", (default_Location+tr("/")+fileName+tr("-")+str+tr(".m4a")).toLocal8Bit().data() ) > 0 )
             {
                 //改变配置文件中的存储路径
-                onChangeCurrentRecordList(desktop_path+tr("/")+fileName+tr("-")+str+tr(".m4a"));
-                listItemAdd(desktop_path+tr("/")+fileName+tr("-")+str+tr(".m4a"));
+                onChangeCurrentRecordList(default_Location+tr("/")+fileName+tr("-")+str+tr(".m4a"));
+                listItemAdd(default_Location+tr("/")+fileName+tr("-")+str+tr(".m4a"));
                 WrrMsg = new QMessageBox(QMessageBox::Question, tr("Save"), tr("Saved successfully：")+ fileName+tr("-")+str, QMessageBox::Yes );
                 WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                 WrrMsg->exec();
@@ -368,11 +437,11 @@ void MyThread::stop_btnPressed()//停止录音
         }
         else if(type==3)//3代表Wav
         {
-            if( addWavHeader( "record.raw", (desktop_path+tr("/")+fileName+tr("-")+str+tr(".wav")).toLocal8Bit().data() ) > 0 )
+            if( addWavHeader( "record.raw", (default_Location+tr("/")+fileName+tr("-")+str+tr(".wav")).toLocal8Bit().data() ) > 0 )
             {
                 //改变配置文件中的存储路径
-                onChangeCurrentRecordList(desktop_path+tr("/")+fileName+tr("-")+str+tr(".wav"));
-                listItemAdd(desktop_path+tr("/")+fileName+tr("-")+str+tr(".wav"));
+                onChangeCurrentRecordList(default_Location+tr("/")+fileName+tr("-")+str+tr(".wav"));
+                listItemAdd(default_Location+tr("/")+fileName+tr("-")+str+tr(".wav"));
                 WrrMsg = new QMessageBox(QMessageBox::Question, tr("Save"), tr("Saved successfully：")+ fileName+tr("-")+str, QMessageBox::Yes );
                 WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                 WrrMsg->exec();
@@ -398,7 +467,7 @@ void MyThread::stop_btnPressed()//停止录音
 void MyThread::updateAmplitudeList(int valueArray[])//更新检测到的音频振幅值到配置文件
 {
     QString newStr="";
-    for(int i=0;i<110;i++)
+    for(int i=0;i<MYTHREAD_RECTANGLE_COUNT;i++)
     {
         QString amplitudeStr=recordData->get("amplitude").toString();//从配置文件中读取振幅集,配置文件中初始值为""
         QString str=QString::number(valueArray[i]);
@@ -528,7 +597,7 @@ QAudioDeviceInfo MyThread::monitorVoiceSource(int i)
             }
             else
             {
-                //qDebug()<<deviceInfo.deviceName();
+//                qDebug()<<deviceInfo.deviceName();
             }
 
         }
@@ -539,7 +608,7 @@ QAudioDeviceInfo MyThread::monitorVoiceSource(int i)
         QAudioDeviceInfo inputDevice(QAudioDeviceInfo::defaultInputDevice());
         mFormatSound = inputDevice.nearestFormat(mFormatSound);
         audioInputSound = new QAudioInput(inputDevice, mFormatSound, this);
-        qDebug()<<"当前输入设备:"<<inputDevice.deviceName()<<mFormatSound;//可以判断当前输入设备
+//        qDebug()<<"当前输入设备:"<<inputDevice.deviceName()<<mFormatSound;//可以判断当前输入设备
         return inputDevice;
     }
 
@@ -618,44 +687,62 @@ void MyThread::OnReadMore()
 //                tmpArray2.clear();
 //            }
 //        }
-qDebug()<<"==========="<<MaxValue;
+//qDebug()<<"==========="<<MaxValue;
         MainWindow::mutual->valueArray[count] = MaxValue;//2020.11.12暂时禁用循环存值
         count++;//2020.11.12暂时禁用循环存值
 
-        count=count%110;//2020.11.12暂时禁用循环存值
+        count=count%MYTHREAD_RECTANGLE_COUNT;//2020.11.12暂时禁用循环存值
         emit recordPaint(MaxValue);//每检测到value就发送一次绘图信号
 }
+
 int MyThread::useVolumeSample(short sample)
 {
     return qMax(qMin(((sample * soundVolume) / 100) ,30000),-30000);//求每次检测到的振幅组中最大值
 }
-void MyThread::listItemAdd(QString fileName)
+
+QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时，配置文件中路径为空
 {
     QStringList keyList = recordData->keys();
+    QStringList listRecordPath;
     if (keyList.contains("recorderpath"))
     {
-        int  m=readNumList()-1;
-        //qDebug()<<m;
-        QStringList listRecordPath=readPathCollected().split(",");
-        //qDebug()<<listRecordPath;
-        for(int i=1;i<=m;i++)
+        int  m=readNumList();
+        qDebug()<<m;
+
+        listRecordPath=readPathCollected().split(",");
+        qDebug()<<filePath;
+        for(int i=0;i<m;i++)
         {
-            QString str=listRecordPath.at(i);
-            //qDebug()<<str;
+            QString str="";
+            if(listRecordPath.length()==1)//首次添加时的路径集合就一个空值
+            {
+                str = filePath;
+            }
+            else
+            {
+                str = listRecordPath.at(i+1);
+            }
+           // qDebug()<<str;
             QFileInfo fileinfo(str);
             QString filesuffix = fileinfo.suffix();//判断文件后缀
 //          qDebug()<<fileinfo.isFile();//判断是否为文件，是文件就存在了,因为在本地删除后，同步文件列表下才打开时那个文件也没了
             //qDebug()<<filesuffix;
-            if(!str.contains(fileName)||m==1)
+//            fileName.split("/").last()
+            if(!str.contains(filePath)||MainWindow::mutual->list->count()==0)//不包含有2种情况：1.路径中有不同的文件名 2.文件路径本身不存在或被删除
             {
                 if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
                 {
-                    emit listItemAddSignal(fileName,MainWindow::mutual->list->count()+1);
+                    emit listItemAddSignal(filePath,MainWindow::mutual->list->count()+1);
                     break;//因为点击保存一次就添加一次所以break
                 }
                 else
                 {
-                    qDebug()<<str<<"文件或被删除！";
+                    if(readPathCollected()=="")//首次添加时配置文件一定是空的所以fileinfo.isFile()为false
+                    {
+                        emit listItemAddSignal(filePath,MainWindow::mutual->list->count()+1);
+                        return filePath;
+                    }
+                    qDebug()<<str<<"listItemAdd:文件或被删除！";
                     QString subStr = ","+str;//子串
                     /*
                      * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
@@ -671,14 +758,66 @@ void MyThread::listItemAdd(QString fileName)
                 }
 
             }
-            else
-            {
-                qDebug()<<"文件名相同！直接覆盖";
-            }
+
         }
+
     }
+    return filePath;
 
 }
+
+QString MyThread::isSameFileName(QString FileName)
+{
+    qDebug()<<FileName;
+    QStringList keyList = recordData->keys();
+    if (keyList.contains("recorderpath"))
+    {
+        int  m=readNumList()-1;
+        //qDebug()<<m;
+        QStringList listRecordPath=readPathCollected().split(",");
+        //qDebug()<<listRecordPath;
+        QString tempFileName;
+        QString oldFileName;
+        QString str;
+        int fileName_addNum;
+        for(int i=0;i<m;i++)
+        {
+            str=listRecordPath.at(i+1);
+            //qDebug()<<str;
+            QFileInfo fileinfo(str);
+            QString filesuffix = fileinfo.suffix();//判断文件后缀
+
+//          qDebug()<<fileinfo.isFile();//判断是否为文件，是文件就存在了,因为在本地删除后，同步文件列表下才打开时那个文件也没了
+            //qDebug()<<filesuffix;
+//            fileName.split("/").last()
+            if(str.contains(FileName))
+            {
+                if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
+                {
+                    qDebug()<<"绝对路径名相同！文件名后加(i)";
+                    fileName_addNum = recordData->get("samefilenum").toInt();
+                    tempFileName = FileName.split("/").last();
+                    oldFileName = tempFileName.split(".").first();
+
+                    QString newFileName = oldFileName+"("+ QString::number(fileName_addNum) +")";
+                    qDebug()<<newFileName;
+                    int pos = str.indexOf(oldFileName);
+                    QString tempStr = str.remove(pos,oldFileName.length());
+                    QString newStr = tempStr.insert(pos,newFileName);
+                    qDebug()<<newStr;
+                    fileName_addNum++;
+                    recordData->set("samefilenum",fileName_addNum);
+                    return newStr;
+
+                }
+            }
+        }
+
+    }
+    return FileName;
+
+}
+
 void MyThread::selectMp3()
 {
     if(fileName.length() == 0)
@@ -691,23 +830,25 @@ void MyThread::selectMp3()
     {
         if( toConvertMp3( "record.raw", (fileName+tr(".mp3")).toLocal8Bit().data() ) > 0 )
         {
-            onChangeCurrentRecordList(fileName+tr(".mp3"));
-            listItemAdd(fileName+tr(".mp3"));
-            QMessageBox::information(NULL, tr("Save"), tr("Saved successfully:") + fileName);
+
+            //添加前要判断是否重复文件名
+            listItemAdd(endFileName);
+            onChangeCurrentRecordList(endFileName);
+            QMessageBox::information(NULL, tr("Save"), tr("Saved successfully:") + endFileName);
         }
 
     }
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
-    code->fromUnicode(fileName).data();
-    if (fileName.isEmpty())
+    code->fromUnicode(endFileName).data();
+    if (endFileName.isEmpty())
     {
         return ;
     }
     else
     {
 
-        fileName += ".mp3";
-        qDebug() << "filenamePath=" << fileName;
+        //fileName += ".mp3";
+        qDebug() << "filenamePath=" << endFileName;
 
     }
 
@@ -722,8 +863,9 @@ void MyThread::selectM4a()
     } else {
         if( toConvertM4a( "record.raw", (fileName+tr(".m4a")).toLocal8Bit().data() ) > 0 )
         {
-            onChangeCurrentRecordList(fileName+tr(".m4a"));
+
             listItemAdd(fileName+tr(".m4a"));
+            onChangeCurrentRecordList(fileName+tr(".m4a"));
             QMessageBox::information(NULL, tr("Save"), tr("Saved successfully:") + fileName);
         }
 
@@ -749,8 +891,9 @@ void MyThread::selectWav()
     } else {
         if( addWavHeader( "record.raw", (fileName+tr(".wav")).toLocal8Bit().data() ) > 0 )
         {
-            onChangeCurrentRecordList(fileName+tr(".wav"));
+
             listItemAdd(fileName+tr(".wav"));
+            onChangeCurrentRecordList(fileName+tr(".wav"));
             QMessageBox::information(NULL, tr("Save"), tr("Saved successfully:") + fileName);
         }
 

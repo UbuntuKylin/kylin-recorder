@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2020, KylinSoft Co., Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  Authors: baijincheng <baijincheng@kylinos.cn>
+ */
 #ifndef ITEMSWINDOW_H
 #define ITEMSWINDOW_H
 
@@ -18,25 +36,29 @@
 
 #include "mythread.h"
 #include "mywave.h"
+#include "clipbutton.h"
 #include <QDebug>
 
-
-#define cutRectangleCount 110//剪裁界面的矩形条个数
+#define ITEMWINDOW_RECTANGLE_COUNT 130//用于绘制剪裁界面的矩形条个数
 class ItemsWindow : public QMainWindow
 {
     Q_OBJECT
 public:
 
+    explicit ItemsWindow(QWidget *parent = nullptr);
     int initTag=0;
-
+    int isPlayerEnd = 0;//是当前音频文件是否播放结束
     QGSettings  *itemData= nullptr;
     QGSettings *darkData=nullptr;//主题的setting
     QWidget *itemsWid;
     QWidget *mainWid;
     QHBoxLayout *mainLayout;
-    explicit ItemsWindow(QWidget *parent = nullptr);
-    QLabel *recordFileNamelb;//录音文件名
-    QLabel *dateTimelb;//日期时间
+
+    QString itemsThemeColor;//主题颜色
+    QLabel *listNum;//录音序号
+    QLabel *recordFileName;//录音文件名
+    QLabel *listNumChangeColor;//录音序号颜色变化
+    QLabel *recordFileNameChangeColor;//录音文件名颜色变化
     QWidget *stackWid;
     QWidget *firstWid;
     QWidget *threeButtonWid;//三个按钮的Wid
@@ -44,17 +66,32 @@ public:
     QWidget *clipperWid;//剪裁的总Wid
     QStackedWidget *clipperstackWid;//用于切换剪裁的堆叠wid
     QStackedWidget *splitLinestackWid;//分割线堆叠wid
-    QFrame *line;
-//    QFrame *line;
-    QWidget *cutWaveWid;//剪裁线独自占一个
+    QFrame *line;//分割线
+    ClipButton *cursor;//游标
+    QWidget *cutWaveWid;//剪裁界面框(滑块+轨道)
+    QWidget *railWid;//轨道的Wid
     QWidget *bottomWid;//底部Wid
+    QString clipFilePath;//被剪裁的文件路径
 
-    QLabel *timelengthlb2;//音频时间
+    QLabel *timelengthlb2;//音频时间节点(开始/结束)
+//    QLabel *liveTime;//音频时间实时显示
+    int time;
+    QTimer *moveTime;//每隔毫秒数
+    int movePos = 0;//每隔毫秒数所移动位置
+    int cursorCanMove = 1;//初始默认游标可移动
+
     QToolButton *cancelButton;//取消
     QToolButton *finishButton;//完成
+    QProcess *process;
+    QString timeEditStartTime;
+    QString timeEditEndTime;
+    int start_Time = 0;//剪辑开始节点,默认都是0
+    int end_Time = 0;//剪辑结束节点,默认都是0
+
     QHBoxLayout *bottomLayout;//底部布局
     QVBoxLayout *clipperLayout;//剪裁布局
     QHBoxLayout *waveLayout;//波形图布局
+    QHBoxLayout *rectangleLayout;
 //    QStackedLayout *clipperstackLayout;//剪裁堆叠布局
     QList<int> amplitudeNum;//存储振幅的大小的整型列表
 
@@ -77,9 +114,12 @@ public:
     bool play_pause=false;
 
 
-    void createCutWave();
+    int createCutWave();
+    ClipButton *leftBtn;//左箭头按钮
+    ClipButton *rightBtn;//右箭头按钮
 
-
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
     //bool isplay=false;
 private:
 
@@ -94,7 +134,8 @@ private:
     QHBoxLayout *timeLengthLayout;
 
     QToolButton *itemPlay_PauseButton;//列表项的播放与暂停按钮
-    QToolButton *clipButton;//裁剪按钮
+    QToolButton *clipButton;//进入裁剪界面的按钮
+
     QToolButton *deleteButton;//删除按钮
     QWidget *itemWid;//列表项Wid
 
@@ -117,6 +158,7 @@ private:
 
 private:
 
+
     void initRectangleWave();//停止录音后再生成110个矩形框,防止多次初始化造成cpu占用率过高
     void deleteWaves();
 
@@ -124,15 +166,23 @@ private:
     void setItemWid();
     void initClipper();
     void setClipper();
-    void stopReplayer();
-    void playState();
+    void initThemeGsetting();//配置文件初始化主题
+    void themeStyle(QString themeColor);
 
-    void rightClickedMenuRequest();//右击弹出Menu菜单选择另存为和打开文件位置
+    void stopReplayer();
+
+    void playState();
+    void isOtherClipWidOpen();
+
+    void clipperFun();
+
+
+
 
 //    void mouseMoveEvent(QMouseEvent *event);
-//    void mousePressEvent(QMouseEvent *e);
-//    void enterEvent(QEvent *event);
-//    void leaveEvent(QEvent *event);
+//    void mousePressEvent(QMouseEvent *event);
+
+    QPoint pressPoint;
 
 private slots:
 
@@ -140,9 +190,9 @@ private slots:
     void positionChange(qint64 position);
     void durationChange(qint64 duration);
     void setPosition(int position);
-    bool eventFilter(QObject *obj, QEvent *event);
 
 
+    void rightClickedMenuRequest();//右击弹出Menu菜单选择另存为和打开文件位置
     void actionSaveasSlot();
     void actionOpenFolderSlot();
 
@@ -153,11 +203,23 @@ private slots:
 
     //裁剪
     void clipper();
-    //删除
+    void processFinish(int);
+    //删除本地音频文件
     void delFile();
 
     void cancel();
     void finish();
+
+    void pressPausePlayer_Slot();
+    void leftBtn_ReleaseStartPlayer_Slot(int leftButton_absolutePos,int leftButton_rightBorderOppositive,int padding);//左按钮或右按钮,统一为按钮边界相对位置
+    void rightBtn_ReleaseGetEndPositon_Slot(int rightButton_absolutePos,int rightButton_leftBorderOppositive,int padding);
+
+    void cursorMove();
+
+
+    void leftButton_rightBorderSlot(int x);
+
+
 public slots:
 
 

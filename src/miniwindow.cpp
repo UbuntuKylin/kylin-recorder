@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2020, KylinSoft Co., Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  Authors: baijincheng <baijincheng@kylinos.cn>
+ */
 #include "miniwindow.h"
 #include "mainwindow.h"
 
@@ -45,6 +63,7 @@ void MiniWindow::initMiniWindow()
     timelb->setFixedSize(83,15);
     max_minBtn=new QToolButton(this);//最大最小按钮
     closeBtn=new QToolButton(this);//关闭按钮
+    closeBtn->setIcon(QIcon::fromTheme("window-close-symbolic"));//主题库的叉子图标
 
     connect(pTimer,&QTimer::timeout,this,&MiniWindow::timeDisplay);
     connect(recordBtn,&QToolButton::clicked,this,&MiniWindow::switchPage);
@@ -74,10 +93,8 @@ void MiniWindow::initMiniWindow()
                               "QToolButton:pressed{background-color:#D9D9D9;opacity:0.15;}");
     closeBtn->setFixedSize(24,24);
     closeBtn->setStyleSheet("QToolButton{border-radius:4px;}"
-                            "QToolButton{image:url(:/png/png/close.png);}"
-                            "QToolButton:hover{background-color:#F04234}"
-                            "QToolButton:pressed{background-color:#D83436}");
-
+                            "QToolButton:hover{background-color:#F86457}"
+                            "QToolButton:pressed{background-color:#E44C50}");
 
     miniWid=new QWidget();//mini主窗体的Wid
     recordWid=new QWidget();//录制按钮的Wid
@@ -95,16 +112,15 @@ void MiniWindow::initMiniWindow()
     pageTwoLayout->addWidget(start_pauseBtn);
     pageTwoWid->setLayout(pageTwoLayout);
 
-
-    reWid=new QWidget();
-    recordLayout=new QVBoxLayout();
+    reWid = new QWidget();
+    recordLayout = new QVBoxLayout();
     recordLayout->addWidget(recordBtn,0,Qt::AlignCenter);
+    recordLayout->setContentsMargins(5,5,5,5);//左上右下
     reWid->setLayout(recordLayout);
 
-    recordStackedLayout=new QStackedLayout();//堆叠布局
-    recordStackedLayout->addWidget(reWid);
-    recordStackedLayout->addWidget(pageTwoWid);
-    recordWid->setLayout(recordStackedLayout);
+    recordStackedWidget = new QStackedWidget();//录音标签和开始暂停按钮的堆叠布局
+    recordStackedWidget->addWidget(reWid);
+    recordStackedWidget->addWidget(pageTwoWid);
 
 
     max_minAndCloseLayout->addWidget(line);
@@ -114,7 +130,7 @@ void MiniWindow::initMiniWindow()
     max_minAndCloseLayout->setMargin(0);
     max_minAndCloseWid->setLayout(max_minAndCloseLayout);
 
-    miniLayout->addWidget(recordWid,0,Qt::AlignCenter);
+    miniLayout->addWidget(recordStackedWidget,0,Qt::AlignCenter);
     miniLayout->addWidget(timelb);
     miniLayout->addWidget(max_minAndCloseWid);
     miniLayout->setSpacing(0);
@@ -127,21 +143,16 @@ void MiniWindow::initMiniWindow()
 //        start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini_white.png);}"
 //                                           "QToolButton:hover{image:url(:/png/png/pause_mini_hoverWhite.png);}"
 //                                           "QToolButton:pressed{image:url(:/png/png/pause_mini_clickWhite2.png);}");
-
-
 //        miniWid->setStyleSheet("border-radius:6px;background-color:#222222;");//后期适配主题颜s;
     }
     else
     {
-//        //初始按钮为暂停按钮。因为只要点击录音按钮就要开始录制了
+//        初始按钮为暂停按钮。因为只要点击录音按钮就要开始录制了
 //        start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini.png);}"
 //                                 "QToolButton:hover{image:url(:/png/png/pause_mini_hover.png);}"
 //                                 "QToolButton:pressed{image:url(:/png/png/pause_mini_click.png);}");
 //        miniWid->setStyleSheet("border-radius:6px;background-color:#FBEFED;");//自定义窗体(圆角+背景色)
-
     }
-
-
 
     setAttribute(Qt::WA_TranslucentBackground);//主窗体透明
     move((QApplication::desktop()->width() - WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
@@ -233,8 +244,8 @@ void MiniWindow::finishSlot()//结束录音，并保存文件
         MainWindow::mutual->strat_pause=false;
     }
     timelb->setText("00:00:00");
-    recordStackedLayout->setCurrentIndex(0);//mini模式切换至录音按钮
-    MainWindow::mutual->m_pStackedLayout->setCurrentIndex(0);//主界面切换至录音按钮
+    recordStackedWidget->setCurrentIndex(0);//mini模式切换至录音按钮
+    MainWindow::mutual->m_pStackedWidget->setCurrentIndex(0);//主界面切换至录音按钮
 }
 void MiniWindow::timeDisplay()
 {
@@ -268,6 +279,6 @@ void MiniWindow::switchPage()//换页
     }
 
     MainWindow::mutual->switchPage();//主线程开始录音
-    MainWindow::mutual->m_pStackedLayout->setCurrentIndex(1);//mini模式切换至两个按钮页面
-    recordStackedLayout->setCurrentIndex(1);//主界面切换至两个按钮页面
+    MainWindow::mutual->m_pStackedWidget->setCurrentIndex(1);//mini模式切换至两个按钮页面
+    recordStackedWidget->setCurrentIndex(1);//主界面切换至两个按钮页面
 }

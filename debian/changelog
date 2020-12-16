@@ -1,3 +1,29 @@
+<<<<<<< Updated upstream
+=======
+kylin-recorder (1.2.8) v101; urgency=medium
+
+  * 修复bug#27397 ：首次录音完成后，第二次录音录音区域点击周边位置都可响应开始录音
+  * 修复bug#27381 ：麒麟录音文件设置另存为，保存录音文件时，设置重复的文件名未提示，直接覆盖
+  * 修复bug#27377 ：录音文件列表文件个数超过界面显示出现滚动条后，删除最后一个录音文件，麒麟录音闪退
+  * 修复bug#26662 ：深色模式下，设置弹窗关闭按钮未反白
+  * 修复bug#24629 ：建议将“存储为”更改为“另存为”，符合用户习惯
+  * 修复bug#24628 ：设置存储路径为“存储为”，打开另存窗口，窗口未汉化
+  * 修复bug#24333 ：文件列表缺少文件右键点击功能
+  * 修复bug#24308 ：文件列表区域，对下一个文件点击后，之前已点击文件没从点击状态取消
+  * 修复bug#24302 ：文件列表区分割线/进度条
+  * 修复bug#22835 ：主界面窗口边框无阴影
+  * 修复bug#21554 ：英文环境下，主界面和保存弹窗未翻译
+  * 修复bug#28475 ：mini窗口的话筒图标未上下居中
+
+ -- baijincheng <baijincheng@kylinos.cn>  Tue, 15 Dec 2020 11:05:00 +0800
+
+kylin-recorder (1.2.7) v101; urgency=medium
+
+  * 调整第二次
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 26 Nov 2020 11:05:00 +0800
+
+>>>>>>> Stashed changes
 kylin-recorder (1.2.6) v101; urgency=medium
 
   * 调整一些功能
@@ -10,7 +36,10 @@ kylin-recorder (1.2.5) v101; urgency=medium
 
  -- baijincheng <baijincheng@kylinos.cn>  Thu, 26 Nov 2020 11:05:00 +0800
 
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 kylin-recorder (1.2.4) v101; urgency=medium
 
   * 增加运行依赖，文件列表可以播放

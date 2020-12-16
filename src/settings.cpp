@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2020, KylinSoft Co., Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  Authors: baijincheng <baijincheng@kylinos.cn>
+ */
 #include "settings.h"
 #include "mainwindow.h"
 #include <QLabel>
@@ -30,7 +48,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         lb->setText(tr("Settings"));//
 
         closeButton= new QToolButton(this);
-        closeButton->setIcon(QIcon(":/png/png/close.png"));
+        closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
         closeButton->setStyleSheet("background-color:transparent");
         closeButton->setFixedSize(30,30);
         closeButton->setStyleSheet("QToolButton{border-radius:4px;}"
@@ -48,7 +66,6 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         titleLayout->setMargin(0);
         titleWid->setFixedHeight(30);
         titleWid->setLayout(titleLayout);
-
     //网格布局设置界面主体内容
     //        QGridLayout *layout = new QGridLayout();
     //设置界面内容
@@ -66,8 +83,8 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
         label_3 = new QLabel(tr("Default storage："));
         lineEdit = new QLineEdit(this);
-        desktop_path = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-        lineEdit->setText(desktop_path);
+        defaultLocation = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
+        lineEdit->setText(defaultLocation);
         lineEdit->setFocusPolicy(Qt::NoFocus);//设置不可编辑状态
         label_4 = new QLabel(tr("Source"));
         radioButton_3 = new QRadioButton(this);
@@ -97,11 +114,11 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         grp1->addButton(radioButton_2);
         QButtonGroup *grp2=new QButtonGroup(this);
         grp2->addButton(radioButton_3);
-        grp2->addButton(radioButton_4);//后期解封,系统内部声音
+        grp2->addButton(radioButton_4);//系统内部声音
         grp2->addButton(radioButton_5);
         QButtonGroup *grp3=new QButtonGroup(this);
         grp3->addButton(radioButton_6);
-        grp3->addButton(radioButton_7);//后期解封m4a格式
+        grp3->addButton(radioButton_7);//m4a格式
         grp3->addButton(radioButton_8);
 
     //布局
@@ -117,17 +134,17 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         pg->addWidget(label_4,3,0,1,2);
         pg->addWidget(radioButton_3,3,2,1,1);
         pg->addWidget(label_5,3,3,1,1);
-//        pg->addWidget(radioButton_4,3,4,1,1);//系统内部解封
-//        pg->addWidget(label_6,3,5,1,1);
-        pg->addWidget(radioButton_5,3,4,1,1);//后期改为3611
-        pg->addWidget(label_7,3,5,1,1);//后期改为3711
+//        pg->addWidget(radioButton_4,3,4,1,1);//系统内部解封后改为3,4,1,1
+//        pg->addWidget(label_6,3,5,1,1);//系统内部解封后改为3,5,1,1
+        pg->addWidget(radioButton_5,3,4,1,1);//解封后改为3611
+        pg->addWidget(label_7,3,5,1,1);//解封后改为3711
         pg->addWidget(label_8,4,0,1,2);
         pg->addWidget(radioButton_6,4,2,1,1);
         pg->addWidget(label_9,4,3,1,1);
-//        pg->addWidget(radioButton_7,4,4,1,1);//M4a格式
-//        pg->addWidget(label_10,4,5,1,1);
-        pg->addWidget(radioButton_8,4,4,1,1);//后期改为4611
-        pg->addWidget(label_11,4,5,1,1);//后期改为4711
+        pg->addWidget(radioButton_7,4,4,1,1);//M4a格式
+        pg->addWidget(label_10,4,5,1,1);
+        pg->addWidget(radioButton_8,4,6,1,1);//后期改为4611
+        pg->addWidget(label_11,4,7,1,1);//后期改为4711
         Wid->setLayout(pg);
 
         mainLayout= new QVBoxLayout();
@@ -140,11 +157,13 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         this->setStyleSheet("border-radius:12px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
         if(darkData->get("style-name").toString()=="ukui-dark"||darkData->get("style-name").toString() == "ukui-black")
         {
+            closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
             mainWid->setStyleSheet("border-radius:12px;background-color:#131314;border:1px;");//自定义窗体(圆角+背景色)
 
         }
         else
         {
+            closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
             mainWid->setObjectName("setmainWid");//设置命名空间
             mainWid->setStyleSheet("#setmainWid{border-radius:12px;background-color:#FFFFFF;border:1px solid #262626;}");//自定义窗体(圆角+背景色)
         }

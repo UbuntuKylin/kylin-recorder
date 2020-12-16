@@ -3,10 +3,11 @@
 # Project created by QtCreator 2020-08-12T10:02:10
 #
 # Jincheng Bai(BaiBai)
+# Modify 2020.12.15
 #-------------------------------------------------
 
-QT       += core gui
-QT       += dbus x11extras KWindowSystem
+QT       += core gui dbus
+QT       += x11extras KWindowSystem
 RC_FILE += mypng.rc
 OTHER_FILES += mypng.rc
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -56,29 +57,33 @@ PKGCONFIG += gsettings-qt
 
 
 SOURCES += \
-        itemswindow.cpp \
-        lineedit.cpp \
-        main.cpp \
-        mainwindow.cpp \
-        miniwindow.cpp \
-        mp3encoder.cpp \
-        mythread.cpp \
-        mywave.cpp \
-        save.cpp \
-        settings.cpp \
-        xatom-helper.cpp
+        src/clipbutton.cpp \
+        src/daemondbus.cpp \
+        src/itemswindow.cpp \
+        src/lineedit.cpp \
+        src/main.cpp \
+        src/mainwindow.cpp \
+        src/miniwindow.cpp \
+        src/mp3encoder.cpp \
+        src/mythread.cpp \
+        src/mywave.cpp \
+        src/save.cpp \
+        src/settings.cpp \
+        src/xatom-helper.cpp
 
 HEADERS += \
-        itemswindow.h \
-        lineedit.h \
-        mainwindow.h \
-        miniwindow.h \
-        mp3encoder.h \
-        mythread.h \
-        mywave.h \
-        save.h \
-        settings.h \
-        xatom-helper.h
+        src/clipbutton.h \
+        src/daemondbus.h \
+        src/itemswindow.h \
+        src/lineedit.h \
+        src/mainwindow.h \
+        src/miniwindow.h \
+        src/mp3encoder.h \
+        src/mythread.h \
+        src/mywave.h \
+        src/save.h \
+        src/settings.h \
+        src/xatom-helper.h
 
 RESOURCES += \
     picture.qrc

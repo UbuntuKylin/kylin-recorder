@@ -56,6 +56,8 @@
         <file>png/dark_start.png</file>
         <file>png/dark_stop.png</file>
         <file>png/pause_mini_hoverWhite.png</file>
+        <file>png/dark-silence.png</file>
+        <file>png/dark-voice.png</file>
     </qresource>
     <qresource prefix="/svg">
         <file>svg/bianji.svg</file>
@@ -80,4 +82,5 @@
         <file>svg/dark-window-min.svg</file>
         <file>svg/window-min.svg</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

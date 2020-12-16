@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2020, KylinSoft Co., Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  Authors: baijincheng <baijincheng@kylinos.cn>
+ */
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -35,16 +53,19 @@
 
 #include <QPainter>
 #include <QSettings>
+#include <QKeyEvent>
+#include <QRegExp>
 #include "mywave.h"
 #include "mythread.h"
 #include "settings.h"
 #include "save.h"
 #include "itemswindow.h"
 #include "miniwindow.h"
-
+#include "daemondbus.h"
 #include <unistd.h>
 #include <fcntl.h>
 
+#define INIT_MAINWINDOW_RECTANGLE_COUNT 130//用于初始化矩形条个数
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -55,10 +76,14 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QMessageBox *WrrMsg;
     QGSettings  *defaultPathData= nullptr;
     QGSettings *themeData=nullptr;//主题的setting
+
+    // 用户手册功能
+    DaemonDbus *mDaemonIpcDbus;
+
     QString theme = "ukui-default";
     bool isMax = false;
     QTime cut;
-    int valueArray[110];
+    int valueArray[INIT_MAINWINDOW_RECTANGLE_COUNT];
 
     Settings set;
     Save saveas;
@@ -76,11 +101,11 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     MiniWindow mini;
     static MainWindow *mutual;//！！！指针类型静态成员变量
     bool strat_pause=false;//开始和暂停1
-    QStackedLayout *m_pStackedLayout;//堆叠布局
+    QStackedWidget *m_pStackedWidget;//堆叠布局
 
     QLabel *lb;
     QLabel *piclb;//窗体左上角图片Label
-    ItemsWindow *itemswindow;
+    //ItemsWindow *itemswindow;
 
     QListWidget *list;
     QListWidgetItem *aItem;//列表的Item
@@ -114,13 +139,13 @@ private:
     QAudioRecorder *audioRecorder;
     QLabel *seatlb;
 
-    QToolButton *setButton;
+    QToolButton *setButton;//设置按钮
     QToolButton *miniButton;//mini模式切换按钮
     QToolButton *minButton;//最小化按钮
     QToolButton *maxButton;//最大化按钮
-    QToolButton *closeButton;
+    QToolButton *closeButton;//关闭按钮
 
-    QToolButton *recordButton;
+    QToolButton *recordButton;//录音按钮
 
 
     QToolButton *stopButton;
@@ -137,8 +162,8 @@ private:
     QWidget *titleRightWid;//右标题栏Wid
 
     //QWidget *titleWid;替换的
-    QWidget *recordButtonWid;//录制按钮Wid
-
+    QHBoxLayout *recordButtonLayout;//录制按钮布局
+    QWidget *recordButtonWid;
     QWidget *listWid;//文件列表Wid
 
 
@@ -154,21 +179,21 @@ private:
     QHBoxLayout *mainLayout;
 
 
-    QHBoxLayout *layout1;
-    QHBoxLayout *layout2;
-    QHBoxLayout *layout3;
-    QHBoxLayout *layout4;
+    QHBoxLayout *showTimelbLayout;
+    QHBoxLayout *monitorWaveLayout;
+    QHBoxLayout *voiceAndSliderLayout;
+    QHBoxLayout *controlPlay_PauseLayout;
     QVBoxLayout *ui_2Layout;
 
     QWidget *ui_2Wid;//第二个页面
-    QWidget *timeWid;
+    QWidget *showTimelbWid;
     QWidget *waveWid;//波形图的容器
-    QWidget *voiceWid;
-    QWidget *playWid;
+    QWidget *voiceAndSliderWid;
+    QWidget *controlPlay_PauseWid;
 
     QLabel *showTimelb;
     QFrame *fm;
-    QLabel *voicelb;
+    QToolButton *voiceBtn;
 
 
     //显示的时间
@@ -180,12 +205,20 @@ private:
     bool isPress;
     QPoint winPos;
     QPoint dragPos;
+
+    // 键盘响应事件
+    void keyPressEvent(QKeyEvent *event);
+    //鼠标按压事件
     void mousePressEvent(QMouseEvent *event);
+    //鼠标释放事件
     void mouseReleaseEvent(QMouseEvent *event);
+    //鼠标移动事件
     void mouseMoveEvent(QMouseEvent *event);
 
     void checkSingle();//检查单例模式
 
+    bool eventFilter(QObject *obj, QEvent *event);
+    void wheelEvent(QWheelEvent *event);
 
 signals://主线程的信号
     void startThread();
@@ -210,7 +243,7 @@ private://音频相关
 public slots:
     void recordPaint(int); 
     void mainWindow_page2();
-    void switchPage();
+    void switchPage();//选择页面
     void play_pause_clicked();
     void stop_clicked();
     void updateDisplay();
@@ -222,8 +255,7 @@ public slots:
     void minShow();
     void maxShow();
 
-    void slotOnItemDoubleClicked(QListWidgetItem *item);
-    void slotItemEntered(QListWidgetItem *item);
+
 
     void handlingSlot(QString str);
     void slotListItemAdd(QString fileName,int i);

@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2020, KylinSoft Co., Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  Authors: baijincheng <baijincheng@kylinos.cn>
+ */
 #ifndef MYTHREAD_H
 #define MYTHREAD_H
 //===================
@@ -31,8 +49,8 @@
 #include "itemswindow.h"
 //==================
 
-#define BufferSize     35280
-//#define cutRectangleCount 109//矩形条个数
+#define BufferSize 35280
+#define MYTHREAD_RECTANGLE_COUNT 130//检测时矩形条个数实时更新
 class MyThread : public QMainWindow
 {
     Q_OBJECT
@@ -52,7 +70,7 @@ public:
     Save saveas;
     QString fileName;
     QString daultfileName;
-    QString desktop_path;
+    QString default_Location;
 
     QGSettings  *recordData= nullptr;
     int i=0;
@@ -62,9 +80,13 @@ public:
     void writePathCollected(QString filePath);//更新配置文件
     void writeNumList(int num);
     void onChangeCurrentRecordList(QString filePath);
+    QString endFileName;
+    QString isSameFileName(QString endFileName);
 
     void updateAmplitudeList(int valueArray[]);//更新振幅列表
     void test();
+
+    void saveAs(QString oldFileName);//右键另存为
 
 signals:
     void recordPaint(int);
@@ -115,9 +137,10 @@ private:
     QIODevice *outputDevSound;
     int useVolumeSample(short iSample);
     int NUM=0;
-    void listItemAdd(QString fileName);
+    QString listItemAdd(QString fileName);
 
     QAudioDeviceInfo monitorVoiceSource(int i);
+
 
 
 private slots:

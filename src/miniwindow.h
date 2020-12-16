@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2020, KylinSoft Co., Ltd.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ *  Authors: baijincheng <baijincheng@kylinos.cn>
+ */
 #ifndef MINIWINDOW_H
 #define MINIWINDOW_H
 
@@ -25,7 +43,7 @@ public:
     int HEIGHT=36;
     QGSettings *darkData=nullptr;//主题的setting
     MyThread mythr;//mini模式中用于调用录音子线程
-    QStackedLayout *recordStackedLayout;//堆叠布局
+    QStackedWidget*recordStackedWidget;//堆叠布局
 
     QToolButton *start_pauseBtn;//mini模式的开始和暂停按钮
     bool start_pause=false;//mini模式的判断开始或暂停是否按下
