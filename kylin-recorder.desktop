@@ -1,13 +1,13 @@
 [Desktop Entry]
 Name=kylin-recorder
 Name[zh_CN]=麒麟录音
-Comment=Friendly interface and easy to operate recording tools
+Comment=Friendly interface and easy to operate recording tool
 Comment[zh_CN]=界面友好操作简单的录音工具
 GenericName=Audio recorder
 Name[bo_CN]=གྱི་ལིང་སྒྲ་ཕབ།
 Comment[bo_CN]=མཐུད་མཚམས་མཛའ་མཐུན་བཀོལ་སྤྱོད་རགས་རིམ་སྒྲ་ཕབ་ཡོ་བྱད།
 GenericName[bo_CN]=སྒྲ་ཕབ་ཡོ་བྱད།
 Exec=/usr/bin/kylin-recorder %u
-Icon=/usr/share/pixmaps/recording_128.svg
+Icon=kylin-recorder
 Type=Application
 Categories=GNOME;Utility;
