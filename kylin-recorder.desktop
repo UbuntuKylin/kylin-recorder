@@ -10,4 +10,4 @@ GenericName[bo_CN]=སྒྲ་ཕབ་ཡོ་བྱད།
 Exec=/usr/bin/kylin-recorder %u
 Icon=kylin-recorder
 Type=Application
-Categories=GNOME;Utility;
+Categories=GNOME;Utility;AudioVideo;
