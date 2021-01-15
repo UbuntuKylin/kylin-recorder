@@ -31,14 +31,14 @@ signals:
     void menuModuleClose();
     void menuModuleSetThemeStyle(QString);
 public:
-    QPushButton *menuButton = nullptr;
+    QToolButton *menuButton = nullptr;
     QToolButton *titleBtnClose = nullptr;
 
 public:
 //    程序在实例化的时候需要传递的信息字段,打开debug开关后这些字段会被自动填充
     QString appName = "tools/kylin-recorder"; //格式kylin-usb-creator
     QString appShowingName = tr("kylin recorder"); //格式kylin usb creator ,用来在前端展示
-    QString appVersion = "2020.01.07";
+    QString appVersion = "1.2.13";
     QString appDesc = "kylin recorder";
     QString iconPath = ":/svg/svg/recording_128.svg";
     QString confPath = "org.kylin-recorder-data.settings";
@@ -50,7 +50,12 @@ private:
     QMenu *themeMenu = nullptr;
     QSize iconSize;
     QString appPath = "tools/kylin-recorder"; //拉起帮助菜单时使用appName字段
+
     QWidget *aboutWindow = nullptr;
+    QVBoxLayout *mainlyt;
+    QHBoxLayout *titleLyt;
+    QVBoxLayout *bodylyt;
+
     QGSettings *m_pGsettingThemeData = nullptr;
 
     enum typeThemeStatus {

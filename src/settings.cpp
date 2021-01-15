@@ -26,8 +26,6 @@
 #include "mainwindow.h"
 #include "xatom-helper.h"
 
-
-
 Settings::Settings(QWidget *parent) : QMainWindow(parent)
 {
 
@@ -182,7 +180,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     {
         closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
         mainWid->setObjectName("setmainWid");//设置命名空间
-        mainWid->setStyleSheet("#setmainWid{background-color:#FFFFFF;border:1px solid #262626;}");//自定义窗体(圆角+背景色)
+        mainWid->setStyleSheet("#setmainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
     }
 
 

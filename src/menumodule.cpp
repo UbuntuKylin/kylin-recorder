@@ -3,6 +3,18 @@
 #include "xatom-helper.h"
 menuModule::menuModule(QWidget *parent = nullptr) : QWidget(parent)
 {
+    aboutWindow = new QWidget();
+    mainlyt = new QVBoxLayout();
+    titleLyt = initTitleBar();
+    bodylyt = initBody();
+
+    aboutWindow->setFixedSize(420,324);
+    aboutWindow->setMinimumHeight(324);
+    mainlyt->setMargin(0);
+    mainlyt->addLayout(titleLyt);
+    mainlyt->addLayout(bodylyt);
+    mainlyt->addStretch();
+    aboutWindow->setLayout(mainlyt);
     init();
 }
 
@@ -13,10 +25,14 @@ void menuModule::init(){
 
 void menuModule::initAction(){
     iconSize = QSize(30,30);
-    menuButton = new QPushButton;
-    menuButton->setIcon(QIcon::fromTheme("application-menu"));
-    menuButton->setFixedSize(iconSize);
+    menuButton = new QToolButton(MainWindow::mutual->titleRightWid);
+//    menuButton->setIcon(QIcon::fromTheme("application-menu"));
+//    menuButton->setFixedSize(iconSize);
+//    menuButton->setFlat(true);
+//    menuButton->setProperty("isWindowButton", 0x1);
+//    menuButton->setProperty("useIconHighlightEffect",0x2);
     m_menu = new QMenu();
+    m_menu->setFixedWidth(160);
     QList<QAction *> actions ;
     QAction *actionSetting = new QAction(m_menu);
     actionSetting->setText(tr("Setting"));
@@ -56,7 +72,7 @@ void menuModule::initAction(){
     themeUpdate();
     connect(themeMenu,&QMenu::triggered,this,&menuModule::triggerThemeMenu);
     connect(this,&menuModule::setSignal,MainWindow::mutual,&MainWindow::goset);
-    connect(this,&menuModule::menuModuleClose,MainWindow::mutual,&MainWindow::close);
+    connect(this,&menuModule::menuModuleClose,MainWindow::mutual->mainWid,&MainWindow::close);
     connect(this,&menuModule::menuModuleSetThemeStyle,MainWindow::mutual,[=](QString str){
         MainWindow::mutual->limitThemeColor = str;
         qDebug()<<"限制主题颜色为"<<MainWindow::mutual->limitThemeColor<<str;
@@ -108,13 +124,13 @@ void menuModule::triggerMenu(QAction *act){
 
     QString str = act->text();
     if(tr("Quit") == str){
-        emit menuModuleClose();
+        emit menuModuleClose();               //退出
     }else if(tr("About") == str){
-        aboutAction();
+        aboutAction();                        //关于
     }else if(tr("Help") == str){
-        helpAction();
+        helpAction();                         //帮助
     }else if(tr("Setting") == str){
-        emit setSignal();
+        emit setSignal();                     //设置
     }
 }
 
@@ -163,22 +179,13 @@ void menuModule::helpAction(){
 }
 
 void menuModule::initAbout(){
-    aboutWindow = new QWidget();
+
     MotifWmHints hints;
     hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
     hints.functions = MWM_FUNC_ALL;
     hints.decorations = MWM_DECOR_BORDER;
     XAtomHelper::getInstance()->setWindowMotifHint(aboutWindow->winId(), hints);
-    aboutWindow->setFixedSize(420,324);
-    aboutWindow->setMinimumHeight(324);
-    QVBoxLayout *mainlyt = new QVBoxLayout();
-    QHBoxLayout *titleLyt = initTitleBar();
-    QVBoxLayout *bodylyt = initBody();
-    mainlyt->setMargin(0);
-    mainlyt->addLayout(titleLyt);
-    mainlyt->addLayout(bodylyt);
-    mainlyt->addStretch();
-    aboutWindow->setLayout(mainlyt);
+    aboutWindow->setAttribute(Qt::WA_ShowModal, true);//模态窗口
     //TODO:在屏幕中央显示
     QRect availableGeometry = qApp->primaryScreen()->availableGeometry();
     aboutWindow->move((availableGeometry.width()-aboutWindow->width())/2,(availableGeometry.height()- aboutWindow->height())/2);
@@ -262,7 +269,7 @@ QVBoxLayout* menuModule::initBody(){
 }
 
 void menuModule::setStyle(){
-    menuButton->setStyleSheet("QPushButton::menu-indicator{image:None;}");
+//    menuButton->setStyleSheet("QPushButton::menu-indicator{image:None;}");
 }
 
 void menuModule::initGsetting(){

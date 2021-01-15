@@ -117,6 +117,9 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     int itemCount = 0;//文件列表的Item的个数
 
     QLabel *fileListlb;//文件列表
+    QWidget *fileListWid;//文件列表Wid
+    QHBoxLayout *fileListLayout;//文件列表布局
+
     QLabel *zeroFile_Messagelb;//文件列表为空时的提示信息
     QFile *file;
     void initThemeGsetting();
@@ -128,13 +131,17 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     void MainWindowLayout();
 
     QString playerTotalTime(QString filePath);
+
+    void checkSingle();//检查单例模式
     int itemSelect=0;
-void isFileNull(int n);//检查文件列表是否为空
+    void isFileNull(int n);//检查文件列表是否为空
 
     int pre=0;
     int now=0;
     QTimer *pTimer;//1
     QTime baseTime;//1
+    QWidget *titleRightWid;//右标题栏Wid
+    QWidget *mainWid;
 private:
 
 
@@ -169,15 +176,15 @@ private:
 
 
 
-    QWidget *mainWid;
+
 
     QWidget *leftMainWid;//主左Wid
     QWidget *rightMainWid;//主右Wid
     QWidget *titleLeftWid;//左标题栏Wid
-    QWidget *titleRightWid;//右标题栏Wid
+
 
     //QWidget *titleWid;替换的
-    QHBoxLayout *recordButtonLayout;//录制按钮布局
+    QVBoxLayout *recordButtonLayout;//录制按钮布局
     QWidget *recordButtonWid;
     QWidget *listWid;//文件列表Wid
 
@@ -230,7 +237,7 @@ private:
     //鼠标移动事件
     void mouseMoveEvent(QMouseEvent *event);
 
-    void checkSingle();//检查单例模式
+
 
     bool eventFilter(QObject *obj, QEvent *event);
     void wheelEvent(QWheelEvent *event);

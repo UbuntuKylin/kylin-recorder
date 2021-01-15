@@ -60,6 +60,7 @@ public:
     QFrame *line;
     QToolButton *closeBtn;//关闭按钮
     QToolButton *recordBtn;//录制按钮
+    QToolButton *stopBtn;//停止按钮
 private:
 
     QVBoxLayout *recordLayout;
@@ -74,7 +75,7 @@ private:
 
 
 
-    QToolButton *stopBtn;//停止按钮
+
 
 
 
@@ -98,6 +99,7 @@ private:
     void mouseMoveEvent(QMouseEvent *event);
     void initMiniWindow();
 
+    bool eventFilter(QObject *obj, QEvent *event);//F1事件过滤
 
 public slots:
     void switchPage();

@@ -1,3 +1,23 @@
+kylin-recorder (1.2.15) v101; urgency=medium
+
+  * desktop文件更改应用类别组
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 14 Jan 2021 21:41:00 +0800
+
+kylin-recorder (1.2.14) v101; urgency=medium
+
+  * bug#33103：关于弹窗没有模态处理
+  * bug#33033：关于弹窗可以打开多个且不能关闭
+  * bug#31996：界面UI优化
+  * bug#31078：夜间模式下，麒麟录音菜单栏按钮反白
+  * bug#31064：鼠标悬停在停止与暂停按钮上无提示
+  * bug#26632：深色模式下，title区域按钮三态异常
+  * bug#24998：深色模式下主界面UI异常
+  * bug#24317：文件列表，文件描述显示不全
+  * bug#24246：深色主题时，mini窗口界面显示异常
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 14 Jan 2021 21:41:00 +0800
+
 kylin-recorder (1.2.13) v101; urgency=medium
 
   * bug#31058：【麒麟录音】点击麒麟录音右上角菜单栏内的帮助和关于无反应

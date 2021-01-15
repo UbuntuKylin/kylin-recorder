@@ -27,6 +27,8 @@
 #include <QMessageBox>
 
 #include <QFileDialog>
+
+#include "xatom-helper.h"
 #define BufferSize         35280
 //const qint64 TIME_TRANSFORM = 1000 * 1000;              // 微妙转秒;
 #define rectangleCount 79//矩形条个数
@@ -44,16 +46,53 @@ MainWindow::MainWindow(QWidget *parent)
 
     int WIDTH = 800 ;
     int HEIGHT = 460 ;
-    this ->setFixedSize(WIDTH,HEIGHT);
-    this ->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+
+
+    mainWid = new QWidget();//主wid
+//    mainWid->grabKeyboard();
+    mainWid->installEventFilter(this);
+
+
+
+    MotifWmHints hints;
+    hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
+    hints.functions = MWM_FUNC_ALL;
+    hints.decorations = MWM_DECOR_BORDER;
+    XAtomHelper::getInstance()->setWindowMotifHint(mainWid->winId(), hints);
+
+    mainWid ->setFixedSize(WIDTH,HEIGHT);
+    mainWid ->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
     //屏幕中间老方法
     //    this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
     //显示在活动屏幕中间新方法
     QScreen *screen = QGuiApplication::primaryScreen();
-    move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
-    //标题栏各个按钮
-    menumodule = new menuModule(this);
+    mainWid ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
+
+    titleLeftWid = new QWidget();
+    titleRightWid = new QWidget(mainWid);
+    mainLayout = new QHBoxLayout(mainWid);//主窗体的布局
+    m_pStackedWidget = new QStackedWidget();//录音图标和波形图的堆栈Wid
+    listWid = new QWidget();//列表Wid
+    leftMainWid = new QWidget();//主左Wid
+    rightMainWid = new QWidget(mainWid);//主右Wid
+    listLayout = new QVBoxLayout();
+    recordButtonWid = new QWidget();
+    titleLeftLayout = new QHBoxLayout();//左标题布局
+    titleRightLayout = new QHBoxLayout(titleRightWid);//右标题布局
+
+    leftMainWidLayout = new QVBoxLayout();//主左布局
+    rightMainWidLayout = new QVBoxLayout();//主右布局
+
+    //(三)按钮及下拉菜单
+    menumodule = new menuModule(mainWid);
     menumodule->menuButton->setToolTip(tr("Setting"));
+    menumodule->menuButton->setFixedSize(30,30);
+    menumodule->menuButton->setIcon(QIcon::fromTheme("application-menu"));
+    menumodule->menuButton->setAutoRaise(true);
+    menumodule->menuButton->setProperty("isWindowButton", 0x1);
+    menumodule->menuButton->setProperty("useIconHighlightEffect",0x2);
+    menumodule->menuButton->setPopupMode(QToolButton::InstantPopup);//QToolButton必须加上的
+
     setButton = new QPushButton(this);
     setButton->setIcon(QIcon::fromTheme("open-menu-symbolic"));//主题库的菜单图标
 
@@ -61,19 +100,35 @@ MainWindow::MainWindow(QWidget *parent)
     actionSet = new QAction(tr("Set"),menu);
     actionHelp = new QAction(tr("Help"),menu);
     actionAbout = new QAction(tr("About"),menu);
-    actions<<actionSet/*<<actionHelp<<actionAbout*/;
-    menu->addActions(actions);
-    setButton->setMenu(menu);
+//    actions<<actionSet/*<<actionHelp<<actionAbout*/;
+//    menu->addActions(actions);
+//    setButton->setMenu(menu);
 
-    miniButton = new QToolButton(this);
+    //mini按钮
+    miniButton = new QToolButton(titleRightWid);
+    miniButton->setFixedSize(30,30);
     miniButton->setToolTip(tr("Mini"));
+    miniButton->setProperty("isWindowButton", 0x1);
+    miniButton->setProperty("useIconHighlightEffect", 0x2);
+    miniButton->setAutoRaise(true);
     miniButton->setIcon(QIcon::fromTheme("ukui-mini"));//主题库的mini图标
-    minButton = new QToolButton(this);
+
+    //最小化按钮
+    minButton = new QToolButton(titleRightWid);
+    minButton->setFixedSize(30,30);
     minButton->setToolTip(tr("Min"));
+    minButton->setProperty("isWindowButton", 0x1);
+    minButton->setProperty("useIconHighlightEffect", 0x2);
+    minButton->setAutoRaise(true);
     minButton->setIcon(QIcon::fromTheme("window-minimize-symbolic"));//主题库的最小化图标  
-    maxButton = new QToolButton(this);
+
+    //最大化按钮
+    maxButton = new QToolButton(titleRightWid);
     maxButton->setToolTip(tr("Max"));
-    closeButton = new QToolButton(this);
+
+    //关闭按钮
+    closeButton = new QToolButton(titleRightWid);  
+    closeButton->setFixedSize(30,30);
     closeButton->setToolTip(tr("Close"));
     closeButton->setIcon(QIcon::fromTheme("window-close-symbolic"));//主题库的叉子图标
     closeButton->setProperty("isWindowButton", 0x2);
@@ -83,28 +138,19 @@ MainWindow::MainWindow(QWidget *parent)
     recordButton = new QPushButton(this);
     recordButton->setToolTip(tr("Recording"));
 
-
     list = new QListWidget(this);
+    list->installEventFilter(this);//安装事件过滤器
     zeroFile_Messagelb = new QLabel(this);
     zeroFile_Messagelb->setFixedSize(200,50);
     zeroFile_Messagelb->setText(tr("None of the Recording File"));//列表无录音文件时
 
-
-    list->installEventFilter(this);//安装事件过滤器
-    list->setStyleSheet("QListWidget::item:selected{border:none;}"
-                        "QListWidget::item:hover{background: rgb(255, 255, 255);}"
-                        "QScrollBar{background-color:white;border-radius:2px;width:4px;}"
-                        "QScrollBar::handle:vertical{background-color:#888888;border-radius:2px;width:4px;min-height:20px;}"
-                        );
-
-//    connect(list,SIGNAL(itemClicked(QListWidgetItem*)),this,SLOT(slotItemEntered(QListWidgetItem*)));
-//    connect(list,SIGNAL(itemDoubleClicked(QListWidgetItem*)),this,SLOT(slotOnItemDoubleClicked(QListWidgetItem*)));
 //    itemswindow = new ItemsWindow(this);
 
     //第二个页面的控件初始化
     pTimer = new QTimer;//定时器,用来记录
     showTimelb = new QLabel(this);
     voiceBtn = new QToolButton(this);
+
     slider = new QSlider(this);
     stopButton = new QToolButton(this);
     stopButton->setToolTip(tr("stop"));
@@ -166,8 +212,10 @@ MainWindow::MainWindow(QWidget *parent)
     lb->setStyleSheet("font-size:14px;");//修改字体显示
     lb->setFixedHeight(24);
     fileListlb=new QLabel(this);
-    fileListlb->setText(tr("  File List  "));
+    fileListlb->setText(tr("File List"));
     fileListlb->setStyleSheet("font: bold; font-size:18px;");//修改字体显示
+    fileListWid = new QWidget();
+    fileListLayout = new QHBoxLayout();
 
 
     seatlb=new QLabel(this);
@@ -180,45 +228,33 @@ MainWindow::MainWindow(QWidget *parent)
     connect(miniButton,   &QToolButton::clicked, this, &MainWindow::miniShow);//mini窗口
     connect(minButton,    &QToolButton::clicked, this, &MainWindow::minShow);//最小化窗口
     connect(maxButton,    &QToolButton::clicked, this, &MainWindow::maxShow);//最大化窗口
-    connect(closeButton,  &QToolButton::clicked, this, &MainWindow::close);//关闭
+    connect(closeButton,  &QToolButton::clicked, mainWid, &MainWindow::close);//关闭
     connect(recordButton, &QPushButton::clicked, this, &MainWindow::switchPage);//换页
     connect(actionSet,    &QAction::triggered,   this, &MainWindow::goset);//跳转设置界面
 
-
-    mainWid = new QWidget();//主wid
-    titleLeftWid = new QWidget();
-    titleRightWid = new QWidget();
-    m_pStackedWidget = new QStackedWidget();//录音图标和波形图的堆栈Wid
-    listWid = new QWidget();//列表Wid
-    leftMainWid = new QWidget();//主左Wid
-    rightMainWid = new QWidget();//主右Wid
-    listLayout = new QVBoxLayout();
-    recordButtonWid = new QWidget();
-
     zeroFile_Messagelb->move((listWid->width()-zeroFile_Messagelb->width()/2)/3,(listWid->height()-zeroFile_Messagelb->height()/3)/3);
-    listLayout->addWidget(fileListlb);
+
+
+    fileListLayout->addWidget(fileListlb);
+    fileListLayout->setContentsMargins(30,0,0,0);
+    fileListWid->setLayout(fileListLayout);
+
+    listLayout->addWidget(fileListWid);
     listLayout->addWidget(list);
-//    listLayout->addWidget(zeroFile_Messagelb);
     listLayout->setMargin(2);
-//    listLayout->setSpacing(4);
 
     listWid->setLayout(listLayout);
 
-    titleLeftLayout = new QHBoxLayout();//左标题布局
-    titleRightLayout = new QHBoxLayout();//右标题布局
 
-    leftMainWidLayout = new QVBoxLayout();//主左布局
-    rightMainWidLayout = new QVBoxLayout();//主右布局
-    mainLayout = new QHBoxLayout();//主窗体的布局
 
     MainWindowLayout();//主窗体布局方法
     initThemeGsetting();//初始化主题配置文件
     mainWindow_page2();//必须加上初始化第二个主页面(此函数有两处需要被调用:构造函数+切换页面时)
     initFunctionGsetting();//初始化函数配置文件
     list->setViewMode(QListView::ListMode);
-    list->setAttribute(Qt::WA_TranslucentBackground);
-    setMouseTracking(true);
-    list->setMouseTracking(true);
+//    list->setAttribute(Qt::WA_TranslucentBackground);
+//    setMouseTracking(true);
+//    list->setMouseTracking(true);
 
 }
 // 实现键盘响应
@@ -275,10 +311,11 @@ void MainWindow::MainWindowLayout()
     titleRightWid->setLayout(titleRightLayout);
 //    titleRightWid->setFixedHeight(38);
 
-    recordButtonLayout = new QHBoxLayout();
+    recordButtonLayout = new QVBoxLayout();
     recordButtonLayout->addWidget(recordButton,0,Qt::AlignCenter);//录音按钮所在Wid
-    recordButtonWid->setLayout(recordButtonLayout);
 
+    recordButtonWid->setLayout(recordButtonLayout);
+    recordButtonWid->setFixedHeight(250);//必须这么写为了让m_pStackedWidget在垂直距离的中间
 
     m_pStackedWidget->addWidget(recordButtonWid);
     m_pStackedWidget->addWidget(ui_2Wid);
@@ -287,9 +324,7 @@ void MainWindow::MainWindowLayout()
     leftMainWidLayout->addWidget(m_pStackedWidget,0,Qt::AlignCenter);
     leftMainWidLayout->setMargin(0);
     leftMainWid->setLayout(leftMainWidLayout);
-    leftMainWid->setStyleSheet("background-color:#E5E5E5;opacity:0.1;"
-                               "border-top-right-radius:0px;"
-                               "border-bottom-right-radius:0px;");
+
     leftMainWid->setFixedWidth(360);
 
     rightMainWidLayout->addWidget(titleRightWid);
@@ -304,14 +339,16 @@ void MainWindow::MainWindowLayout()
     mainLayout->setMargin(1);
     mainWid->setLayout(mainLayout);
 
-    this->setCentralWidget(mainWid);
-    this->setAttribute(Qt::WA_TranslucentBackground);//主窗体透明
-    this->setStyleSheet("border-radius:6px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
+//    this->setCentralWidget(mainWid);
+//    this->setAttribute(Qt::WA_TranslucentBackground);//主窗体透明
+//    this->setStyleSheet("border-radius:6px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
+//    this->show();
+    mainWid->show();
 }
 
 void MainWindow::minShow()
 {
-    this->showMinimized();
+    mainWid->showMinimized();
 }
 void MainWindow::maxShow()
 {
@@ -342,21 +379,16 @@ void MainWindow::themeWindow(QString themeColor)
         mainWid->setObjectName("mainWid");//设置命名空间
         mainWid->setStyleSheet("#mainWid{background-color:#141414;border:1px solid rgba(255,255,255,0.15);}");//自定义窗体(圆角+背景色)
         //mini主界面
-        mini.miniWid->setStyleSheet("border-radius:6px;background-color:#222222;");//后期适配主题颜s;
-        mini.line->setStyleSheet(" background-color:black;");
-//        mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini_white.png);}"
-//                                           "QToolButton:hover{image:url(:/png/png/pause_mini_hoverWhite.png);}"
-//                                           "QToolButton:pressed{image:url(:/png/png/pause_mini_clickWhite2.png);}");
+        mini.miniWid->setStyleSheet(".Widget{background-color:#222222;}");//后期适配主题颜s;
 
-//        itemswindow->listNum->setStyleSheet("font-size:14px;color:white;");
-//        itemswindow->recordFileName->setStyleSheet("font-size:14px;color:white;");
+
         //设置界面
         set.mainWid->setObjectName("setMainWid");//设置命名空间
         set.mainWid->setStyleSheet("#setMainWid{background-color:#131314;border:1px solid rgba(255,255,255,0.15);}");//自定义窗体(圆角+背景色)
-        //设置界面
-        rightMainWid->setStyleSheet("background-color:#222222;"
-                                    "border-top-left-radius:0px;"
-                                    "border-bottom-left-radius:0px;");
+
+        rightMainWid->setStyleSheet(".QWidget{background-color:#222222;\
+                                    border-top-left-radius:0px;\
+                                    border-bottom-left-radius:0px;}");
         recordButtonWid->setStyleSheet("background-color:#141414;");
         set.closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
 //        itemswindow->setStyleSheet("background-color:#222222;");//后期适配主题颜s;
@@ -367,36 +399,28 @@ void MainWindow::themeWindow(QString themeColor)
         listWid->setStyleSheet("background-color:#F8F8F8;"
                                "border-top-right-radius:0px;"
                                "border-bottom-right-radius:0px;");//后期适配主题颜色
-        mini.miniWid->setStyleSheet("border-radius:6px;background-color:#FFFFFF;");//后期适配主题颜s;
-        mini.line->setStyleSheet(" background-color:#EEEEEE;");
-        //初始按钮为暂停按钮。因为只要点击录音按钮就要开始录制了
-//        mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/png/png/pause_mini.png);}"
-//                                 "QToolButton:hover{image:url(:/png/png/pause_mini_hover.png);}"
-//                                 "QToolButton:pressed{image:url(:/png/png/pause_mini_click.png);}");
-
+        mini.miniWid->setStyleSheet(".QWidget{background-color:#FFFFFF;}");//后期适配主题颜s;
 
         leftMainWid->setStyleSheet("background-color:#FFFFFF;"
                                    "border-top-right-radius:0px;"
                                    "border-bottom-right-radius:0px;");
 
-        rightMainWid->setStyleSheet("background-color:#F8F8F8;"
-                                    "border-top-left-radius:0px;"
-                                    "border-bottom-left-radius:0px;");
+        //三联好使了
+        rightMainWid->setStyleSheet(".QWidget{background-color:#F8F8F8;\
+                                    border-top-left-radius:0px;\
+                                    border-bottom-left-radius:0px;}");
 
-//        itemswindow->listNum->setStyleSheet("font-size:14px;color:black;");
-//        itemswindow->recordFileName->setStyleSheet("font-size:14px;color:black;");
+
         //设置界面
         set.mainWid->setObjectName("setMainWid");//设置命名空间
-        set.mainWid->setStyleSheet("#setMainWid{background-color:#FFFFFF;border:1px solid rgba(0,0,0,0.15);}");//自定义窗体(圆角+背景色)
+        set.mainWid->setStyleSheet("#setMainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
         //设置界面
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
         mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;border:1px solid rgba(0,0,0,0.15);}");//自定义窗体(圆角+背景色)
         recordButtonWid->setStyleSheet("background-color:#FFFFFF;opacity:0.1;");
         set.closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
-        //主界面
-//        itemswindow->setStyleSheet("border-top-right-radius:0px;"
-//                            "border-bottom-right-radius:0px;");//自定义窗体(圆角+背景色)
+
 
     }
 }
@@ -408,7 +432,7 @@ void MainWindow::themeButton(QString themeColor)
                                       "QToolButton::hover{background-color:rgba(255,255,255,0.8);}"
                                       "QToolButton::pressed{background-color:rgba(255,255,255,0.45);}");
         mini.closeBtn->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
-        mini.line->setStyleSheet("background-color:#EEEEEE;");
+        mini.line->setStyleSheet("border-radius:1px;background-color:#000000;");
         recordButton->setStyleSheet("QPushButton{border-radius:64px;}"
                                     "QPushButton::hover{background-color:rgba(255,255,255,0.8);}"
                                     "QPushButton::pressed{background-color:rgba(255,255,255,0.45);}");
@@ -421,6 +445,8 @@ void MainWindow::themeButton(QString themeColor)
         list->setStyleSheet("QListWidget::item:selected{border:none;}"
                             "QListWidget::item:hover{background-color:#222222;}"
                             "QScrollBar{background-color:white;border-radius:2px;width:4px;}"
+                            "QScrollBar::add-line:vertical{height: 0px;}"
+                            "QScrollBar::sub-line:vertical{height: 0px;}"
                             "QScrollBar::handle:vertical{background-color:#888888;border-radius:2px;width:4px;min-height:20px;}"
                             );
         //设置按钮
@@ -433,23 +459,8 @@ void MainWindow::themeButton(QString themeColor)
                                  "QPushButton:hover{background-color:rgba(255,255,255,0.1);}"
                                  "QPushButton:pressed{background-color:rgba(255,255,255,0.15);}"
                                  "QPushButton::menu-indicator{image:None;}");
-        menumodule->menuButton->setStyleSheet("QPushButton{border-radius:4px;}"
-                                 "QPushButton:hover{background-color:rgba(255,255,255,0.1);}"
-                                 "QPushButton:pressed{background-color:rgba(255,255,255,0.15);}"
-                                 "QPushButton::menu-indicator{image:None;}");
-        //mini按钮
-//        miniButton->setIcon(QIcon(":/png/png/mini-dark.png"));
-        miniButton->setFixedSize(30,30); 
-        miniButton->setStyleSheet("QToolButton{border-radius:4px;}"
-                                     "QToolButton:hover{background-color:rgba(255,255,255,0.1);}"
-                                     "QToolButton:pressed{background-color:rgba(255,255,255,0.15);}");
-        //最小化按钮
 
-        minButton->setIcon(QIcon(":/svg/svg/dark-window-min.svg"));
-        minButton->setFixedSize(30,30);
-        minButton->setStyleSheet("QToolButton{border-radius:4px;}"
-                                 "QToolButton:hover{background-color:rgba(255,255,255,0.1);}"
-                                 "QToolButton:pressed{background-color:rgba(255,255,255,0.15);}");
+
         //最大化按钮
 //        maxButton->setIcon(QIcon(":/svg/svg/dark-window-maximize.svg"));
         maxButton->setFixedSize(30,30);
@@ -457,20 +468,16 @@ void MainWindow::themeButton(QString themeColor)
                                  "QToolButton:hover{background-color:#E5E5E5;opacity:0.15;}"
                                  "QToolButton:pressed{background-color:#D9D9D9;opacity:0.20;}");
         //关闭按钮
-        closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
+
         closeButton->setFixedSize(30,30);
-        closeButton->setStyleSheet("QToolButton{border-radius:4px;}"
-                                   "QToolButton:hover{background-color:#F86457;}"
-                                   "QToolButton:pressed{background-color:#E44C50;}");
-//        recordButton->setStyleSheet("background-color:#141414;"
-//                                    "border-radius:64px;");
+
         stopButton->setStyleSheet("QToolButton{image: url(:/svg/svg/finish-defalut-dark.svg);}"
                                   "QToolButton:hover{image: url(:/svg/svg/finish-hover.svg);}"
                                   "QToolButton:pressed{image: url(:/svg/svg/finish-click.svg);}");
 
         if(strat_pause)
         {
-            mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-play-dark.svg);}"
+            mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-play-dark.svg);}"
                                                "QToolButton:hover{image:url(:/svg/svg/mini-play-_hover.svg);}"
                                                "QToolButton:pressed{image:url(:/svg/svg/mini-play-click.svg);}");
             play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/continu-dark.svg);}"
@@ -480,7 +487,7 @@ void MainWindow::themeButton(QString themeColor)
         }
         else
         {
-            mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-suspend-dark.svg);}"
+            mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-dark.svg);}"
                                                "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
                                                "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
             play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/pause-dark.svg);}"
@@ -496,7 +503,7 @@ void MainWindow::themeButton(QString themeColor)
                                       "QToolButton::pressed{background-color:rgba(0,0,0,0.45);}");
 
         mini.closeBtn->setIcon(QIcon::fromTheme("window-close-symbolic"));
-        mini.line->setStyleSheet("background-color:#EEEEEE;");
+        mini.line->setStyleSheet("border-radius:1px; background-color:#F2F2F2;");
         recordButton->setStyleSheet("QPushButton{border-radius:64px;}"
                                     "QPushButton::hover{background-color:rgba(0,0,0,0.15);}"
                                     "QPushButton::pressed{background-color:rgba(0,0,0,0.45);}");
@@ -509,6 +516,8 @@ void MainWindow::themeButton(QString themeColor)
         list->setStyleSheet("QListWidget::item:selected{border:none;}"
                             "QListWidget::item:hover{background: rgb(255, 255, 255);}"
                             "QScrollBar{background-color:white;border-radius:2px;width:4px;}"
+                            "QScrollBar::add-line:vertical{height: 0px;}"
+                            "QScrollBar::sub-line:vertical{height: 0px;}"
                             "QScrollBar::handle:vertical{background-color:#888888;border-radius:2px;width:4px;min-height:20px;}"
                             );
         //设置按钮
@@ -518,36 +527,18 @@ void MainWindow::themeButton(QString themeColor)
                                  "QPushButton:hover{background-color:#E5E5E5;opacity:0.15;}"
                                  "QPushButton:pressed{background-color:#D9D9D9;opacity:0.20;}"
                                  "QPushButton::menu-indicator{image:None;}");
-        menumodule->menuButton->setStyleSheet("QPushButton{border-radius:4px;}"
-                                 "QPushButton:hover{background-color:#E5E5E5;opacity:0.15;}"
-                                 "QPushButton:pressed{background-color:#D9D9D9;opacity:0.20;}"
-                                 "QPushButton::menu-indicator{image:None;}");
-        //mini按钮
-        miniButton->setIcon(QIcon::fromTheme("ukui-mini"));
-        miniButton->setFixedSize(30,30);
-        miniButton->setStyleSheet("QToolButton{border-radius:4px;}"
-                                     "QToolButton:hover{background-color:#E5E5E5;opacity:0.15;}"
-                                     "QToolButton:pressed{background-color:#D9D9D9;opacity:0.20;}");
-        //最小化按钮
-        minButton->setIcon(QIcon::fromTheme("window-minimize-symbolic"));
-        minButton->setFixedSize(30,30);
-        minButton->setStyleSheet("QToolButton{border-radius:4px;}"
-                                 "QToolButton:hover{background-color:#E5E5E5;opacity:0.15;}"
-                                 "QToolButton:pressed{background-color:#D9D9D9;opacity:0.20;}");
+
+
+
+
         //最大化按钮
 //        maxButton->setIcon(QIcon(":/svg/svg/window-maximize.svg"));
         maxButton->setFixedSize(30,30);
         maxButton->setStyleSheet("QToolButton{border-radius:4px;}"
                                  "QToolButton:hover{background-color:#E5E5E5;opacity:0.15;}"
                                  "QToolButton:pressed{background-color:#D9D9D9;opacity:0.20;}");
-        //关闭按钮
-        closeButton->setIcon(QIcon::fromTheme("window-close-symbolic"));
-        closeButton->setFixedSize(30,30);
-        closeButton->setStyleSheet("QToolButton{border-radius:4px;}"
-                                   "QToolButton:hover{background-color:#F86457}"
-                                   "QToolButton:pressed{background-color:#E44C50}");
-//        recordButton->setStyleSheet("background-color:#E5E5E5;"
-//                                    "border-radius:64px;");
+
+
         stopButton->setStyleSheet("QToolButton{image: url(:/svg/svg/finish-defalut-light.svg);}"
                                   "QToolButton:hover{image: url(:/svg/svg/finish-hover.svg);}"
                                   "QToolButton:pressed{image: url(:/svg/svg/finish-click.svg);}");
@@ -556,7 +547,7 @@ void MainWindow::themeButton(QString themeColor)
             play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/continue-light.svg);}"
                                          "QToolButton:hover{image: url(:/svg/svg/continue-hover.svg);}"
                                          "QToolButton:pressed{image: url(:/svg/svg/continue-click.svg);}");
-            mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-play-light.svg);}"
+            mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-play-light.svg);}"
                                                "QToolButton:hover{image:url(:/svg/svg/mini-play-_hover.svg);}"
                                                "QToolButton:pressed{image:url(:/svg/svg/mini-play-click.svg);}");
         }
@@ -565,7 +556,7 @@ void MainWindow::themeButton(QString themeColor)
             play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/pause-light.svg);}"
                         "QToolButton:hover{image: url(:/svg/svg/pause-hover.svg);}"
                         "QToolButton:pressed{image: url(:/svg/svg/pause-click.svg);}");
-            mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-suspend-light.svg);}"
+            mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-light.svg);}"
                                                "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
                                                "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
         }
@@ -771,8 +762,8 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 
 void MainWindow::miniShow()
 {
-    this->hide();
-    mini.show();
+    mainWid->hide();
+    mini.miniWid->show();
 }
 
 //开始和暂停
@@ -793,7 +784,7 @@ void MainWindow::play_pause_clicked()
        strat_pause=false;
        if(themeData->get("style-name").toString() == "ukui-dark"||themeData->get("style-name").toString() == "ukui-black")
        {
-           mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-suspend-dark.svg);}"
+           mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-dark.svg);}"
                                               "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
                                               "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
            play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/pause-dark.svg);}"
@@ -803,7 +794,7 @@ void MainWindow::play_pause_clicked()
        else
        {
            //点击完之后要修改悬停样式。
-           mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-suspend-light.svg);}"
+           mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-light.svg);}"
                                               "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
                                               "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
            play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/pause-light.svg);}"
@@ -826,7 +817,7 @@ void MainWindow::play_pause_clicked()
         //点击完之后要修改悬停样式。
         if(themeData->get("style-name").toString() == "ukui-dark"||themeData->get("style-name").toString() == "ukui-black")
         {
-            mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-play-dark.svg);}"
+            mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-play-dark.svg);}"
                                                "QToolButton:hover{image:url(:/svg/svg/mini-play-_hover.svg);}"
                                                "QToolButton:pressed{image:url(:/svg/svg/mini-play-click.svg);}");
             play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/continu-dark.svg);}"
@@ -835,7 +826,7 @@ void MainWindow::play_pause_clicked()
         }
         else
         {
-            mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-play-light.svg);}"
+            mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-play-light.svg);}"
                                                "QToolButton:hover{image:url(:/svg/svg/mini-play-_hover.svg);}"
                                                "QToolButton:pressed{image:url(:/svg/svg/mini-play-click.svg);}");
             play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/continue-light.svg);}"
@@ -925,11 +916,14 @@ void MainWindow::mainWindow_page2()
     slider->setOrientation(Qt::Horizontal);
     slider->setValue(50);//初始音量为50
     voiceBtn->setIcon(QIcon::fromTheme("audio-volume-medium"));
+    voiceBtn->setProperty("isWindowButton", 0x1);
+    voiceBtn->setProperty("useIconHighlightEffect", 0x2);
+    voiceBtn->setAutoRaise(true);
     play_pauseButton->setIconSize(QSize(56,56));//重置图标大小
     play_pauseButton->setEnabled(true);//按下后，开始录音可以按暂停
     if(themeData->get("style-name").toString() == "ukui-dark"||themeData->get("style-name").toString() == "ukui-black")
     {
-        mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-suspend-dark.svg);}"
+        mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-dark.svg);}"
                        "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
                        "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
         play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/pause-dark.svg);}"
@@ -942,7 +936,7 @@ void MainWindow::mainWindow_page2()
     }
     else
     {
-        mini.start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-suspend-light.svg);}"
+        mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-light.svg);}"
                        "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
                        "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
 
@@ -1114,6 +1108,21 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             }
         }
 
+
+    }
+    else if(obj == mainWid)
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if(keyEvent->key() == Qt::Key_F1)  //将event转换为QKeyEvent,然后判断是否键
+        {
+            qDebug()<<"按压了F1";
+            if (!mDaemonIpcDbus->daemonIsNotRunning()){
+                //F1快捷键打开用户手册，如kylin-recorder
+                //由于是小工具类，下面的showGuide参数要填写"tools/kylin-recorder"
+                mDaemonIpcDbus->showGuide("tools/kylin-recorder");
+            }
+            return true;
+        }
 
     }
     return QObject::eventFilter(obj,event);
