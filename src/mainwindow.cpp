@@ -37,7 +37,6 @@ MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent)
 {
 
-
     checkSingle();//检查单例模式
     mutual = this;
     defaultPathData = new QGSettings(KYLINRECORDER);
@@ -250,7 +249,7 @@ MainWindow::MainWindow(QWidget *parent)
     MainWindowLayout();//主窗体布局方法
     initThemeGsetting();//初始化主题配置文件
     mainWindow_page2();//必须加上初始化第二个主页面(此函数有两处需要被调用:构造函数+切换页面时)
-    initFunctionGsetting();//初始化函数配置文件
+    updateGsetting_ListWidget();
     list->setViewMode(QListView::ListMode);
 //    list->setAttribute(Qt::WA_TranslucentBackground);
 //    setMouseTracking(true);
@@ -656,7 +655,7 @@ void MainWindow::initThemeGsetting()
 
 }
 
-void MainWindow::initFunctionGsetting()//初始化时配置文件刷新出
+void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,传""时为应用开始时的刷新
 {
     qDebug() <<"初始化";
     int  m=myThread->readNumList();
@@ -682,10 +681,7 @@ void MainWindow::initFunctionGsetting()//初始化时配置文件刷新出
         {
             if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
             {
-                qDebug()<<"文件存在!";
-                //qDebug()<<str.split("/").last();
-                //qDebug()<<QDesktopServices::openUrl(QUrl::fromLocalFile(str));//打开指定路径文件夹
-                slotListItemAdd(str,i);//每当配置文件中有路径时就在list中更新一下
+               slotListItemAdd(str,i);//每当配置文件中有路径时就在list中更新一下
             }
         }
         else

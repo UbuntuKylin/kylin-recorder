@@ -180,7 +180,6 @@ private:
 
     void clipperFun();
 
-    void isExistAudioFile(QString fileName);//判断是否存在此文件,若没有则，在配置文件中将1文件路径，2振幅值组也删除
     void updateGSetting(QString fileName);
 
 //    void mouseMoveEvent(QMouseEvent *event);

@@ -347,11 +347,13 @@ void MyThread::saveAs(QString oldFileName)//右键另存为可以选择存储音
 void MyThread::stop_btnPressed()//停止录音
 {
 
+    qDebug()<<"更新————————————————————————0";
     audioInputFile->stop();//音频文件写入停止
+    qDebug()<<"更新————————————————————————1";
     audioInputSound->stop();//监听停止
-//    audioOutputFile->stop();//音频输出停止
-//    audioOutputSound->stop();//监听停止
+    qDebug()<<"更新————————————————————————2";
     file->close();
+    qDebug()<<"更新————————————————————————3";
 
     updateAmplitudeList(MainWindow::mutual->valueArray);//更新振幅列表//2020.11.12暂时禁用
 //        if(tmpArray1.length()<110)
@@ -388,6 +390,7 @@ void MyThread::stop_btnPressed()//停止录音
     qDebug()<<"成功停止";
     int ad =recordData->get("savedefault").toInt();
     int type=recordData->get("type").toInt();
+    QString endPathStr;
     if(ad==1)
     {
         //弹存储为的框
@@ -422,7 +425,6 @@ void MyThread::stop_btnPressed()//停止录音
     }
     else
     {
-        //qDebug()<<seq;
         QTime t1;
         t1=QTime::currentTime();
         QString str = t1.toString("hh:mm:ss");
@@ -436,12 +438,11 @@ void MyThread::stop_btnPressed()//停止录音
         {
             if( toConvertMp3( "record.raw", (default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3")).toLocal8Bit().data())>0)
             {
-                //MainWindow::mutual->playerTotalTime(desktop_path+tr("/")+fileName+tr("-")+str+tr(".mp3"));
-                //qDebug()<<"Yes";
+                //如下5行代码后期重构时务必放入一个函数里...2021.01.15(重复使用的功能需放入同一函数中)
                 //改变配置文件中的存储路径
-                //qDebug()<<desktop_path+tr("/")+fileName+tr("-")+str+tr(".mp3");
-                onChangeCurrentRecordList(default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3"));
-                listItemAdd(default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3"));
+                endPathStr = default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3");
+                onChangeCurrentRecordList(endPathStr);//更新路径配置文件
+                listItemAdd(endPathStr);
                 WrrMsg = new QMessageBox(QMessageBox::Question, tr("Save"), tr("Saved successfully：")+ default_Location+tr("/")+fileName+tr("-")+str, QMessageBox::Yes );
                 WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                 WrrMsg->exec();
@@ -750,32 +751,21 @@ int MyThread::useVolumeSample(short sample)
 QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时，配置文件中路径为空
 {
     QStringList keyList = recordData->keys();
-    QStringList listRecordPath;
-    QStringList listAmplitude;
+    QStringList listRecordPath = readPathCollected().split(",");
+    QStringList listAmplitude = recordData->get("amplitude").toString().split(";");//波形图配置文件;
+    qDebug()<<"路径集:"<<listRecordPath<<"振幅组:"<<listAmplitude;
     if (keyList.contains("recorderpath"))
     {
         int  m=readNumList();
-        qDebug()<<m;
-        listAmplitude = recordData->get("amplitude").toString().split(";");//波形图配置文件
-        listRecordPath=readPathCollected().split(",");
+        qDebug()<<"这时的数量:"<<m;
         qDebug()<<filePath;
-        for(int i=0;i<m;i++)
+        for(int i=1;i<m;i++)
         {
             QString str="";
-            if(listRecordPath.length()==1)//首次添加时的路径集合就一个空值
-            {
-                str = filePath;
-            }
-            else
-            {
-                str = listRecordPath.at(i+1);
-            }
-           // qDebug()<<str;
+            str = listRecordPath.at(i);
             QFileInfo fileinfo(str);
             QString filesuffix = fileinfo.suffix();//判断文件后缀
 //          qDebug()<<fileinfo.isFile();//判断是否为文件，是文件就存在了,因为在本地删除后，同步文件列表下才打开时那个文件也没了
-            //qDebug()<<filesuffix;
-//            fileName.split("/").last()
             if(!str.contains(filePath)||MainWindow::mutual->list->count()==0)//不包含有2种情况：1.路径中有不同的文件名 2.文件路径本身不存在或被删除
             {
                 if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
@@ -807,14 +797,16 @@ QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时�
                     QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
                     recordData->set("amplitude",newAmplitudeStr);//更新振幅串
                     writeNumList(readNumList()-1);
-                    qDebug()<<readPathCollected();
+                    qDebug()<<"**********************";
                 }
 
             }
+            qDebug()<<"**********************"<<i;
 
         }
 
     }
+
     return filePath;
 
 }

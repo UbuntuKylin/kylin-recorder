@@ -94,6 +94,7 @@ signals:
     void changeVoicePicture();
     void listItemAddSignal(QString fileName,int i);//更新检测到的音频振幅值到配置文件
     void handling(QString str);
+
 private:
     int beishu=1;//倍数
     int quzhi=0;//取值

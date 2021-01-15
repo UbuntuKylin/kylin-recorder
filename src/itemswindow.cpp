@@ -517,9 +517,6 @@ void ItemsWindow::getRecordingSlot(bool recordingState)
 
 void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
 {  
-//    if(MainWindow::isRecording)
-//        return;
-emit playingSignal(true);
     MyThread *myth = new MyThread();
     QLabel *label = itemsWid->findChild<QLabel *>(recordFileName->objectName());
     myth->readPathCollected();//先读取配置文件中的所有路径集
@@ -567,9 +564,12 @@ emit playingSignal(true);
             }
             else
             {
+                stopReplayer();
                 emit playingSignal(false);
-                isExistAudioFile(audioFilePath);//看是否已存在音频文件
+//                isExistAudioFile(audioFilePath);//看是否已存在音频文件
                 updateGSetting(audioFilePath);//更新配置文件,一定要加上
+                MainWindow::mutual->list->clear();
+                MainWindow::mutual->updateGsetting_ListWidget();
                 WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
                                          ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
                 WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
@@ -579,87 +579,6 @@ emit playingSignal(true);
         }
     }
 
-}
-
-void ItemsWindow::isExistAudioFile(QString fileName)
-{
-    qDebug()<<fileName<<"已经不存在！！,要自动删除之后还要更新配置文件";
-    MyThread *myth = new MyThread();//构造函数实例化后构造函数被调用。recordPathData在MyThread的构造里面
-    QStringList listRecordPath = myth->readPathCollected().split(",");
-    QStringList listAmplitude = myth->recordData->get("amplitude").toString().split(";");
-    int m = myth->readNumList();//因为配置文件初始为1
-    if(m<0)
-    {
-        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                 ,tr("The current number of list files is 0."),QMessageBox::Yes );
-        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-        WrrMsg->exec();
-        return ;
-    }
-    for(int i = 0; i<m; i++)
-    {
-        QString str = listRecordPath.at(i);
-        //QString strTemp = listAmplitude.at(i-1);
-        if(str.contains(fileName))
-        {
-
-            QFileInfo fi(str);
-            if(fi.exists())
-            {
-                QFileInfo fileinfo(str);
-                QString filesuffix = fileinfo.suffix();//判断文件后缀
-                if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
-                {
-                    qDebug()<<"文件存在!可以删除";
-                    if(player->state()==QMediaPlayer::PlayingState)
-                    {
-                        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                                 ,tr("Playing, please stop and delete!"),QMessageBox::Yes );
-                        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-                        WrrMsg->exec();
-                        return ;
-                    }
-                    QString subStr = ","+str;//子串
-                    QString subAmplitudeStr = listAmplitude.at(i-1);
-                    /*
-                     * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
-                     */
-                    QString oldStr = myth->recordData->get("recorderpath").toString();
-                    int pos = oldStr.indexOf(subStr);
-                    QString oldAmplitudeStr = myth->recordData->get("amplitude").toString();
-                    int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
-                    //qDebug()<<pos<<" "<<oldStr;
-                    //qDebug()<<oldStr.mid(pos,str.length()+1);
-                    QString newStr = oldStr.remove(pos,str.length()+1);
-                    myth->writePathCollected(newStr);
-                    QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
-                    myth->recordData->set("amplitude",newAmplitudeStr);
-                    myth->writeNumList(myth->readNumList()-1);
-                    //根据索引值删除listwidget列表的Item，要注意配置文件的更新以及本地文件的删除
-//                    int index=MainWindow::mutual->list->currentRow();
-                    this->deleteLater();//先释放内存再删除列表的项,要成对出现
-                    MainWindow::mutual->list->takeItem(i-1);//删除操作
-                    //传item个数,如果为0则显示"文件列表为空"标签
-                    MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());
-                    QFile::remove(str);//从本地删除
-                }
-                else
-                {
-                    qDebug()<<"文件不存在!或已经被删除!";
-                }
-            }
-            else
-            {
-                //本地文件已经被删除时，删除按钮就直接删除listwidget的item项
-                this->deleteLater();//先释放内存再删除列表的项,要成对出现
-                MainWindow::mutual->list->takeItem(i-1);//删除list列表的item操作
-                MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
-                break ;
-            }
-
-        }
-    }
-    return ;
 }
 
 //更新配置文件,

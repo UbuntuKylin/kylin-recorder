@@ -123,7 +123,7 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QLabel *zeroFile_Messagelb;//文件列表为空时的提示信息
     QFile *file;
     void initThemeGsetting();
-    void initFunctionGsetting();
+    void updateGsetting_ListWidget();//更新配置文件和ListWidget
     void themeButton(QString themeColor);
     void themeStyle(QString themeColor);
     void themeWindow(QString themeColor);
@@ -243,7 +243,19 @@ private:
     void wheelEvent(QWheelEvent *event);
 
 
+
+
 //    bool isRecording = false;
+
+private://音频相关
+
+    QSlider *slider;
+
+    QVector<myWave*> mywave;
+
+
+    bool isplaying = false;//默认文件列表播放状态为否
+
 
 signals://主线程的信号
 
@@ -259,17 +271,8 @@ signals://主线程的信号
     void pageChange();
 
 
-private://音频相关
-
-    QSlider *slider;
-
-    QVector<myWave*> mywave;
-
-
-    bool isplaying = false;//默认文件列表播放状态为否
-
-
 public slots:
+
 
     void getPlayingSlot(bool );//收到正在播放的信息防止文件列表再播放时录音
 
