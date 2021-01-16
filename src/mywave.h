@@ -14,7 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
+<<<<<<< HEAD:src/mywave.h
  *  Authors: baijincheng <baijincheng@kylinos.cn>
+=======
+ * Authors: baijincheng <baijincheng@kylinos.cn>
+>>>>>>> b83fa1d75587ad7c1b69c42f9dfc7e3e3e6e80ca:mywave.h
  */
 #ifndef MYWAVE_H
 #define MYWAVE_H
