@@ -753,7 +753,6 @@ QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时�
     QStringList keyList = recordData->keys();
     QStringList listRecordPath = readPathCollected().split(",");
     QStringList listAmplitude = recordData->get("amplitude").toString().split(";");//波形图配置文件;
-    qDebug()<<"路径集:"<<listRecordPath<<"振幅组:"<<listAmplitude;
     if (keyList.contains("recorderpath"))
     {
         int  m=readNumList();

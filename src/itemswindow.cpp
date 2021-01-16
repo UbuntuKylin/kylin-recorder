@@ -656,6 +656,7 @@ void ItemsWindow::delFile()//删除本地音频文件
     myth->readPathCollected();//先读取配置文件中的所有路径集
     QStringList listRecordPath = myth->readPathCollected().split(",");
     QStringList listAmplitude = myth->recordData->get("amplitude").toString().split(";");
+    qDebug()<<"路经集:"<<listRecordPath;
     int m = myth->readNumList();//因为配置文件初始为1
     if(m<0)
     {
@@ -668,6 +669,7 @@ void ItemsWindow::delFile()//删除本地音频文件
     for(int i = 0; i<m; i++)
     {
         QString str = listRecordPath.at(i);
+
         //QString strTemp = listAmplitude.at(i-1);
         if(str.contains(label->text()))
         {
@@ -679,7 +681,6 @@ void ItemsWindow::delFile()//删除本地音频文件
                 QString filesuffix = fileinfo.suffix();//判断文件后缀
                 if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
                 {
-                    qDebug()<<"文件存在!可以删除";
                     if(player->state()==QMediaPlayer::PlayingState)
                     {
                         WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
@@ -708,6 +709,7 @@ void ItemsWindow::delFile()//删除本地音频文件
 //                    int index=MainWindow::mutual->list->currentRow();
                     this->deleteLater();//先释放内存再删除列表的项,要成对出现
                     MainWindow::mutual->list->takeItem(i-1);//删除操作
+                    qDebug()<<"**********路径"<<i<<"存在，删除:"<<str;
                     MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
                     QFile::remove(str);//从本地删除
                 }
@@ -718,14 +720,16 @@ void ItemsWindow::delFile()//删除本地音频文件
             }
             else
             {
+                qDebug()<<"**********路径"<<i<<"不存在,删除:"<<str;
                 //本地文件已经被删除时，删除按钮就直接删除listwidget的item项
                 this->deleteLater();//先释放内存再删除列表的项,要成对出现
                 MainWindow::mutual->list->takeItem(i-1);//删除list列表的item操作
                 MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
-                break ;
+                continue ;
             }
 
         }
+
     }
     return ;
 }
