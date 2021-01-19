@@ -1045,7 +1045,7 @@ void MainWindow::changeVoicePicture()
 {
     if(slider->value()==0)
     {
-        voiceBtn->setIcon(QIcon::fromTheme("audio-volume-muted"));
+        voiceBtn->setIcon(QIcon::fromTheme("audio-volume-muted-symbolic"));
     }
     else if(slider->value() <= 30 && slider->value() > 0)
     {
