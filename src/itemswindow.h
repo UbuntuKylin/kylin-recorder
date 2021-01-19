@@ -180,18 +180,17 @@ private:
 
     void clipperFun();
 
-    void updateGSetting(QString fileName);
 
-//    void mouseMoveEvent(QMouseEvent *event);
-//    void mousePressEvent(QMouseEvent *event);
 
     QPoint pressPoint;
-
 
 signals:
 
     void playingSignal(bool);//发送正在播放的信号，通知播放时不可以录音
 
+    void updateGSettingSignal(QString fileName);
+public slots:
+    void updateGSettingSlot(QString fileName);
 
 private slots:
 

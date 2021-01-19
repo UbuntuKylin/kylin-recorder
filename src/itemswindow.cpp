@@ -32,6 +32,8 @@ ItemsWindow::ItemsWindow(QWidget *parent) : QMainWindow(parent)
     initThemeGsetting();//初始化主题的配置文件
     setAttribute(Qt::WA_TranslucentBackground);
 
+    connect(this,&ItemsWindow::updateGSettingSignal,this,&ItemsWindow::updateGSettingSlot);
+
 }
 
 void ItemsWindow::initItemWid()//初始化主界面
@@ -569,7 +571,8 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
                 stopReplayer();
                 emit playingSignal(false);
 //                isExistAudioFile(audioFilePath);//看是否已存在音频文件
-                updateGSetting(audioFilePath);//更新配置文件,一定要加上
+                emit updateGSettingSignal(audioFilePath);
+//                updateGSetting(audioFilePath);//更新配置文件,一定要加上
                 MainWindow::mutual->list->clear();
                 MainWindow::mutual->updateGsetting_ListWidget();
                 WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
@@ -584,7 +587,7 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
 }
 
 //更新配置文件,
-void ItemsWindow::updateGSetting(QString fileName)
+void ItemsWindow::updateGSettingSlot(QString fileName)
 {
     int  m=itemData->get("num").toInt();
     qDebug()<<"ssssssssssssss"<<m;
@@ -623,6 +626,7 @@ void ItemsWindow::updateGSetting(QString fileName)
             else
             {
                 qDebug()<<"文件存在!但是已经重复!!!!";
+
             }
         }
         else

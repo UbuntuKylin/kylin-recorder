@@ -189,7 +189,7 @@ void menuModule::initAbout(){
     //TODO:在屏幕中央显示
     QRect availableGeometry = qApp->primaryScreen()->availableGeometry();
     aboutWindow->move((availableGeometry.width()-aboutWindow->width())/2,(availableGeometry.height()- aboutWindow->height())/2);
-    aboutWindow->setStyleSheet("background-color:rgba(255,255,255,1);");
+//    aboutWindow->setStyleSheet(".QWidget{background-color:rgba(255,255,255,1);}");
     aboutWindow->show();
 }
 
@@ -299,8 +299,8 @@ void menuModule::setThemeDark(){
     qDebug()<<"set theme dark";
     if(aboutWindow)
     {
-        aboutWindow->setStyleSheet("background-color:rgba(31,32,34，1);");
-        titleBtnClose->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
+//        aboutWindow->setStyleSheet("background-color:rgba(31,32,34，1);");
+//        titleBtnClose->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
     }
     emit menuModuleSetThemeStyle("dark-theme");
 }
@@ -309,7 +309,7 @@ void menuModule::setThemeLight(){
     qDebug()<<"set theme light";
     if(aboutWindow)
     {
-        aboutWindow->setStyleSheet("background-color:rgba(255，255，255，1);");
+//        aboutWindow->setStyleSheet("background-color:rgba(255，255，255，1);");
     }
     emit menuModuleSetThemeStyle("light-theme");
 

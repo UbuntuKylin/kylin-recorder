@@ -86,12 +86,13 @@ MainWindow::MainWindow(QWidget *parent)
     menumodule = new menuModule(mainWid);
     menumodule->menuButton->setToolTip(tr("Setting"));
     menumodule->menuButton->setFixedSize(30,30);
-    menumodule->menuButton->setIcon(QIcon::fromTheme("application-menu"));
+    menumodule->menuButton->setIcon(QIcon::fromTheme("open-menu-symbolic"));
     menumodule->menuButton->setAutoRaise(true);
     menumodule->menuButton->setProperty("isWindowButton", 0x1);
     menumodule->menuButton->setProperty("useIconHighlightEffect",0x2);
     menumodule->menuButton->setPopupMode(QToolButton::InstantPopup);//QToolButton必须加上的
 
+    //setButton已弃用
     setButton = new QPushButton(this);
     setButton->setIcon(QIcon::fromTheme("open-menu-symbolic"));//主题库的菜单图标
 
@@ -254,7 +255,7 @@ MainWindow::MainWindow(QWidget *parent)
 //    list->setAttribute(Qt::WA_TranslucentBackground);
 //    setMouseTracking(true);
 //    list->setMouseTracking(true);
-
+    mainWid->show();
 }
 // 实现键盘响应
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -342,7 +343,7 @@ void MainWindow::MainWindowLayout()
 //    this->setAttribute(Qt::WA_TranslucentBackground);//主窗体透明
 //    this->setStyleSheet("border-radius:6px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
 //    this->show();
-    mainWid->show();
+//    mainWid->show();
 }
 
 void MainWindow::minShow()
@@ -367,7 +368,12 @@ void MainWindow::themeWindow(QString themeColor)
 {
     if(themeColor == "ukui-dark"||themeColor=="ukui-black")
     {
+<<<<<<< Updated upstream
         listWid->setStyleSheet("background-color:#141414;"
+=======
+        menumodule->aboutWindow->setStyleSheet(".QWidget{background-color:rgba(31,32,34,1);}");
+        listWid->setStyleSheet("background-color:#222222;"
+>>>>>>> Stashed changes
                                "border-top-right-radius:0px;"
                                "border-bottom-right-radius:0px;");//后期适配主题颜色
         //list->setAttribute(Qt::WA_TranslucentBackground);
@@ -395,6 +401,7 @@ void MainWindow::themeWindow(QString themeColor)
     }
     else
     {
+        menumodule->aboutWindow->setStyleSheet(".QWidget{background-color:rgba(255,255,255,1);}");
         listWid->setStyleSheet("background-color:#F8F8F8;"
                                "border-top-right-radius:0px;"
                                "border-bottom-right-radius:0px;");//后期适配主题颜色
@@ -847,6 +854,7 @@ void MainWindow::stop_clicked()//停止按钮
 {
     if(stop)
     {
+
         pTimer->stop();//计时停止
         mini.pTimer->stop();
         emit stopRecord();
@@ -1062,8 +1070,22 @@ void MainWindow::goset()
     set.show();
 }
 
-void MainWindow::handlingSlot(QString handling)
+void MainWindow::handlingSlot(bool isOk)
 {
+    QMessageBox *msg = new QMessageBox(QMessageBox::Warning, tr("消息"), tr("Audio is transcoding..."), QMessageBox::Yes );
+
+//    if(isOk == true)
+//    {
+
+//        msg->hide();
+
+//    }
+//    else
+//    {
+//        msg->button(QMessageBox::Yes)->setText(tr("OK"));
+//        msg->show();
+//    }
+
 }
 
 void MainWindow::slotListItemAdd(QString fileName,int i)

@@ -271,6 +271,8 @@ signals://主线程的信号
     void pageChange();
 
 
+
+
 public slots:
 
 
@@ -292,7 +294,7 @@ public slots:
 
 
 
-    void handlingSlot(QString str);
+    void handlingSlot(bool isOk);
     void slotListItemAdd(QString fileName,int i);
 };
 

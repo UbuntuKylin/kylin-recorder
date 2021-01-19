@@ -45,13 +45,14 @@ public:
 
 
     QGSettings *m_pGsettingThemeStatus = nullptr;
+    QWidget *aboutWindow = nullptr;
 private:
     QMenu *m_menu = nullptr;
     QMenu *themeMenu = nullptr;
     QSize iconSize;
     QString appPath = "tools/kylin-recorder"; //拉起帮助菜单时使用appName字段
 
-    QWidget *aboutWindow = nullptr;
+
     QVBoxLayout *mainlyt;
     QHBoxLayout *titleLyt;
     QVBoxLayout *bodylyt;
