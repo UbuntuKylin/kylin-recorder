@@ -368,12 +368,8 @@ void MainWindow::themeWindow(QString themeColor)
 {
     if(themeColor == "ukui-dark"||themeColor=="ukui-black")
     {
-<<<<<<< Updated upstream
-        listWid->setStyleSheet("background-color:#141414;"
-=======
         menumodule->aboutWindow->setStyleSheet(".QWidget{background-color:rgba(31,32,34,1);}");
-        listWid->setStyleSheet("background-color:#222222;"
->>>>>>> Stashed changes
+        listWid->setStyleSheet("background-color:#141414;"
                                "border-top-right-radius:0px;"
                                "border-bottom-right-radius:0px;");//后期适配主题颜色
         //list->setAttribute(Qt::WA_TranslucentBackground);
