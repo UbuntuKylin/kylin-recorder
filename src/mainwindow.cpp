@@ -235,7 +235,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     fileListLayout->addWidget(fileListlb);
-    fileListLayout->setContentsMargins(30,0,0,0);
+    fileListLayout->setContentsMargins(31,0,0,0);
     fileListWid->setLayout(fileListLayout);
 
     listLayout->addWidget(fileListWid);
@@ -367,11 +367,11 @@ void MainWindow::themeWindow(QString themeColor)
 {
     if(themeColor == "ukui-dark"||themeColor=="ukui-black")
     {
-        listWid->setStyleSheet("background-color:#222222;"
+        listWid->setStyleSheet("background-color:#141414;"
                                "border-top-right-radius:0px;"
                                "border-bottom-right-radius:0px;");//后期适配主题颜色
         //list->setAttribute(Qt::WA_TranslucentBackground);
-        leftMainWid->setStyleSheet("background-color:#141414;"
+        leftMainWid->setStyleSheet("background-color:#222222;"
                                    "border-top-right-radius:0px;"
                                    "border-bottom-right-radius:0px;");
         //主界面
@@ -385,10 +385,10 @@ void MainWindow::themeWindow(QString themeColor)
         set.mainWid->setObjectName("setMainWid");//设置命名空间
         set.mainWid->setStyleSheet("#setMainWid{background-color:#131314;border:1px solid rgba(255,255,255,0.15);}");//自定义窗体(圆角+背景色)
 
-        rightMainWid->setStyleSheet(".QWidget{background-color:#222222;\
+        rightMainWid->setStyleSheet(".QWidget{background-color:#141414;\
                                     border-top-left-radius:0px;\
                                     border-bottom-left-radius:0px;}");
-        recordButtonWid->setStyleSheet("background-color:#141414;");
+        recordButtonWid->setStyleSheet("background-color:#222222;");
         set.closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
 //        itemswindow->setStyleSheet("background-color:#222222;");//后期适配主题颜s;
 
@@ -443,10 +443,10 @@ void MainWindow::themeButton(QString themeColor)
         zeroFile_Messagelb->setStyleSheet("font-size:14px;color:#FFFFFF");
         list->setStyleSheet("QListWidget::item:selected{border:none;}"
                             "QListWidget::item:hover{background-color:#222222;}"
-                            "QScrollBar{background-color:white;border-radius:2px;width:4px;}"
+                            "QScrollBar{background-color:#141414;border-radius:2px;width:4px;}"
                             "QScrollBar::add-line:vertical{height: 0px;}"
                             "QScrollBar::sub-line:vertical{height: 0px;}"
-                            "QScrollBar::handle:vertical{background-color:#888888;border-radius:2px;width:4px;min-height:20px;}"
+                            "QScrollBar::handle:vertical{background-color:rgba(255,255,255,0.2);border-radius:2px;width:4px;min-height:20px;}"
                             );
         //设置按钮
 //        setButton->setIcon(QIcon(":/svg/svg/open-menu.svg"));
@@ -514,7 +514,7 @@ void MainWindow::themeButton(QString themeColor)
         //list->setAttribute(Qt::WA_TranslucentBackground);
         list->setStyleSheet("QListWidget::item:selected{border:none;}"
                             "QListWidget::item:hover{background: rgb(255, 255, 255);}"
-                            "QScrollBar{background-color:white;border-radius:2px;width:4px;}"
+                            "QScrollBar{background-color:#F8F8F8;border-radius:2px;width:4px;}"
                             "QScrollBar::add-line:vertical{height: 0px;}"
                             "QScrollBar::sub-line:vertical{height: 0px;}"
                             "QScrollBar::handle:vertical{background-color:#888888;border-radius:2px;width:4px;min-height:20px;}"

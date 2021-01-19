@@ -241,6 +241,7 @@ void ItemsWindow::themeStyle(QString themeColor)
         finishButton->setStyleSheet("QToolButton{margin-left:0px;color:#FFFFFF;}"
                                     "QToolButton:hover{color:#F74175;}"
                                     "QToolButton:pressed{color:red;}");
+        line->setStyleSheet("background-color:#222222;");
         if(play_pause)
         {
             itemPlay_PauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/pause-dark.svg);}"
@@ -269,6 +270,7 @@ void ItemsWindow::themeStyle(QString themeColor)
         cancelButton->setStyleSheet("QToolButton{margin-left:0px;color:#303133;}"
                                     "QToolButton:hover{color:#F74175;}"
                                     "QToolButton:pressed{color:red;}");
+        line->setStyleSheet("background-color:#EDEDED;");
         //margin-left:0px;必须加上否则字体变白
         finishButton->setStyleSheet("QToolButton{margin-left:0px;color:#303133;}"
                                     "QToolButton:hover{color:#F74175;}"

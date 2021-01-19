@@ -93,7 +93,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     connect(radioButton_2,&QRadioButton::clicked,this,&Settings::closesave);
 
     label_3 = new QLabel(tr("Default storage："));
-    label_3->setFixedWidth(120);
+//    label_3->setFixedWidth(120);
     lineEdit = new QLineEdit(this);
     defaultLocation = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
     lineEdit->setText(defaultLocation);
@@ -110,7 +110,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     radioButton_6 = new QRadioButton(this);
     label_9 = new QLabel("mp3");
     radioButton_7 = new QRadioButton();
-    label_10 = new QLabel("m4a");
+    label_10 = new QLabel("m4a  ");
     radioButton_8 = new QRadioButton(this);
     label_11 = new QLabel("wav");
     connect(radioButton_6,&QRadioButton::clicked,this,&Settings::saveTypeMp3);
@@ -141,8 +141,8 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     pg->addWidget(radioButton,0,2,1,1);
     pg->addWidget(label_2,0,3,1,1);
     pg->addWidget(radioButton_2,1,2,1,1);
-    pg->addWidget(label_3,1,3,1,1);
-    pg->addWidget(lineEdit,2,3,1,6);
+    pg->addWidget(label_3,1,3,1,3);
+    pg->addWidget(lineEdit,2,3,1,7);
     pg->addWidget(label_4,3,0,1,2);
     //        pg->addWidget(radioButton_3,3,2,1,1);
     //        pg->addWidget(label_5,3,3,1,1);
@@ -152,11 +152,14 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     pg->addWidget(label_7,3,3,1,1);//解封后改为3711
     pg->addWidget(label_8,4,0,1,2);
     pg->addWidget(radioButton_6,4,2,1,1);//mp3
-    pg->addWidget(label_9,4,3,1,1);
+    pg->addWidget(label_9,4,3,1,1);\
+    label_9->setAlignment(Qt::AlignLeft|Qt::AlignTop);
     pg->addWidget(radioButton_7,4,4,1,1);//M4a格式
     pg->addWidget(label_10,4,5,1,1);
+    label_10->setAlignment(Qt::AlignLeft|Qt::AlignTop);
     pg->addWidget(radioButton_8,4,6,1,1);//wav,后期改为4611
     pg->addWidget(label_11,4,7,1,1);//后期改为4711
+    label_11->setAlignment(Qt::AlignLeft|Qt::AlignTop);
     Wid->setLayout(pg);
 
     mainLayout= new QVBoxLayout();
@@ -174,6 +177,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     {
         closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
         mainWid->setStyleSheet("background-color:#131314;border:1px;");//自定义窗体(圆角+背景色)
+        lineEdit->setStyleSheet("background-color:rgba(255,255,255,0.06);height:36px;border-radius: 6px;");
 
     }
     else
@@ -181,6 +185,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
         mainWid->setObjectName("setmainWid");//设置命名空间
         mainWid->setStyleSheet("#setmainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
+//        lineEdit->setStyleSheet("background-color:rgba(0,0,0,0.06);border-radius: 6px;height:36px;");
     }
 
 
