@@ -1,3 +1,9 @@
+kylin-recorder (1.2.18) v101; urgency=medium
+
+  * 内测时，修复raw文件路径设置错误的问题
+
+ -- baijincheng <baijincheng@kylinos.cn>  Tue, 19 Jan 2021 20:25:00 +0800
+
 kylin-recorder (1.2.17) v101; urgency=medium
 
   * 修复bug#33860：修改设置界面文件格式的间隔问题

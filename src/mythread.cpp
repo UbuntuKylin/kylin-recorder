@@ -220,7 +220,7 @@ void MyThread::record_pressed()
 
     InitMonitor();
     file =new QFile();
-    file->setFileName("/home/bjc/.cache/record.raw");
+    file->setFileName(".record.raw");
     bool is_open =file->open(QIODevice::WriteOnly | QIODevice::Truncate);
     if(!is_open)
     {
@@ -429,7 +429,7 @@ void MyThread::stop_btnPressed()//停止录音
         fileName=StrCurrentTime;
         if(type==1)//1代表MP3
         {
-            if( toConvertMp3( "/home/bjc/.cache/record.raw", (default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3")).toLocal8Bit().data())>0)
+            if( toConvertMp3( ".record.raw", (default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3")).toLocal8Bit().data())>0)
             {
                 //如下5行代码后期重构时务必放入一个函数里...2021.01.15(重复使用的功能需放入同一函数中)
                 //改变配置文件中的存储路径
@@ -444,7 +444,7 @@ void MyThread::stop_btnPressed()//停止录音
         }
         else if(type==2)//2代表M4a
         {
-            if( toConvertM4a( "/home/bjc/.cache/record.raw", (default_Location+tr("/")+fileName+tr("-")+str+tr(".m4a")).toLocal8Bit().data() ) > 0 )
+            if( toConvertM4a( ".record.raw", (default_Location+tr("/")+fileName+tr("-")+str+tr(".m4a")).toLocal8Bit().data() ) > 0 )
             {
                 //改变配置文件中的存储路径
                 onChangeCurrentRecordList(default_Location+tr("/")+fileName+tr("-")+str+tr(".m4a"));
@@ -456,7 +456,7 @@ void MyThread::stop_btnPressed()//停止录音
         }
         else if(type==3)//3代表Wav
         {
-            if( addWavHeader( "/home/bjc/.cache/record.raw", (default_Location+tr("/")+fileName+tr("-")+str+tr(".wav")).toLocal8Bit().data() ) > 0 )
+            if( addWavHeader( ".record.raw", (default_Location+tr("/")+fileName+tr("-")+str+tr(".wav")).toLocal8Bit().data() ) > 0 )
             {
                 //改变配置文件中的存储路径
                 onChangeCurrentRecordList(default_Location+tr("/")+fileName+tr("-")+str+tr(".wav"));
@@ -866,7 +866,7 @@ void MyThread::selectMp3()
     }
     else
     {
-        if( toConvertMp3( "/home/bjc/.cache/record.raw", (fileName+tr(".mp3")).toLocal8Bit().data() ) > 0 )
+        if( toConvertMp3( ".record.raw", (fileName+tr(".mp3")).toLocal8Bit().data() ) > 0 )
         {
             //添加前要判断是否重复文件名
             onChangeCurrentRecordList(endFileName);
@@ -899,7 +899,7 @@ void MyThread::selectM4a()
         QMessageBox::information(NULL, tr("filename"), tr("You didn't select any files."));
 
     } else {
-        if( toConvertM4a( "/home/bjc/.cache/record.raw", (fileName+tr(".m4a")).toLocal8Bit().data() ) > 0 )
+        if( toConvertM4a( ".record.raw", (fileName+tr(".m4a")).toLocal8Bit().data() ) > 0 )
         {
             onChangeCurrentRecordList(fileName+tr(".m4a"));
             listItemAdd(fileName+tr(".m4a"));
@@ -927,7 +927,7 @@ void MyThread::selectWav()
         QMessageBox::information(NULL, tr("filename"), tr("You didn't select any files."));
 
     } else {
-        if( addWavHeader( "/home/bjc/.cache/record.raw", (fileName+tr(".wav")).toLocal8Bit().data() ) > 0 )
+        if( addWavHeader( ".record.raw", (fileName+tr(".wav")).toLocal8Bit().data() ) > 0 )
         {
             onChangeCurrentRecordList(fileName+tr(".wav"));
             listItemAdd(fileName+tr(".wav"));
