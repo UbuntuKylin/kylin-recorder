@@ -355,7 +355,14 @@ bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点�
     }
     else if(obj == itemsWid)//悬浮特效、点击特效、右击特效
     {
-        itemsWid->setAttribute(Qt::WA_Hover,true);//****关键代码,若不加此行代码则没有悬浮特效****
+        if(!MainWindow::mutual->isRecording)
+        {
+            itemsWid->setAttribute(Qt::WA_Hover,true);//****关键代码,若不加此行代码则没有悬浮特效****
+        }
+        else
+        {
+            itemsWid->setAttribute(Qt::WA_Hover,false);
+        }
         listNumChangeColor = itemsWid->findChild<QLabel *>(listNum->objectName());
         recordFileNameChangeColor = itemsWid->findChild<QLabel *>(recordFileName->objectName());
         if(event->type() == QEvent::HoverEnter)//显示浮窗

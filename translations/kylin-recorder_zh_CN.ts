@@ -4,83 +4,77 @@
 <context>
     <name>ItemsWindow</name>
     <message>
-        <location filename="../src/itemswindow.cpp" line="109"/>
+        <location filename="../src/itemswindow.cpp" line="111"/>
         <source>play/pause</source>
-        <translation type="unfinished"></translation>
+        <translation>开始/暂停</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="112"/>
+        <location filename="../src/itemswindow.cpp" line="114"/>
         <source>clip</source>
-        <translation type="unfinished"></translation>
+        <translation>剪裁</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="115"/>
+        <location filename="../src/itemswindow.cpp" line="117"/>
         <source>delete</source>
-        <translation type="unfinished"></translation>
+        <translation>删除</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="189"/>
+        <location filename="../src/itemswindow.cpp" line="191"/>
         <source>Cancel</source>
         <translation>取消</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="192"/>
+        <location filename="../src/itemswindow.cpp" line="194"/>
         <source>Finish</source>
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="415"/>
+        <location filename="../src/itemswindow.cpp" line="419"/>
         <source>Save as</source>
         <translation>另存为</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="416"/>
+        <location filename="../src/itemswindow.cpp" line="420"/>
         <source>Open folder position</source>
         <translation>打开文件位置</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="445"/>
-        <location filename="../src/itemswindow.cpp" line="573"/>
-        <location filename="../src/itemswindow.cpp" line="593"/>
-        <location filename="../src/itemswindow.cpp" line="616"/>
-        <location filename="../src/itemswindow.cpp" line="743"/>
-        <location filename="../src/itemswindow.cpp" line="766"/>
-        <location filename="../src/itemswindow.cpp" line="923"/>
+        <location filename="../src/itemswindow.cpp" line="449"/>
+        <location filename="../src/itemswindow.cpp" line="578"/>
+        <location filename="../src/itemswindow.cpp" line="669"/>
+        <location filename="../src/itemswindow.cpp" line="692"/>
+        <location filename="../src/itemswindow.cpp" line="852"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="446"/>
-        <location filename="../src/itemswindow.cpp" line="574"/>
-        <location filename="../src/itemswindow.cpp" line="924"/>
+        <location filename="../src/itemswindow.cpp" line="450"/>
+        <location filename="../src/itemswindow.cpp" line="579"/>
+        <location filename="../src/itemswindow.cpp" line="853"/>
         <source>The file path does not exist or has been deleted!</source>
         <translation>文件路径不存在或已经被删除!</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="447"/>
-        <location filename="../src/itemswindow.cpp" line="575"/>
-        <location filename="../src/itemswindow.cpp" line="595"/>
-        <location filename="../src/itemswindow.cpp" line="618"/>
-        <location filename="../src/itemswindow.cpp" line="745"/>
-        <location filename="../src/itemswindow.cpp" line="768"/>
-        <location filename="../src/itemswindow.cpp" line="925"/>
+        <location filename="../src/itemswindow.cpp" line="451"/>
+        <location filename="../src/itemswindow.cpp" line="580"/>
+        <location filename="../src/itemswindow.cpp" line="671"/>
+        <location filename="../src/itemswindow.cpp" line="694"/>
+        <location filename="../src/itemswindow.cpp" line="854"/>
         <source>OK</source>
         <translation>确认</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="594"/>
-        <location filename="../src/itemswindow.cpp" line="744"/>
+        <location filename="../src/itemswindow.cpp" line="670"/>
         <source>The current number of list files is 0.</source>
         <translation>当前文件列表数目为0.</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="617"/>
-        <location filename="../src/itemswindow.cpp" line="767"/>
+        <location filename="../src/itemswindow.cpp" line="693"/>
         <source>Playing, please stop and delete!</source>
         <translation>正在播放，请停止后删除!</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="1005"/>
+        <location filename="../src/itemswindow.cpp" line="934"/>
         <source>剪裁成功</source>
         <translation>Clip Successed</translation>
     </message>
@@ -93,68 +87,69 @@
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="100"/>
+        <location filename="../src/mainwindow.cpp" line="101"/>
         <source>Set</source>
         <translation>设置</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="101"/>
+        <location filename="../src/mainwindow.cpp" line="102"/>
         <source>Help</source>
         <translation>帮助</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="102"/>
+        <location filename="../src/mainwindow.cpp" line="103"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="110"/>
+        <location filename="../src/mainwindow.cpp" line="111"/>
         <source>Mini</source>
         <translation>迷你</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="119"/>
+        <location filename="../src/mainwindow.cpp" line="120"/>
         <source>Min</source>
         <translation>最小化</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="127"/>
+        <location filename="../src/mainwindow.cpp" line="128"/>
         <source>Max</source>
         <translation>最大化</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="132"/>
+        <location filename="../src/mainwindow.cpp" line="137"/>
         <source>Close</source>
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="139"/>
+        <location filename="../src/mainwindow.cpp" line="144"/>
         <source>Recording</source>
         <translation>录音</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="145"/>
+        <location filename="../src/mainwindow.cpp" line="150"/>
         <source>None of the Recording File</source>
         <translation>没有录音文件</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="156"/>
+        <location filename="../src/mainwindow.cpp" line="161"/>
         <source>stop</source>
         <translation>停止</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="158"/>
+        <location filename="../src/mainwindow.cpp" line="163"/>
         <source>pause/start</source>
         <translation>暂停/开始</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="204"/>
-        <location filename="../src/mainwindow.cpp" line="211"/>
+        <location filename="../src/mainwindow.cpp" line="64"/>
+        <location filename="../src/mainwindow.cpp" line="209"/>
+        <location filename="../src/mainwindow.cpp" line="216"/>
         <source>kylin-recorder</source>
         <translation>麒麟录音</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="215"/>
+        <location filename="../src/mainwindow.cpp" line="220"/>
         <source>File List</source>
         <translation>文件列表</translation>
     </message>
@@ -163,12 +158,12 @@
         <translation type="vanished">  文件列表  </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1036"/>
+        <location filename="../src/mainwindow.cpp" line="1041"/>
         <source>There is audio playing, please stop after recording!</source>
         <translation>有正在播放的音频，请停止后在录音</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1037"/>
+        <location filename="../src/mainwindow.cpp" line="1042"/>
         <source>OK</source>
         <translation>确认</translation>
     </message>
@@ -181,7 +176,7 @@
         <translation type="vanished">    开 始 录 音  </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1035"/>
+        <location filename="../src/mainwindow.cpp" line="1040"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
@@ -190,120 +185,162 @@
         <translation type="vanished">没有检测到设备!</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1078"/>
+        <location filename="../src/mainwindow.cpp" line="1095"/>
         <source>recorder</source>
         <translation>录音</translation>
     </message>
 </context>
 <context>
-    <name>MyThread</name>
+    <name>MiniWindow</name>
     <message>
-        <location filename="../src/mythread.cpp" line="307"/>
-        <location filename="../src/mythread.cpp" line="399"/>
-        <location filename="../src/mythread.cpp" line="408"/>
-        <location filename="../src/mythread.cpp" line="417"/>
-        <source>Select a file storage directory</source>
-        <translation>选择一个存储路径</translation>
+        <location filename="../src/miniwindow.cpp" line="83"/>
+        <source>kylin-recorder</source>
+        <translation>麒麟录音</translation>
     </message>
     <message>
-        <location filename="../src/mythread.cpp" line="437"/>
-        <location filename="../src/mythread.cpp" line="443"/>
-        <location filename="../src/mythread.cpp" line="444"/>
-        <location filename="../src/mythread.cpp" line="445"/>
-        <location filename="../src/mythread.cpp" line="452"/>
-        <location filename="../src/mythread.cpp" line="455"/>
-        <location filename="../src/mythread.cpp" line="456"/>
-        <location filename="../src/mythread.cpp" line="457"/>
-        <location filename="../src/mythread.cpp" line="464"/>
-        <location filename="../src/mythread.cpp" line="467"/>
-        <location filename="../src/mythread.cpp" line="468"/>
-        <location filename="../src/mythread.cpp" line="469"/>
-        <source>/</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/miniwindow.cpp" line="88"/>
+        <source>Recording</source>
+        <translation>录音</translation>
     </message>
     <message>
-        <location filename="../src/mythread.cpp" line="437"/>
-        <location filename="../src/mythread.cpp" line="443"/>
-        <location filename="../src/mythread.cpp" line="444"/>
-        <location filename="../src/mythread.cpp" line="445"/>
-        <location filename="../src/mythread.cpp" line="452"/>
-        <location filename="../src/mythread.cpp" line="455"/>
-        <location filename="../src/mythread.cpp" line="456"/>
-        <location filename="../src/mythread.cpp" line="457"/>
-        <location filename="../src/mythread.cpp" line="464"/>
-        <location filename="../src/mythread.cpp" line="467"/>
-        <location filename="../src/mythread.cpp" line="468"/>
-        <location filename="../src/mythread.cpp" line="469"/>
-        <source>-</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/miniwindow.cpp" line="90"/>
+        <source>Stop</source>
+        <translation>停止</translation>
     </message>
     <message>
-        <location filename="../src/mythread.cpp" line="437"/>
-        <location filename="../src/mythread.cpp" line="443"/>
-        <location filename="../src/mythread.cpp" line="444"/>
-        <location filename="../src/mythread.cpp" line="884"/>
-        <source>.mp3</source>
-        <translation type="unfinished"></translation>
+        <location filename="../src/miniwindow.cpp" line="92"/>
+        <source>Start/Pause</source>
+        <translation>开始/暂停</translation>
     </message>
     <message>
-        <location filename="../src/mythread.cpp" line="445"/>
-        <location filename="../src/mythread.cpp" line="457"/>
-        <location filename="../src/mythread.cpp" line="469"/>
-        <location filename="../src/mythread.cpp" line="890"/>
-        <location filename="../src/mythread.cpp" line="922"/>
-        <location filename="../src/mythread.cpp" line="950"/>
-        <source>Save</source>
-        <translation>保存</translation>
+        <location filename="../src/miniwindow.cpp" line="104"/>
+        <source>Restore</source>
+        <translation>还原</translation>
     </message>
     <message>
-        <location filename="../src/mythread.cpp" line="445"/>
-        <location filename="../src/mythread.cpp" line="457"/>
-        <location filename="../src/mythread.cpp" line="469"/>
-        <source>Saved successfully：</source>
-        <translation>保存成功:</translation>
+        <location filename="../src/miniwindow.cpp" line="112"/>
+        <source>Close</source>
+        <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../src/mythread.cpp" line="446"/>
-        <location filename="../src/mythread.cpp" line="458"/>
-        <location filename="../src/mythread.cpp" line="470"/>
-        <location filename="../src/mythread.cpp" line="879"/>
-        <source>OK</source>
-        <translation>确认</translation>
-    </message>
-    <message>
-        <location filename="../src/mythread.cpp" line="452"/>
-        <location filename="../src/mythread.cpp" line="455"/>
-        <location filename="../src/mythread.cpp" line="456"/>
-        <location filename="../src/mythread.cpp" line="917"/>
-        <location filename="../src/mythread.cpp" line="920"/>
-        <location filename="../src/mythread.cpp" line="921"/>
-        <source>.m4a</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mythread.cpp" line="464"/>
-        <location filename="../src/mythread.cpp" line="467"/>
-        <location filename="../src/mythread.cpp" line="468"/>
-        <location filename="../src/mythread.cpp" line="945"/>
-        <location filename="../src/mythread.cpp" line="948"/>
-        <location filename="../src/mythread.cpp" line="949"/>
-        <source>.wav</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mythread.cpp" line="878"/>
+        <location filename="../src/miniwindow.cpp" line="292"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../src/mythread.cpp" line="878"/>
-        <source>You have not selected any storage location!</source>
-        <translation>您没有选择任何存储位置!</translation>
+        <location filename="../src/miniwindow.cpp" line="293"/>
+        <source>There is audio playing, please stop after recording!</source>
+        <translation>有正在播放的音频，请停止后在录音</translation>
     </message>
     <message>
-        <location filename="../src/mythread.cpp" line="890"/>
-        <location filename="../src/mythread.cpp" line="922"/>
-        <location filename="../src/mythread.cpp" line="950"/>
+        <location filename="../src/miniwindow.cpp" line="294"/>
+        <source>OK</source>
+        <translation>确认</translation>
+    </message>
+</context>
+<context>
+    <name>MyThread</name>
+    <message>
+        <location filename="../src/mythread.cpp" line="306"/>
+        <location filename="../src/mythread.cpp" line="395"/>
+        <location filename="../src/mythread.cpp" line="404"/>
+        <location filename="../src/mythread.cpp" line="413"/>
+        <source>Select a file storage directory</source>
+        <translation>选择一个存储路径</translation>
+    </message>
+    <message>
+        <location filename="../src/mythread.cpp" line="432"/>
+        <location filename="../src/mythread.cpp" line="436"/>
+        <location filename="../src/mythread.cpp" line="440"/>
+        <location filename="../src/mythread.cpp" line="447"/>
+        <location filename="../src/mythread.cpp" line="450"/>
+        <location filename="../src/mythread.cpp" line="451"/>
+        <location filename="../src/mythread.cpp" line="452"/>
+        <location filename="../src/mythread.cpp" line="459"/>
+        <location filename="../src/mythread.cpp" line="462"/>
+        <location filename="../src/mythread.cpp" line="463"/>
+        <location filename="../src/mythread.cpp" line="464"/>
+        <source>/</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mythread.cpp" line="432"/>
+        <location filename="../src/mythread.cpp" line="436"/>
+        <location filename="../src/mythread.cpp" line="440"/>
+        <location filename="../src/mythread.cpp" line="447"/>
+        <location filename="../src/mythread.cpp" line="450"/>
+        <location filename="../src/mythread.cpp" line="451"/>
+        <location filename="../src/mythread.cpp" line="452"/>
+        <location filename="../src/mythread.cpp" line="459"/>
+        <location filename="../src/mythread.cpp" line="462"/>
+        <location filename="../src/mythread.cpp" line="463"/>
+        <location filename="../src/mythread.cpp" line="464"/>
+        <source>-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mythread.cpp" line="432"/>
+        <location filename="../src/mythread.cpp" line="436"/>
+        <location filename="../src/mythread.cpp" line="870"/>
+        <source>.mp3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mythread.cpp" line="440"/>
+        <location filename="../src/mythread.cpp" line="452"/>
+        <location filename="../src/mythread.cpp" line="464"/>
+        <location filename="../src/mythread.cpp" line="876"/>
+        <location filename="../src/mythread.cpp" line="912"/>
+        <location filename="../src/mythread.cpp" line="943"/>
+        <source>Save</source>
+        <translation>保存</translation>
+    </message>
+    <message>
+        <location filename="../src/mythread.cpp" line="440"/>
+        <location filename="../src/mythread.cpp" line="452"/>
+        <location filename="../src/mythread.cpp" line="464"/>
+        <source>Saved successfully：</source>
+        <translation>保存成功:</translation>
+    </message>
+    <message>
+        <location filename="../src/mythread.cpp" line="441"/>
+        <location filename="../src/mythread.cpp" line="453"/>
+        <location filename="../src/mythread.cpp" line="465"/>
+        <source>OK</source>
+        <translation>确认</translation>
+    </message>
+    <message>
+        <location filename="../src/mythread.cpp" line="447"/>
+        <location filename="../src/mythread.cpp" line="450"/>
+        <location filename="../src/mythread.cpp" line="451"/>
+        <location filename="../src/mythread.cpp" line="907"/>
+        <location filename="../src/mythread.cpp" line="909"/>
+        <location filename="../src/mythread.cpp" line="910"/>
+        <source>.m4a</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mythread.cpp" line="459"/>
+        <location filename="../src/mythread.cpp" line="462"/>
+        <location filename="../src/mythread.cpp" line="463"/>
+        <location filename="../src/mythread.cpp" line="938"/>
+        <location filename="../src/mythread.cpp" line="940"/>
+        <location filename="../src/mythread.cpp" line="941"/>
+        <source>.wav</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation type="vanished">警告</translation>
+    </message>
+    <message>
+        <source>You have not selected any storage location!</source>
+        <translation type="vanished">您没有选择任何存储位置!</translation>
+    </message>
+    <message>
+        <location filename="../src/mythread.cpp" line="876"/>
+        <location filename="../src/mythread.cpp" line="912"/>
+        <location filename="../src/mythread.cpp" line="943"/>
         <source>Saved successfully:</source>
         <translation>保存成功:</translation>
     </message>
@@ -312,16 +349,12 @@
         <translation type="vanished">保存</translation>
     </message>
     <message>
-        <location filename="../src/mythread.cpp" line="914"/>
-        <location filename="../src/mythread.cpp" line="942"/>
         <source>filename</source>
-        <translation>文件名</translation>
+        <translation type="vanished">文件名</translation>
     </message>
     <message>
-        <location filename="../src/mythread.cpp" line="914"/>
-        <location filename="../src/mythread.cpp" line="942"/>
         <source>You didn&apos;t select any files.</source>
-        <translation>您没有选择任何文件.</translation>
+        <translation type="vanished">您没有选择任何文件.</translation>
     </message>
 </context>
 <context>
@@ -337,11 +370,11 @@
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../src/settings.cpp" line="47"/>
         <source>kylin-recorder</source>
-        <translation>麒麟录音</translation>
+        <translation type="vanished">麒麟录音</translation>
     </message>
     <message>
+        <location filename="../src/settings.cpp" line="47"/>
         <location filename="../src/settings.cpp" line="55"/>
         <source>Settings</source>
         <translation>设置</translation>
@@ -362,27 +395,27 @@
         <translation>默认存储:</translation>
     </message>
     <message>
-        <location filename="../src/settings.cpp" line="101"/>
+        <location filename="../src/settings.cpp" line="102"/>
         <source>Source</source>
         <translation>录音来源</translation>
     </message>
     <message>
-        <location filename="../src/settings.cpp" line="103"/>
+        <location filename="../src/settings.cpp" line="104"/>
         <source>All</source>
         <translation>全部</translation>
     </message>
     <message>
-        <location filename="../src/settings.cpp" line="105"/>
+        <location filename="../src/settings.cpp" line="106"/>
         <source>Inside</source>
         <translation>内部</translation>
     </message>
     <message>
-        <location filename="../src/settings.cpp" line="107"/>
+        <location filename="../src/settings.cpp" line="108"/>
         <source>Microphone</source>
         <translation>麦克风</translation>
     </message>
     <message>
-        <location filename="../src/settings.cpp" line="108"/>
+        <location filename="../src/settings.cpp" line="109"/>
         <source>File format</source>
         <translation>文件格式</translation>
     </message>
@@ -407,6 +440,7 @@
         <translation>帮助</translation>
     </message>
     <message>
+        <location filename="../src/menumodule.cpp" line="18"/>
         <location filename="../src/menumodule.cpp" line="44"/>
         <location filename="../src/menumodule.cpp" line="128"/>
         <source>About</source>

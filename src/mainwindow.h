@@ -142,6 +142,9 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QTime baseTime;//1
     QWidget *titleRightWid;//右标题栏Wid
     QWidget *mainWid;
+
+    bool isplaying = false;//默认文件列表播放状态为否
+    bool isRecording = false;//默认没有开始录音
 private:
 
 
@@ -254,7 +257,7 @@ private://音频相关
     QVector<myWave*> mywave;
 
 
-    bool isplaying = false;//默认文件列表播放状态为否
+
 
 
 signals://主线程的信号

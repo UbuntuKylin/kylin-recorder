@@ -80,13 +80,16 @@ void MiniWindow::initMiniWindow()
 
 
 //    setWindowFlags(Qt::FramelessWindowHint);
-    setWindowTitle("麒麟录音");
-    setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+    miniWid -> setWindowTitle(tr("kylin-recorder"));
+    miniWid -> setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
     //this->setStyleSheet("border-radius:6px;");//mini窗体圆角6px
     pTimer = new QTimer;//第二个页面的控件初始化
     recordBtn=new QToolButton(this);//录制按钮
+    recordBtn->setToolTip(tr("Recording"));
     stopBtn=new QToolButton(pageTwoWid);//停止按钮
+    stopBtn->setToolTip(tr("Stop"));
     start_pauseBtn=new QToolButton(pageTwoWid);//开始和暂停按钮
+    start_pauseBtn->setToolTip(tr("Start/Pause"));
 
     timelb=new QLabel(this);//显示录制时间的标签
     timelb->setText("00:00:00");
@@ -98,6 +101,7 @@ void MiniWindow::initMiniWindow()
     miniBtn->setProperty("isWindowButton", 0x1);
     miniBtn->setProperty("useIconHighlightEffect", 0x2);
     miniBtn->setAutoRaise(true);
+    miniBtn->setToolTip(tr("Restore"));
 
     closeBtn=new QToolButton(this);//关闭按钮
     closeBtn->setIcon(QIcon::fromTheme("window-close-symbolic"));//主题库的叉子图标
@@ -105,6 +109,7 @@ void MiniWindow::initMiniWindow()
     closeBtn->setProperty("isWindowButton", 0x2);
     closeBtn->setProperty("useIconHighlightEffect", 0x8);
     closeBtn->setAutoRaise(true);
+    closeBtn->setToolTip(tr("Close"));
 
     connect(pTimer,&QTimer::timeout,this,&MiniWindow::timeDisplay);
     connect(recordBtn,&QToolButton::clicked,this,&MiniWindow::switchPage);
@@ -200,8 +205,9 @@ bool MiniWindow::eventFilter(QObject *obj, QEvent *event)
 }
 void MiniWindow::normalShow()
 {
-    MainWindow::mutual->mainWid->show();
     miniWid->hide();
+    MainWindow::mutual->mainWid->showNormal();
+
 }
 void MiniWindow::closeWindow()//关闭mini和主窗体
 {
@@ -272,23 +278,22 @@ void MiniWindow::timeDisplay()
 }
 void MiniWindow::switchPage()//换页
 {
-    baseTime = baseTime.currentTime();
-    pTimer->start(1);
-    mythr.soundVolume = 50;//初始录音要有音量大小，否则默认音量为0，检测的声音就是0了
-//    if(darkData->get("style-name").toString() == "ukui-dark"||darkData->get("style-name").toString() == "ukui-black")
-//    {
-//        start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-play-dark.svg);}"
-//                                      "QToolButton:hover{image:url(:/svg/svg/mini-play-_hover.svg);}"
-//                                      "QToolButton:pressed{image:url(:/svg/svg/mini-play-click.svg);}");
-//    }
-//    else
-//    {
-//        start_pauseBtn->setStyleSheet("QToolButton{image:url(:/svg/svg/mini-suspend-light.svg);}"
-//                       "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
-//                       "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
-//    }
+    if(!MainWindow::mutual->isplaying)
+    {
+        baseTime = baseTime.currentTime();
+        pTimer->start(1);
+        mythr.soundVolume = 50;//初始录音要有音量大小，否则默认音量为0，检测的声音就是0了
+        MainWindow::mutual->switchPage();//主线程开始录音
+        MainWindow::mutual->m_pStackedWidget->setCurrentIndex(1);//mini模式切换至两个按钮页面
+        recordStackedWidget->setCurrentIndex(1);//主界面切换至两个按钮页面
+    }
+    else
+    {
+        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
+                                 ,tr("There is audio playing, please stop after recording!"),QMessageBox::Yes );
+        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
+        WrrMsg->exec();
+        return ;
+    }
 
-    MainWindow::mutual->switchPage();//主线程开始录音
-    MainWindow::mutual->m_pStackedWidget->setCurrentIndex(1);//mini模式切换至两个按钮页面
-    recordStackedWidget->setCurrentIndex(1);//主界面切换至两个按钮页面
 }

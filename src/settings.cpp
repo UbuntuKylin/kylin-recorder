@@ -44,7 +44,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     int HEIGHT=300;
     this->setFixedSize(WIDTH,HEIGHT);
     setFocusPolicy(Qt::ClickFocus);//this->setFocusPolicy(Qt::NoFocus);//设置焦点类型
-    setWindowTitle(tr("kylin-recorder"));
+    setWindowTitle(tr("Settings"));
     this->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
     //标题栏设置和布局
     QLabel *lb=new QLabel(this);
@@ -98,6 +98,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     defaultLocation = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
     lineEdit->setText(defaultLocation);
     lineEdit->setFocusPolicy(Qt::NoFocus);//设置不可编辑状态
+//    lineEdit->setStyleSheet("QLineEdit{border-radius:4px;border:1px solid rgba(0,0,0,0.25); background-color:transparent;}");
     label_4 = new QLabel(tr("Source"));
     radioButton_3 = new QRadioButton(this);
     label_5 = new QLabel(tr("All"));
@@ -170,9 +171,12 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     mainWid->setLayout(mainLayout);
 //    mainWid->setStyleSheet("background-color:pink;");
     this->setCentralWidget(mainWid);
+    this->setAttribute(Qt::WA_ShowModal, true);//模态窗口
+    this->setObjectName("mainWid");
+    this->setStyleSheet("#mainWid{border-radius:6px;}" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
 
     this->setAttribute(Qt::WA_TranslucentBackground);//窗体透明
-    this->setStyleSheet("border-radius:6px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
+//    this->setStyleSheet("border-radius:6px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
     if(darkData->get("style-name").toString()=="ukui-dark"||darkData->get("style-name").toString() == "ukui-black")
     {
         closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
