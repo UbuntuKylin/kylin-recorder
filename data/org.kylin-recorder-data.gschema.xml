@@ -21,7 +21,7 @@
              <description>type</description>
          </key>
          <key name="source" type="i" >
-             <default>1</default>
+             <default>3</default>
              <summary>source</summary>
              <description>source</description>
          </key>
@@ -29,6 +29,16 @@
              <default>""</default>
              <summary>amplitude</summary>
              <description>amplitude</description>
+         </key>
+         <key name="samefilenum" type="i" >
+             <default>1</default>
+             <summary>samefilenum</summary>
+             <description>samefilenum</description>
+         </key>
+         <key name="thememode" type="s" >
+             <default>"auto"</default>
+             <summary>thememode</summary>
+             <description>thememode</description>
          </key>
 
      </schema>
