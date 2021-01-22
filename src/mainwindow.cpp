@@ -61,6 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     mainWid ->setFixedSize(WIDTH,HEIGHT);
     mainWid ->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+    mainWid ->setWindowTitle(tr("kylin-recorder"));
     //屏幕中间老方法
     //    this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
     //显示在活动屏幕中间新方法
@@ -105,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent)
 //    setButton->setMenu(menu);
 
     //mini按钮
-    miniButton = new QToolButton(titleRightWid);
+    miniButton = new QToolButton(this);
     miniButton->setFixedSize(30,30);
     miniButton->setToolTip(tr("Mini"));
     miniButton->setProperty("isWindowButton", 0x1);
@@ -114,7 +115,7 @@ MainWindow::MainWindow(QWidget *parent)
     miniButton->setIcon(QIcon::fromTheme("ukui-mini"));//主题库的mini图标
 
     //最小化按钮
-    minButton = new QToolButton(titleRightWid);
+    minButton = new QToolButton(this);
     minButton->setFixedSize(30,30);
     minButton->setToolTip(tr("Min"));
     minButton->setProperty("isWindowButton", 0x1);
@@ -123,11 +124,15 @@ MainWindow::MainWindow(QWidget *parent)
     minButton->setIcon(QIcon::fromTheme("window-minimize-symbolic"));//主题库的最小化图标  
 
     //最大化按钮
-    maxButton = new QToolButton(titleRightWid);
+    maxButton = new QToolButton(this);
     maxButton->setToolTip(tr("Max"));
+    maxButton->setProperty("isWindowButton", 0x1);
+    maxButton->setProperty("useIconHighlightEffect", 0x2);
+    maxButton->setAutoRaise(true);
+    maxButton->setIcon(QIcon::fromTheme("window-maximize-symbolic"));//主题库的最小化图标
 
     //关闭按钮
-    closeButton = new QToolButton(titleRightWid);  
+    closeButton = new QToolButton(this);
     closeButton->setFixedSize(30,30);
     closeButton->setToolTip(tr("Close"));
     closeButton->setIcon(QIcon::fromTheme("window-close-symbolic"));//主题库的叉子图标
@@ -354,12 +359,12 @@ void MainWindow::maxShow()
 {
     if(isMax)
     {
-        this->showNormal();
+        mainWid->showNormal();
         isMax = false;
     }
     else
     {
-        this->showFullScreen();
+        mainWid->showFullScreen();
         isMax = true;
     }
 
@@ -762,7 +767,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 void MainWindow::miniShow()
 {
     mainWid->hide();
-    mini.miniWid->show();
+    mini.miniWid->showNormal();
 }
 
 //开始和暂停
@@ -806,6 +811,7 @@ void MainWindow::play_pause_clicked()
     {
         qDebug()<<"pause";
         emit pauseRecord();
+        isRecording = false;//暂停时正在录音的标记值为false,其为false时Item的悬浮特效可以被开启
         pTimer->stop();
         mini.pTimer->stop();
         //mini.pTimer->stop();
@@ -850,7 +856,7 @@ void MainWindow::stop_clicked()//停止按钮
 {
     if(stop)
     {
-
+        isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
         pTimer->stop();//计时停止
         mini.pTimer->stop();
         emit stopRecord();
@@ -914,7 +920,7 @@ void MainWindow::mainWindow_page2()
     for(int i=0;i<rectangleCount;i++)maxNum.append(0);
 
     slider->setOrientation(Qt::Horizontal);
-    slider->setValue(50);//初始音量为50
+    slider->setValue(myThread->soundVolume);
     voiceBtn->setIcon(QIcon::fromTheme("audio-volume-medium"));
     voiceBtn->setProperty("isWindowButton", 0x1);
     voiceBtn->setProperty("useIconHighlightEffect", 0x2);
@@ -1029,6 +1035,7 @@ void MainWindow::switchPage()
             nIndex = 0;
         mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
         m_pStackedWidget->setCurrentIndex(nIndex);
+        isRecording = true;//正在录音时此标记为true，此为true时悬浮特效被禁止
     }
     else
     {
@@ -1043,7 +1050,7 @@ void MainWindow::switchPage()
 
 void MainWindow::changeVoicePicture()
 {
-    if(slider->value()==0)
+    if(slider->value()== 0)
     {
         voiceBtn->setIcon(QIcon::fromTheme("audio-volume-muted-symbolic"));
     }
@@ -1051,7 +1058,7 @@ void MainWindow::changeVoicePicture()
     {
         voiceBtn->setIcon(QIcon::fromTheme("audio-volume-low"));
     }
-    else if(slider->value() >30 && slider->value() <=70)
+    else if(slider->value() > 30 && slider->value() <=70)
     {
         voiceBtn->setIcon(QIcon::fromTheme("audio-volume-medium"));
     }
@@ -1068,8 +1075,6 @@ void MainWindow::goset()
 
 void MainWindow::handlingSlot(bool isOk)
 {
-    QMessageBox *msg = new QMessageBox(QMessageBox::Warning, tr("消息"), tr("Audio is transcoding..."), QMessageBox::Yes );
-
 //    if(isOk == true)
 //    {
 

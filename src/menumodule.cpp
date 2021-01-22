@@ -15,6 +15,7 @@ menuModule::menuModule(QWidget *parent = nullptr) : QWidget(parent)
     mainlyt->addLayout(bodylyt);
     mainlyt->addStretch();
     aboutWindow->setLayout(mainlyt);
+    aboutWindow->setWindowTitle(tr("About"));
     init();
 }
 
@@ -32,7 +33,6 @@ void menuModule::initAction(){
 //    menuButton->setProperty("isWindowButton", 0x1);
 //    menuButton->setProperty("useIconHighlightEffect",0x2);
     m_menu = new QMenu();
-    m_menu->setFixedWidth(160);
     QList<QAction *> actions ;
     QAction *actionSetting = new QAction(m_menu);
     actionSetting->setText(tr("Setting"));

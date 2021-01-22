@@ -860,9 +860,10 @@ void MyThread::selectMp3()
 {
     if(fileName.length() == 0)
     {
-        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("You have not selected any storage location!"), QMessageBox::Ok );
-        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
-        WrrMsg->exec();
+//        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("You have not selected any storage location!"), QMessageBox::Ok );
+//        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
+//        WrrMsg->exec();
+        return ;
     }
     else
     {
@@ -895,10 +896,14 @@ void MyThread::selectMp3()
 }
 void MyThread::selectM4a()
 {
-    if(fileName.length() == 0) {
-        QMessageBox::information(NULL, tr("filename"), tr("You didn't select any files."));
+    if(fileName.length() == 0)
+    {
+//        QMessageBox::information(NULL, tr("filename"), tr("You didn't select any files."));
+        return ;
 
-    } else {
+    }
+    else
+    {
         if( toConvertM4a( ".record.raw", (fileName+tr(".m4a")).toLocal8Bit().data() ) > 0 )
         {
             onChangeCurrentRecordList(fileName+tr(".m4a"));
@@ -923,10 +928,13 @@ void MyThread::selectM4a()
 }
 void MyThread::selectWav()
 {
-    if(fileName.length() == 0) {
-        QMessageBox::information(NULL, tr("filename"), tr("You didn't select any files."));
-
-    } else {
+    if(fileName.length() == 0)
+    {
+//        QMessageBox::information(NULL, tr("filename"), tr("You didn't select any files."));
+        return ;
+    }
+    else
+    {
         if( addWavHeader( ".record.raw", (fileName+tr(".wav")).toLocal8Bit().data() ) > 0 )
         {
             onChangeCurrentRecordList(fileName+tr(".wav"));

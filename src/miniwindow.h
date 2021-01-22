@@ -61,6 +61,8 @@ public:
     QToolButton *closeBtn;//关闭按钮
     QToolButton *recordBtn;//录制按钮
     QToolButton *stopBtn;//停止按钮
+
+
 private:
 
     QVBoxLayout *recordLayout;
@@ -73,13 +75,9 @@ private:
     QHBoxLayout *pageTwoLayout;
     QHBoxLayout *max_minAndCloseLayout;
 
-
-
-
-
-
-
     QToolButton *miniBtn;//最大最小按钮
+
+    QMessageBox *WrrMsg;
 
 
 
