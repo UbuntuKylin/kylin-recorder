@@ -88,6 +88,8 @@ public:
 
     void saveAs(QString oldFileName);//右键另存为
 
+    QString absolutionPath;//raw存放的绝对路径
+
 signals:
     void recordPaint(int);
     void stopRecord();
@@ -143,7 +145,7 @@ private:
 
     QAudioDeviceInfo monitorVoiceSource(int i);
 
-
+    QString setDefaultPath(QString path);//设置默认存储路径解决中英文路径冲突问题
 
 private slots:
     void InitMonitor();
