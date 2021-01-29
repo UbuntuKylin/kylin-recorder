@@ -28,7 +28,6 @@
 
 Settings::Settings(QWidget *parent) : QMainWindow(parent)
 {
-
     // 添加窗管协议
     MotifWmHints hints;
     hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
@@ -46,6 +45,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     setFocusPolicy(Qt::ClickFocus);//this->setFocusPolicy(Qt::NoFocus);//设置焦点类型
     setWindowTitle(tr("Settings"));
     this->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+
     //标题栏设置和布局
     QLabel *lb=new QLabel(this);
     QLabel *piclb=new QLabel(this);//窗体左上角图片Label

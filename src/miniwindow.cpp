@@ -206,8 +206,8 @@ bool MiniWindow::eventFilter(QObject *obj, QEvent *event)
 void MiniWindow::normalShow()
 {
     miniWid->hide();
+    MainWindow::mutual->mainWid->showMinimized();
     MainWindow::mutual->mainWid->showNormal();
-
 }
 void MiniWindow::closeWindow()//关闭mini和主窗体
 {

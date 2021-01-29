@@ -3,19 +3,6 @@
 #include "xatom-helper.h"
 menuModule::menuModule(QWidget *parent = nullptr) : QWidget(parent)
 {
-    aboutWindow = new QWidget();
-    mainlyt = new QVBoxLayout();
-    titleLyt = initTitleBar();
-    bodylyt = initBody();
-
-    aboutWindow->setFixedSize(420,324);
-    aboutWindow->setMinimumHeight(324);
-    mainlyt->setMargin(0);
-    mainlyt->addLayout(titleLyt);
-    mainlyt->addLayout(bodylyt);
-    mainlyt->addStretch();
-    aboutWindow->setLayout(mainlyt);
-    aboutWindow->setWindowTitle(tr("About"));
     init();
 }
 
@@ -27,11 +14,10 @@ void menuModule::init(){
 void menuModule::initAction(){
     iconSize = QSize(30,30);
     menuButton = new QToolButton(MainWindow::mutual->titleRightWid);
-//    menuButton->setIcon(QIcon::fromTheme("application-menu"));
-//    menuButton->setFixedSize(iconSize);
-//    menuButton->setFlat(true);
-//    menuButton->setProperty("isWindowButton", 0x1);
-//    menuButton->setProperty("useIconHighlightEffect",0x2);
+    aboutWindow = new QWidget();
+    mainlyt = new QVBoxLayout();
+    titleLyt = initTitleBar();
+    bodylyt = initBody();
     m_menu = new QMenu();
     QList<QAction *> actions ;
     QAction *actionSetting = new QAction(m_menu);
@@ -179,13 +165,23 @@ void menuModule::helpAction(){
 }
 
 void menuModule::initAbout(){
-
+    aboutWindow->setWindowFlag(Qt::Tool);//此代码必须在此窗管协议前，否则此模态窗口背景不变灰
     MotifWmHints hints;
     hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
     hints.functions = MWM_FUNC_ALL;
     hints.decorations = MWM_DECOR_BORDER;
     XAtomHelper::getInstance()->setWindowMotifHint(aboutWindow->winId(), hints);
+
     aboutWindow->setAttribute(Qt::WA_ShowModal, true);//模态窗口
+    aboutWindow->setFixedSize(420,324);
+    aboutWindow->setMinimumHeight(324);
+    mainlyt->setMargin(0);
+    mainlyt->addLayout(titleLyt);
+    mainlyt->addLayout(bodylyt);
+    mainlyt->addStretch();
+    aboutWindow->setLayout(mainlyt);
+    aboutWindow->setWindowTitle(tr("About"));
+
     //TODO:在屏幕中央显示
     QRect availableGeometry = qApp->primaryScreen()->availableGeometry();
     aboutWindow->move((availableGeometry.width()-aboutWindow->width())/2,(availableGeometry.height()- aboutWindow->height())/2);
@@ -250,7 +246,11 @@ QVBoxLayout* menuModule::initBody(){
     bodyAppVersion->setAlignment(Qt::AlignLeft);
     bodyAppVersion->setStyleSheet("font-size:14px;");
     QLabel* bodySupport = new QLabel();
-    bodySupport->setText(tr("Support: baibai@kylinos.cn"));
+    bodySupport->setText(tr("Service & Support: ") +
+                         "<a href=\"mailto://support@kylinos.cn\""
+                         "style=\"color:rgba(0,0,0,1)\">"
+                         "support@kylinos.cn</a>");
+    bodySupport->setOpenExternalLinks(true);
     bodySupport->setFixedHeight(24);
     bodySupport->setStyleSheet("font-size:14px;");
     QVBoxLayout *vlyt = new QVBoxLayout;
