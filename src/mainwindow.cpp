@@ -85,7 +85,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //(三)按钮及下拉菜单
     menumodule = new menuModule(mainWid);
-    menumodule->menuButton->setToolTip(tr("Setting"));
+    menumodule->menuButton->setToolTip(tr("Menu"));
     menumodule->menuButton->setFixedSize(30,30);
     menumodule->menuButton->setIcon(QIcon::fromTheme("open-menu-symbolic"));
     menumodule->menuButton->setAutoRaise(true);
@@ -117,7 +117,7 @@ MainWindow::MainWindow(QWidget *parent)
     //最小化按钮
     minButton = new QToolButton(this);
     minButton->setFixedSize(30,30);
-    minButton->setToolTip(tr("Min"));
+    minButton->setToolTip(tr("Minimize"));
     minButton->setProperty("isWindowButton", 0x1);
     minButton->setProperty("useIconHighlightEffect", 0x2);
     minButton->setAutoRaise(true);
@@ -383,14 +383,14 @@ void MainWindow::themeWindow(QString themeColor)
                                    "border-bottom-right-radius:0px;");
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{background-color:#141414;border:1px solid rgba(255,255,255,0.15);}");//自定义窗体(圆角+背景色)
+        mainWid->setStyleSheet("#mainWid{background-color:#141414;}");//自定义窗体(圆角+背景色)
         //mini主界面
         mini.miniWid->setStyleSheet(".Widget{background-color:#222222;}");//后期适配主题颜s;
 
 
         //设置界面
         set.mainWid->setObjectName("setMainWid");//设置命名空间
-        set.mainWid->setStyleSheet("#setMainWid{background-color:#131314;border:1px solid rgba(255,255,255,0.15);}");//自定义窗体(圆角+背景色)
+        set.mainWid->setStyleSheet("#setMainWid{background-color:#131314;}");//自定义窗体(圆角+背景色)
 
         rightMainWid->setStyleSheet(".QWidget{background-color:#141414;\
                                     border-top-left-radius:0px;\
@@ -424,7 +424,7 @@ void MainWindow::themeWindow(QString themeColor)
         //设置界面
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;border:1px solid rgba(0,0,0,0.15);}");//自定义窗体(圆角+背景色)
+        mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
         recordButtonWid->setStyleSheet("background-color:#FFFFFF;opacity:0.1;");
         set.closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
 
@@ -777,6 +777,8 @@ void MainWindow::play_pause_clicked()
     if(strat_pause)
     {
        emit playRecord();
+       menumodule->menuButton->setEnabled(false);//播放时菜单按钮不可点击
+       isRecording = true;//正在录音时的标记为true
        cut = QTime::currentTime();//记录开始时的时间
        int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
        //qDebug()<<t;
@@ -811,6 +813,7 @@ void MainWindow::play_pause_clicked()
     {
         qDebug()<<"pause";
         emit pauseRecord();
+        menumodule->menuButton->setEnabled(true);//暂停时设置可以被点击
         isRecording = false;//暂停时正在录音的标记值为false,其为false时Item的悬浮特效可以被开启
         pTimer->stop();
         mini.pTimer->stop();
@@ -857,6 +860,7 @@ void MainWindow::stop_clicked()//停止按钮
     if(stop)
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
+        menumodule->menuButton->setEnabled(true);
         pTimer->stop();//计时停止
         mini.pTimer->stop();
         emit stopRecord();
@@ -1036,6 +1040,7 @@ void MainWindow::switchPage()
         mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
         m_pStackedWidget->setCurrentIndex(nIndex);
         isRecording = true;//正在录音时此标记为true，此为true时悬浮特效被禁止
+        menumodule->menuButton->setEnabled(false);
     }
     else
     {

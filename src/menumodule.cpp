@@ -3,9 +3,6 @@
 #include "xatom-helper.h"
 menuModule::menuModule(QWidget *parent = nullptr) : QWidget(parent)
 {
-
-
-
     init();
 }
 
@@ -249,7 +246,11 @@ QVBoxLayout* menuModule::initBody(){
     bodyAppVersion->setAlignment(Qt::AlignLeft);
     bodyAppVersion->setStyleSheet("font-size:14px;");
     QLabel* bodySupport = new QLabel();
-    bodySupport->setText(tr("Support: baibai@kylinos.cn"));
+    bodySupport->setText(tr("Service & Support: ") +
+                         "<a href=\"mailto://support@kylinos.cn\""
+                         "style=\"color:rgba(0,0,0,1)\">"
+                         "support@kylinos.cn</a>");
+    bodySupport->setOpenExternalLinks(true);
     bodySupport->setFixedHeight(24);
     bodySupport->setStyleSheet("font-size:14px;");
     QVBoxLayout *vlyt = new QVBoxLayout;
