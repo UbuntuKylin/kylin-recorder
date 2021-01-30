@@ -398,6 +398,7 @@ void MyThread::stop_btnPressed()//停止录音
                               tr("Select a file storage directory"),
                                   QDir::currentPath(),
                                   "Mp3(*.mp3)");
+            qDebug()<<"获取"<<fileName;
             selectMp3();
         }
         else if(recordData->get("type").toInt()==2)
@@ -901,15 +902,17 @@ QString MyThread::isSameFileName(QString FileName)
 
 void MyThread::selectMp3()
 {
+    if(fileName.length() == 0)
+    {
+
+        return ;
+    }
     QString filename = fileName.mid(fileName.lastIndexOf("/") +1);
     QString s = ".";
     QString first_s = filename.at(0);
-    if(fileName.length() == 0)
+    if(first_s == s)
     {
-        return ;
-    }
-    else if(first_s == s)
-    {
+
         WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Please do not name the file with . at the beginning!"), QMessageBox::Ok );//请不要以.开头为文件命名！
         WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
         WrrMsg->exec();
@@ -934,6 +937,7 @@ void MyThread::selectMp3()
                 QMessageBox::information(NULL, tr("Save"), tr("Saved successfully:") + endFileName);
             }
         }
+
     }
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
     code->fromUnicode(endFileName).data();
@@ -953,16 +957,15 @@ void MyThread::selectMp3()
 }
 void MyThread::selectM4a()
 {
+    if(fileName.length() == 0)
+    {
+
+        return ;
+    }
     QString filename = fileName.mid(fileName.lastIndexOf("/") +1);
     QString s = ".";
     QString first_s = filename.at(0);
-    if(fileName.length() == 0)
-    {
-//        QMessageBox::information(NULL, tr("filename"), tr("You didn't select any files."));
-        return ;
-
-    }
-    else if(first_s == s)
+    if(first_s == s)
     {
         WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Please do not name the file with . at the beginning!"), QMessageBox::Ok );//请不要以.开头为文件命名！
         WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
@@ -1005,15 +1008,15 @@ void MyThread::selectM4a()
 }
 void MyThread::selectWav()
 {
+    if(fileName.length() == 0)
+    {
+
+        return ;
+    }
     QString filename = fileName.mid(fileName.lastIndexOf("/") +1);
     QString s = ".";
     QString first_s = filename.at(0);
-    if(fileName.length() == 0)
-    {
-//        QMessageBox::information(NULL, tr("filename"), tr("You didn't select any files."));
-        return ;
-    }
-    else if(first_s == s)
+    if(first_s == s)
     {
         WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Please do not name the file with . at the beginning!"), QMessageBox::Ok );//请不要以.开头为文件命名！
         WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));

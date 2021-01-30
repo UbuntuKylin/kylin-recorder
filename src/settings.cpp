@@ -28,6 +28,7 @@
 
 Settings::Settings(QWidget *parent) : QMainWindow(parent)
 {
+
     this->setWindowFlag(Qt::Tool);//此代码必须在此窗管协议前，否则此模态窗口背景不变灰
     // 添加窗管协议
     MotifWmHints hints;
@@ -47,7 +48,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     setWindowTitle(tr("Settings"));
     this->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
     QScreen *screen = QGuiApplication::primaryScreen();
-    this ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
+       this ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
     //显示在活动屏幕中间新方法
 
     //标题栏设置和布局

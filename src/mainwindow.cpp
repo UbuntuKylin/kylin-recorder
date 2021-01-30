@@ -426,7 +426,7 @@ void MainWindow::themeWindow(QString themeColor)
         //设置界面
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
+         mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
         recordButtonWid->setStyleSheet("background-color:#FFFFFF;opacity:0.1;");
         set.closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
 
@@ -759,8 +759,8 @@ void MainWindow::play_pause_clicked()
     if(strat_pause)
     {
        emit playRecord();
-       menumodule->menuButton->setEnabled(false);//播放时菜单按钮不可点击
-       isRecording = true;//正在录音时的标记为true
+       menumodule->menuButton->setEnabled(false);
+       isRecording = true;//开始时正在录音的标记值为true,其为true时禁止Item的悬浮特效
        cut = QTime::currentTime();//记录开始时的时间
        int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
 
@@ -795,7 +795,6 @@ void MainWindow::play_pause_clicked()
     {
         qDebug()<<"pause";
         emit pauseRecord();
-        menumodule->menuButton->setEnabled(true);//暂停时设置可以被点击
         isRecording = false;//暂停时正在录音的标记值为false,其为false时Item的悬浮特效可以被开启
         pTimer->stop();
         mini.pTimer->stop();
