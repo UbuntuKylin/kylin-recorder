@@ -46,7 +46,6 @@ MainWindow::MainWindow(QWidget *parent)
     int WIDTH = 800 ;
     int HEIGHT = 460 ;
 
-
     mainWid = new QWidget();//主wid
 //    mainWid->grabKeyboard();
     mainWid->installEventFilter(this);
@@ -85,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //(三)按钮及下拉菜单
     menumodule = new menuModule(mainWid);
-    menumodule->menuButton->setToolTip(tr("Setting"));
+    menumodule->menuButton->setToolTip(tr("Menu"));
     menumodule->menuButton->setFixedSize(30,30);
     menumodule->menuButton->setIcon(QIcon::fromTheme("open-menu-symbolic"));
     menumodule->menuButton->setAutoRaise(true);
@@ -117,7 +116,7 @@ MainWindow::MainWindow(QWidget *parent)
     //最小化按钮
     minButton = new QToolButton(this);
     minButton->setFixedSize(30,30);
-    minButton->setToolTip(tr("Min"));
+    minButton->setToolTip(tr("Minimize"));
     minButton->setProperty("isWindowButton", 0x1);
     minButton->setProperty("useIconHighlightEffect", 0x2);
     minButton->setAutoRaise(true);
@@ -145,6 +144,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     list = new QListWidget(this);
     list->installEventFilter(this);//安装事件过滤器
+
     zeroFile_Messagelb = new QLabel(this);
     zeroFile_Messagelb->setFixedSize(200,50);
     zeroFile_Messagelb->setText(tr("None of the Recording File"));//列表无录音文件时
@@ -251,6 +251,8 @@ MainWindow::MainWindow(QWidget *parent)
     listWid->setLayout(listLayout);
 
 
+    playerCompoment = new QMediaPlayer;//播放组件
+    playList = new QMediaPlaylist;//播放列表
 
     MainWindowLayout();//主窗体布局方法
     initThemeGsetting();//初始化主题配置文件
@@ -383,14 +385,14 @@ void MainWindow::themeWindow(QString themeColor)
                                    "border-bottom-right-radius:0px;");
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{background-color:#141414;border:1px solid rgba(255,255,255,0.15);}");//自定义窗体(圆角+背景色)
+        mainWid->setStyleSheet("#mainWid{background-color:#141414;}");//自定义窗体(圆角+背景色)
         //mini主界面
         mini.miniWid->setStyleSheet(".Widget{background-color:#222222;}");//后期适配主题颜s;
 
 
         //设置界面
         set.mainWid->setObjectName("setMainWid");//设置命名空间
-        set.mainWid->setStyleSheet("#setMainWid{background-color:#131314;border:1px solid rgba(255,255,255,0.15);}");//自定义窗体(圆角+背景色)
+        set.mainWid->setStyleSheet("#setMainWid{background-color:#131314;}");//自定义窗体(圆角+背景色)
 
         rightMainWid->setStyleSheet(".QWidget{background-color:#141414;\
                                     border-top-left-radius:0px;\
@@ -424,7 +426,7 @@ void MainWindow::themeWindow(QString themeColor)
         //设置界面
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;border:1px solid rgba(0,0,0,0.15);}");//自定义窗体(圆角+背景色)
+         mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
         recordButtonWid->setStyleSheet("background-color:#FFFFFF;opacity:0.1;");
         set.closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
 
@@ -586,14 +588,7 @@ QString MainWindow::playerTotalTime(QString filePath)
         {
             fileSize = file.size();
             qDebug()<<file.size();
-            if(fileSize%16000>=10000)
-            {
-                time = fileSize/16000+1;
-            }
-            else
-            {
-                time = fileSize/16000;//时间长度=文件大小/比特率
-            }
+            time = fileSize/16000;//时间长度=文件大小/比特率
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
 
@@ -601,14 +596,7 @@ QString MainWindow::playerTotalTime(QString filePath)
         else if(fileinfo.suffix().contains("m4a"))
         {
             fileSize = file.size();
-            if(fileSize%16000>=10000)
-            {
-                time = fileSize/16000+1;
-            }
-            else
-            {
-                time = fileSize/16000;//时间长度=文件大小/比特率
-            }
+            time = fileSize/16000;//时间长度=文件大小/比特率
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
             qDebug()<<"文件大小:"<<fileSize<<"时长:"<<timeStr;
@@ -616,14 +604,7 @@ QString MainWindow::playerTotalTime(QString filePath)
         else if(fileinfo.suffix().contains("wav"))
         {
             fileSize = file.size();
-            if(fileSize%96000>=69000)
-            {
-                time = fileSize/96000+1;
-            }
-            else
-            {
-                time = fileSize/96000;//时间长度=文件大小/比特率
-            }
+            time = fileSize/96000;//时间长度=文件大小/比特率
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
         }
@@ -716,6 +697,7 @@ void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,
         }
 
     }
+
 }
 
 void MainWindow::themeStyle(QString themeColor)
@@ -777,13 +759,15 @@ void MainWindow::play_pause_clicked()
     if(strat_pause)
     {
        emit playRecord();
+       menumodule->menuButton->setEnabled(false);
+       isRecording = true;//开始时正在录音的标记值为true,其为true时禁止Item的悬浮特效
        cut = QTime::currentTime();//记录开始时的时间
        int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
-       //qDebug()<<t;
+
        baseTime = baseTime.addSecs(t);
-       pTimer->start(1);
+       pTimer->start(1000);
        mini.baseTime= mini.baseTime.addSecs(t);
-       mini.pTimer->start(1);
+       mini.pTimer->start(1000);
        mini.start_pause= false;
        strat_pause=false;
        if(themeData->get("style-name").toString() == "ukui-dark"||themeData->get("style-name").toString() == "ukui-black")
@@ -857,6 +841,7 @@ void MainWindow::stop_clicked()//停止按钮
     if(stop)
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
+        menumodule->menuButton->setEnabled(true);
         pTimer->stop();//计时停止
         mini.pTimer->stop();
         emit stopRecord();
@@ -912,6 +897,13 @@ void MainWindow::updateDisplay()
     showTime = showTime.addSecs(t);
     this->timeStr = showTime.toString("hh:mm:ss");
     this->showTimelb->setText(timeStr);
+
+    timeTag++;
+    if(timeTag==900)//超过15分钟自动保存
+    {
+       timeTag = 0;
+       stop_clicked();
+    }
 }
 
 void MainWindow::mainWindow_page2()
@@ -1021,10 +1013,10 @@ void MainWindow::switchPage()
 //        emit recordingSignal(true);//发送一个录音的信号表明正在录音
         mainWindow_page2();//必须加
         //刚开始点击按钮时才可以开启定时器
-        MainWindow::mutual->pTimer->start(1);
+        MainWindow::mutual->pTimer->start(1000);
         MainWindow::mutual->baseTime = MainWindow::mutual->baseTime.currentTime();
         MainWindow::mutual->mini.baseTime = MainWindow::mutual->mini.baseTime.currentTime();
-        MainWindow::mutual->mini.pTimer->start(1);
+        MainWindow::mutual->mini.pTimer->start(1000);
 
         int nCount = m_pStackedWidget->count();
         int nIndex = m_pStackedWidget->currentIndex();
@@ -1036,6 +1028,7 @@ void MainWindow::switchPage()
         mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
         m_pStackedWidget->setCurrentIndex(nIndex);
         isRecording = true;//正在录音时此标记为true，此为true时悬浮特效被禁止
+        menumodule->menuButton->setEnabled(false);
     }
     else
     {
@@ -1146,6 +1139,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     }
     return QObject::eventFilter(obj,event);
 }
+
+
 
 void MainWindow::wheelEvent(QWheelEvent *wheel)
 {

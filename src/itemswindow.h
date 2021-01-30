@@ -34,6 +34,11 @@
 #include <QMenu>
 #include <QAction>
 
+#include <QFile>
+#include <QDesktopServices>
+#include <QProcess>
+#include <QTextCodec>
+
 #include "mythread.h"
 #include "mywave.h"
 #include "clipbutton.h"
@@ -53,6 +58,11 @@ public:
     QWidget *itemsWid;
     QWidget *mainWid;
     QHBoxLayout *mainLayout;
+
+    QString executeLinuxCmd(QString);
+    QString strResult1;
+
+
 
     QString itemsThemeColor;//主题颜色
     QLabel *listNum;//录音序号
@@ -102,9 +112,10 @@ public:
     QMessageBox *WrrMsg;
     QLabel *testlb;
 
-    QMediaPlaylist *playList;
-    QMediaPlayer *player;
-    QString audioFilePath;
+    QString audioFilePath;//可用路径
+    QString isDeletePath;//已被删除的标记路径
+
+    QString tempPath= "";
     bool isOpen = false;
 
     QStackedLayout *stackLayout;
@@ -115,6 +126,8 @@ public:
 
     bool play_pause=false;
 
+    bool stop = false;
+    bool pause = false;
 
     int createCutWave();
     ClipButton *leftBtn;//左箭头按钮
@@ -180,6 +193,8 @@ private:
 
     void clipperFun();
 
+    void judgeState(enum QMediaPlayer::State,QString path);//判断播放状态
+    void listFileNumUpdate(int num);
 
 
     QPoint pressPoint;
@@ -199,6 +214,7 @@ private slots:
     void itemPlay_PauseClicked();
     void positionChange(qint64 position);
     void durationChange(qint64 duration);
+    void stateChanged(enum QMediaPlayer::State);
     void setPosition(int position);
 
 
