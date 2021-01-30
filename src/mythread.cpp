@@ -934,7 +934,6 @@ void MyThread::selectMp3()
                 QMessageBox::information(NULL, tr("Save"), tr("Saved successfully:") + endFileName);
             }
         }
-
     }
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
     code->fromUnicode(endFileName).data();
