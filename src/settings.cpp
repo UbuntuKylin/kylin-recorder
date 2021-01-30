@@ -28,6 +28,8 @@
 
 Settings::Settings(QWidget *parent) : QMainWindow(parent)
 {
+
+    this->setWindowFlag(Qt::Tool);//此代码必须在此窗管协议前，否则此模态窗口背景不变灰
     // 添加窗管协议
     MotifWmHints hints;
     hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
@@ -45,6 +47,9 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     setFocusPolicy(Qt::ClickFocus);//this->setFocusPolicy(Qt::NoFocus);//设置焦点类型
     setWindowTitle(tr("Settings"));
     this->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+    QScreen *screen = QGuiApplication::primaryScreen();
+       this ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
+    //显示在活动屏幕中间新方法
 
     //标题栏设置和布局
     QLabel *lb=new QLabel(this);
@@ -177,6 +182,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
     this->setAttribute(Qt::WA_TranslucentBackground);//窗体透明
 //    this->setStyleSheet("border-radius:6px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
+
     if(darkData->get("style-name").toString()=="ukui-dark"||darkData->get("style-name").toString() == "ukui-black")
     {
         closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
@@ -191,9 +197,6 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
         mainWid->setStyleSheet("#setmainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
 //        lineEdit->setStyleSheet("background-color:rgba(0,0,0,0.06);border-radius: 6px;height:36px;");
     }
-
-
-    this->move((QApplication::desktop()->width() -WIDTH)/3, (QApplication::desktop()->height() - HEIGHT)/3);
 
     if(Data->get("savedefault").toInt()==1)
     {

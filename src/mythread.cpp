@@ -125,7 +125,7 @@ qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
     code->fromUnicode(endFileName).data();
 
 
-    QString cmd="ffmpeg -y -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+endFileName+"\"";
+    QString cmd="ffmpeg -y -threads 2 -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+endFileName+"\"";
 //    qDebug()<<"******"<<catheFileName<<"*"<<cmd<<"******";
 
     emit handling(false);
@@ -398,6 +398,7 @@ void MyThread::stop_btnPressed()//停止录音
                               tr("Select a file storage directory"),
                                   QDir::currentPath(),
                                   "Mp3(*.mp3)");
+            qDebug()<<"获取"<<fileName;
             selectMp3();
         }
         else if(recordData->get("type").toInt()==2)
@@ -664,7 +665,7 @@ QAudioDeviceInfo MyThread::monitorVoiceSource(int i)
                 mFormatSound = inputDevice.nearestFormat(mFormatSound);
                 audioInputSound = new QAudioInput(inputDevice, mFormatSound, this);
                 inputDevSound = audioInputSound->start();
-                qDebug()<<"当前输入设备:"<<inputDevice.deviceName()<<mFormatSound;//可以判断当前输入设备
+                qDebug()<<"当前内部输入设备:"<<inputDevice.deviceName()<<mFormatSound;//可以判断当前输入设备
                 return inputDevice;
             }
 
@@ -695,10 +696,9 @@ QAudioDeviceInfo MyThread::monitorVoiceSource(int i)
         mFormatSound = inputDevice.nearestFormat(mFormatSound);
         audioInputSound = new QAudioInput(inputDevice, mFormatSound, this);
         inputDevSound = audioInputSound->start();
-        qDebug()<<"当前输入设备:"<<inputDevice.deviceName()<<mFormatSound;//可以判断当前输入设备
+        qDebug()<<"当前外部输入设备:"<<inputDevice.deviceName()<<mFormatSound;//可以判断当前输入设备
         return inputDevice;
     }
-
 
 }
 
@@ -734,7 +734,7 @@ void MyThread::OnReadMore()
         for (int i=0; i<len;i++ )
         {
             //把样本数据转换为整型
-            value = abs(useVolumeSample(outdata[i]));/*麦克风中的薄膜始终是在平衡位置附近                                                 value会检测到正负相间的震荡频率,加个绝对值*/
+            value = abs(useVolumeSample(outdata[i]));/*麦克风中的薄膜始终是在平衡位置附近value会检测到正负相间的震荡频率,加个绝对值*/
             MaxValue = MaxValue>=value ? MaxValue : value;
         }
 
@@ -813,11 +813,12 @@ QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时�
                 }
                 else
                 {
-                    if(readPathCollected()=="")//首次添加时配置文件一定是空的所以fileinfo.isFile()为false
-                    {
-                        emit listItemAddSignal(filePath,MainWindow::mutual->list->count()+1);
-                        return filePath;
-                    }
+//                    if(readPathCollected()=="")//首次添加时配置文件一定是空的所以fileinfo.isFile()为false
+//                    {
+//                        emit listItemAddSignal(filePath,MainWindow::mutual->list->count()+1);
+//                        MainWindow::mutual->playList->addMedia(QMediaContent(QUrl(listRecordPath.at(i))));
+//                        return filePath;
+//                    }
                     qDebug()<<str<<"listItemAdd:文件或被删除！";
                     QString subStr = ","+str;//子串
                     QString subAmplitudeStr = listAmplitude.at(i);//子振幅串
@@ -835,11 +836,9 @@ QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时�
                     QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
                     recordData->set("amplitude",newAmplitudeStr);//更新振幅串
                     writeNumList(readNumList()-1);
-                    qDebug()<<"**********************";
                 }
 
             }
-            qDebug()<<"**********************"<<i;
 
         }
 
@@ -905,10 +904,19 @@ void MyThread::selectMp3()
 {
     if(fileName.length() == 0)
     {
-//        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("You have not selected any storage location!"), QMessageBox::Ok );
-//        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
-//        WrrMsg->exec();
+
         return ;
+    }
+    QString filename = fileName.mid(fileName.lastIndexOf("/") +1);
+    QString s = ".";
+    QString first_s = filename.at(0);
+    if(first_s == s)
+    {
+
+        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Please do not name the file with . at the beginning!"), QMessageBox::Ok );//请不要以.开头为文件命名！
+        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
+        WrrMsg->exec();
+        return;
     }
     else
     {
@@ -929,11 +937,13 @@ void MyThread::selectMp3()
                 QMessageBox::information(NULL, tr("Save"), tr("Saved successfully:") + endFileName);
             }
         }
+
     }
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
     code->fromUnicode(endFileName).data();
     if (endFileName.isEmpty())
     {
+
         return ;
     }
     else
@@ -944,16 +954,23 @@ void MyThread::selectMp3()
 
     }
 
-
-
 }
 void MyThread::selectM4a()
 {
     if(fileName.length() == 0)
     {
-//        QMessageBox::information(NULL, tr("filename"), tr("You didn't select any files."));
-        return ;
 
+        return ;
+    }
+    QString filename = fileName.mid(fileName.lastIndexOf("/") +1);
+    QString s = ".";
+    QString first_s = filename.at(0);
+    if(first_s == s)
+    {
+        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Please do not name the file with . at the beginning!"), QMessageBox::Ok );//请不要以.开头为文件命名！
+        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
+        WrrMsg->exec();
+        return;
     }
     else
     {
@@ -993,8 +1010,18 @@ void MyThread::selectWav()
 {
     if(fileName.length() == 0)
     {
-//        QMessageBox::information(NULL, tr("filename"), tr("You didn't select any files."));
+
         return ;
+    }
+    QString filename = fileName.mid(fileName.lastIndexOf("/") +1);
+    QString s = ".";
+    QString first_s = filename.at(0);
+    if(first_s == s)
+    {
+        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Please do not name the file with . at the beginning!"), QMessageBox::Ok );//请不要以.开头为文件命名！
+        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
+        WrrMsg->exec();
+        return;
     }
     else
     {

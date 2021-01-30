@@ -56,6 +56,9 @@
 #include <QSettings>
 #include <QKeyEvent>
 #include <QRegExp>
+#include <unistd.h>
+#include <fcntl.h>
+
 #include "mywave.h"
 #include "mythread.h"
 #include "settings.h"
@@ -63,8 +66,7 @@
 #include "itemswindow.h"
 #include "miniwindow.h"
 #include "daemondbus.h"
-#include <unistd.h>
-#include <fcntl.h>
+
 #include "menumodule.h"
 
 
@@ -80,8 +82,8 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QGSettings  *defaultPathData= nullptr;
     QGSettings *themeData=nullptr;//主题的setting
 
-        QString limitThemeColor ;
-        menuModule *menumodule = nullptr;
+    QString limitThemeColor ;
+    menuModule *menumodule = nullptr;
 
     // 用户手册功能
     DaemonDbus *mDaemonIpcDbus;
@@ -145,8 +147,13 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
 
     bool isplaying = false;//默认文件列表播放状态为否
     bool isRecording = false;//默认没有开始录音
+
+    QMediaPlayer *playerCompoment;
+    QMediaPlaylist *playList;
+    QString tempPath = "";
 private:
 
+    int timeTag = 0;
 
     QList<int> maxNum;//存储振幅的大小的整型列表
     bool stop=false;//停止
@@ -277,8 +284,6 @@ signals://主线程的信号
 
 
 public slots:
-
-
     void getPlayingSlot(bool );//收到正在播放的信息防止文件列表再播放时录音
 
     void recordPaint(int); 
@@ -295,10 +300,9 @@ public slots:
     void minShow();
     void maxShow();
 
-
-
     void handlingSlot(bool isOk);
     void slotListItemAdd(QString fileName,int i);
+
 };
 
 #endif // MAINWINDOW_H

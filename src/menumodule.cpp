@@ -247,9 +247,9 @@ QVBoxLayout* menuModule::initBody(){
     bodyAppVersion->setStyleSheet("font-size:14px;");
     QLabel* bodySupport = new QLabel();
     bodySupport->setText(tr("Service & Support: ") +
-                         "<a href=\"mailto://support@kylinos.cn\""
-                         "style=\"color:rgba(0,0,0,1)\">"
-                         "support@kylinos.cn</a>");
+                             "<a href=\"mailto://support@kylinos.cn\""
+                             "style=\"color:rgba(0,0,0,1)\">"
+                             "support@kylinos.cn</a>");
     bodySupport->setOpenExternalLinks(true);
     bodySupport->setFixedHeight(24);
     bodySupport->setStyleSheet("font-size:14px;");

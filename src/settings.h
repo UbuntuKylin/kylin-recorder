@@ -33,6 +33,7 @@
 #include <QGridLayout>
 #include <QSettings>
 #include <QGSettings>
+#include <QRect>
 
 #include "daemondbus.h"
 
