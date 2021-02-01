@@ -1,3 +1,15 @@
+kylin-recorder (1.2.23kord~rc2) v101; urgency=medium
+
+  * 去掉弹窗的border-radius,适配协议
+
+ -- baijincheng <baijincheng@kylinos.cn>  Mon, 1 Feb 2021 17:00:00 +0800
+
+kylin-recorder (1.2.23kord~rc1) v101; urgency=medium
+
+  * 更新版本号
+
+ -- baijincheng <baijincheng@kylinos.cn>  Mon, 1 Feb 2021 11:30:00 +0800
+
 kylin-recorder (1.2.23) v101; urgency=medium
 
   * 修复bug# 35865：设置窗口默认不居中显示 
