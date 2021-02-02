@@ -426,7 +426,7 @@ void MainWindow::themeWindow(QString themeColor)
         //设置界面
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-         mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
+        mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
         recordButtonWid->setStyleSheet("background-color:#FFFFFF;opacity:0.1;");
         set.closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
 
@@ -1063,7 +1063,7 @@ void MainWindow::changeVoicePicture()
 
 void MainWindow::goset()
 {
-    set.show();
+    set.mainWid->show();
 }
 
 void MainWindow::handlingSlot(bool isOk)

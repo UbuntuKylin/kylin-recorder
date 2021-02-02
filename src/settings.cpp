@@ -28,27 +28,28 @@
 
 Settings::Settings(QWidget *parent) : QMainWindow(parent)
 {
-
-    this->setWindowFlag(Qt::Tool);//此代码必须在此窗管协议前，否则此模态窗口背景不变灰
+    int WIDTH=360;
+    int HEIGHT=300;
+    mainWid = new QWidget();
+    mainWid->setWindowFlag(Qt::Tool);//此代码必须在此窗管协议前，否则此模态窗口背景不变灰
     // 添加窗管协议
     MotifWmHints hints;
     hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
     hints.functions = MWM_FUNC_ALL;
     hints.decorations = MWM_DECOR_BORDER;
-    XAtomHelper::getInstance()->setWindowMotifHint(this->winId(), hints);
+    XAtomHelper::getInstance()->setWindowMotifHint(mainWid->winId(), hints);
 
     Data = new QGSettings(KYLINRECORDER);
     darkData=new QGSettings(FITTHEMEWINDOW);
     // 用户手册功能
     mDaemonIpcDbus = new DaemonDbus();
-    int WIDTH=360;
-    int HEIGHT=300;
-    this->setFixedSize(WIDTH,HEIGHT);
+
+    mainWid->setFixedSize(WIDTH,HEIGHT);
     setFocusPolicy(Qt::ClickFocus);//this->setFocusPolicy(Qt::NoFocus);//设置焦点类型
     setWindowTitle(tr("Settings"));
-    this->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+    mainWid->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
     QScreen *screen = QGuiApplication::primaryScreen();
-       this ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
+    mainWid ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
     //显示在活动屏幕中间新方法
 
     //标题栏设置和布局
@@ -59,17 +60,15 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     piclb->setFixedSize(25,25);
     lb->setText(tr("Settings"));//
 
-    closeButton= new QToolButton(this);
-    closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
-    closeButton->setStyleSheet("background-color:transparent");
+    //关闭按钮
+    closeButton = new QToolButton(this);
     closeButton->setFixedSize(30,30);
-    closeButton->setStyleSheet("QToolButton{border-radius:4px;}"
-                               "QToolButton:hover{background-color:#F86457}"
-                               "QToolButton:pressed{background-color:#E44C50}");
+//    closeButton->setToolTip(tr("Close"));
+    closeButton->setIcon(QIcon::fromTheme("window-close-symbolic"));//主题库的叉子图标
     closeButton->setProperty("isWindowButton", 0x2);
     closeButton->setProperty("useIconHighlightEffect", 0x8);
     closeButton->setAutoRaise(true);
-    connect(closeButton,&QToolButton::clicked,this,&Settings::close);
+    connect(closeButton,&QToolButton::clicked,mainWid,&Settings::close);
 
 
     titleWid = new QWidget();
@@ -140,7 +139,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     grp3->addButton(radioButton_8);
 
     //布局
-    mainWid = new QWidget(this);
+
     Wid = new QWidget();
     QGridLayout *pg=new QGridLayout();
     pg->addWidget(label,0,0,1,1);
@@ -174,28 +173,22 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     mainLayout->setSpacing(0);
     mainLayout->setMargin(1);
     mainWid->setLayout(mainLayout);
-//    mainWid->setStyleSheet("background-color:pink;");
-    this->setCentralWidget(mainWid);
-    this->setAttribute(Qt::WA_ShowModal, true);//模态窗口
-    this->setObjectName("mainWid");
-    this->setStyleSheet("#mainWid{border-radius:6px;}" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
+    mainWid->setAttribute(Qt::WA_ShowModal, true);//模态窗口
+//    this->setObjectName("mainWid");
+//    this->setStyleSheet("#mainWid{border-radius:6px;}" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
 
-    this->setAttribute(Qt::WA_TranslucentBackground);//窗体透明
+//    this->setAttribute(Qt::WA_TranslucentBackground);//窗体透明
 //    this->setStyleSheet("border-radius:6px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
 
     if(darkData->get("style-name").toString()=="ukui-dark"||darkData->get("style-name").toString() == "ukui-black")
     {
         closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
-        mainWid->setStyleSheet("background-color:#131314;border:1px;");//自定义窗体(圆角+背景色)
         lineEdit->setStyleSheet("background-color:rgba(255,255,255,0.06);height:36px;border-radius: 6px;");
 
     }
     else
     {
         closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
-        mainWid->setObjectName("setmainWid");//设置命名空间
-        mainWid->setStyleSheet("#setmainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
-//        lineEdit->setStyleSheet("background-color:rgba(0,0,0,0.06);border-radius: 6px;height:36px;");
     }
 
     if(Data->get("savedefault").toInt()==1)
