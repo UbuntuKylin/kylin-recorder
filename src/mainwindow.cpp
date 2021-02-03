@@ -233,7 +233,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(miniButton,   &QToolButton::clicked, this, &MainWindow::miniShow);//mini窗口
     connect(minButton,    &QToolButton::clicked, this, &MainWindow::minShow);//最小化窗口
     connect(maxButton,    &QToolButton::clicked, this, &MainWindow::maxShow);//最大化窗口
-    connect(closeButton,  &QToolButton::clicked, mainWid, &MainWindow::close);//关闭
+//    connect(closeButton,  &QToolButton::clicked, mainWid, &MainWindow::close);//关闭
+    connect(closeButton,  &QToolButton::clicked, this, &MainWindow::closeWindow);//关闭
     connect(recordButton, &QPushButton::clicked, this, &MainWindow::switchPage);//换页
     connect(actionSet,    &QAction::triggered,   this, &MainWindow::goset);//跳转设置界面
 
@@ -264,6 +265,27 @@ MainWindow::MainWindow(QWidget *parent)
 //    list->setMouseTracking(true);
     mainWid->show();
 }
+
+void MainWindow::closeWindow()
+{
+
+    if (isRecording == true)
+    {
+        myThread->stop_saveDefault();
+        thread->quit();
+        thread->wait();
+        mainWid->close();
+
+    }else
+    {
+        thread->quit();
+        thread->wait();
+        mainWid->close();
+
+    }
+
+}
+
 // 实现键盘响应
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {

@@ -87,6 +87,7 @@ public:
     void test();
 
     void saveAs(QString oldFileName);//右键另存为
+    void stop_saveDefault();//关闭窗口时默认路径保存
 
     QString absolutionPath;//raw存放的绝对路径
 

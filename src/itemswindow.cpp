@@ -594,14 +594,7 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
             }
             else
             {
-//                isDeletePath = audioFilePath;//记录一下删除的路径,因为删除的路径可能在播放
-//                MainWindow::mutual->playerCompoment->stop();
-                //此else分支里是判断若路径已经不存在时点击播放时要更新播放列表,与播放无关
-//                stopReplayer();
                 emit playingSignal(false);
-//                emit updateGSettingSignal(audioFilePath);//更新配置文件
-//                MainWindow::mutual->list->clear();
-//                MainWindow::mutual->updateGsetting_ListWidget();
                 WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
                                          ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
                 WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
