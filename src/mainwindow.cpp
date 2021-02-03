@@ -1068,18 +1068,9 @@ void MainWindow::goset()
 
 void MainWindow::handlingSlot(bool isOk)
 {
-//    if(isOk == true)
-//    {
-
-//        msg->hide();
-
-//    }
-//    else
-//    {
-//        msg->button(QMessageBox::Yes)->setText(tr("OK"));
-//        msg->show();
-//    }
-
+    WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Transcoding..."), QMessageBox::Yes );
+    WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
+    WrrMsg->exec();
 }
 
 void MainWindow::slotListItemAdd(QString fileName,int i)

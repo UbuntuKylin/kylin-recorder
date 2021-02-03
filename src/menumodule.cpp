@@ -208,10 +208,6 @@ QHBoxLayout* menuModule::initTitleBar(){
     titleBtnClose->setProperty("useIconHighlightEffect",0x8);
     titleBtnClose->setAutoRaise(true);
 
-    titleBtnClose->setFixedSize(30,30);
-    titleBtnClose->setStyleSheet("QToolButton{border-radius:4px;}"
-                               "QToolButton:hover{background-color:#F86457;}"
-                               "QToolButton:pressed{background-color:#E44C50;}");
     connect(titleBtnClose,&QPushButton::clicked,[=](){aboutWindow->close();});
     QHBoxLayout *hlyt = new QHBoxLayout;
     titleText->setText(tr(appShowingName.toLocal8Bit()));
