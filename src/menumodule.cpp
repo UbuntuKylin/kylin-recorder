@@ -247,6 +247,7 @@ QVBoxLayout* menuModule::initBody(){
                              "style=\"color:rgba(0,0,0,1)\">"
                              "support@kylinos.cn</a>");
     bodySupport->setOpenExternalLinks(true);
+    bodySupport->setContextMenuPolicy(Qt::NoContextMenu);//此行为禁用链接右键点击弹出的复制链接的功能
     bodySupport->setFixedHeight(24);
     bodySupport->setStyleSheet("font-size:14px;");
     QVBoxLayout *vlyt = new QVBoxLayout;

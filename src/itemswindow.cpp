@@ -787,7 +787,8 @@ void ItemsWindow::delFile()
                     //根据索引值删除listwidget列表的Item，要注意配置文件的更新以及本地文件的删除
                     qDebug()<<"输出删除之前的Item地址"<<this->parent()->findChildren<ItemsWindow*>();
                     this->deleteLater();//先释放内存再删除列表的项,要成对出现
-                    MainWindow::mutual->list->takeItem(this->parent()->findChildren<ItemsWindow*>().indexOf(this));//删除操作
+                    int x = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
+                    MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-x);//删除操作
                     qDebug()<<"**********路径存在，删除第"<<i<<"个"<<str;
                     MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
                     QString Home_path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
@@ -804,7 +805,8 @@ void ItemsWindow::delFile()
                 qDebug()<<"第"<<i<<"个不存在,直接删除:"<<str;
                 //本地文件已经被删除时，删除按钮就直接删除listwidget的item项
                 this->deleteLater();//先释放内存再删除列表的项,要成对出现
-                MainWindow::mutual->list->takeItem(this->parent()->findChildren<ItemsWindow*>().indexOf(this));//删除list列表的item操作
+                int y = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
+                MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-y);//删除list列表的item操作
                 MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
 
                 continue ;

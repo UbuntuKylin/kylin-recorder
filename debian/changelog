@@ -2,6 +2,8 @@ kylin-recorder (1.2.23kord~rc3) v101; urgency=medium
 
   * 修复bug# 26216：录制时间过长时，保存弹窗弹出时间过长
   * 修复bug# 34933：录音过程中直接点击关闭按钮时能够提示保存当前录音
+  * 修复bug# 24299：文件列表排列
+  * 修复bug# 37810：关于弹窗邮箱链接右键功能没有去除
 
  -- baijincheng <baijincheng@kylinos.cn>  Wed, 3 Feb 2021 09:50:00 +0800
 

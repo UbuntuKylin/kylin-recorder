@@ -144,6 +144,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     list = new QListWidget(this);
     list->installEventFilter(this);//安装事件过滤器
+    list->setSortingEnabled(true);
+    list->sortItems(Qt::DescendingOrder);
 
     zeroFile_Messagelb = new QLabel(this);
     zeroFile_Messagelb->setFixedSize(200,50);
