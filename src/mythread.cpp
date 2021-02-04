@@ -126,9 +126,11 @@ qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
 
     QString cmd="ffmpeg -y -threads 2 -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+endFileName+"\"";
 //    qDebug()<<"******"<<catheFileName<<"*"<<cmd<<"******";
+
     process->start(cmd);
     emit handling(true);
     process->waitForFinished();
+
 
     cacheFile.close();
     mp3File.close();
@@ -175,7 +177,7 @@ void MyThread::audioConversionFinish(int isOk)
     {
         qDebug() << "音频格式转换成功"<<isOk;
         isSuccess=isOk;
-        MainWindow::mutual->WrrMsg->close();
+        MainWindow::mutual->WrrMsg->hide();
     }
     else
     {

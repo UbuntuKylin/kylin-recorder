@@ -300,7 +300,7 @@ void ItemsWindow::positionChange(qint64 position)
         QString current_timeStr = currentTime.toString("hh:mm:ss");
         QTime totalTime(0,(MainWindow::mutual->playerCompoment->duration()/60000) % 60,
                        (MainWindow::mutual->playerCompoment->duration() / 1000) % 60);
-        qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");
+//        qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
 
     }
 
