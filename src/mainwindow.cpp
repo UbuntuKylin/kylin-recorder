@@ -144,6 +144,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     list = new QListWidget(this);
     list->installEventFilter(this);//安装事件过滤器
+    list->setSortingEnabled(true);
+    list->sortItems(Qt::DescendingOrder);
 
     zeroFile_Messagelb = new QLabel(this);
     zeroFile_Messagelb->setFixedSize(200,50);
@@ -233,7 +235,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(miniButton,   &QToolButton::clicked, this, &MainWindow::miniShow);//mini窗口
     connect(minButton,    &QToolButton::clicked, this, &MainWindow::minShow);//最小化窗口
     connect(maxButton,    &QToolButton::clicked, this, &MainWindow::maxShow);//最大化窗口
-    connect(closeButton,  &QToolButton::clicked, mainWid, &MainWindow::close);//关闭
+//    connect(closeButton,  &QToolButton::clicked, mainWid, &MainWindow::close);//关闭
+    connect(closeButton,  &QToolButton::clicked, this, &MainWindow::closeWindow);//关闭
     connect(recordButton, &QPushButton::clicked, this, &MainWindow::switchPage);//换页
     connect(actionSet,    &QAction::triggered,   this, &MainWindow::goset);//跳转设置界面
 
@@ -264,6 +267,27 @@ MainWindow::MainWindow(QWidget *parent)
 //    list->setMouseTracking(true);
     mainWid->show();
 }
+
+void MainWindow::closeWindow()
+{
+
+    if (isRecording == true)
+    {
+        myThread->stop_saveDefault();
+        thread->quit();
+        thread->wait();
+        mainWid->close();
+
+    }else
+    {
+        thread->quit();
+        thread->wait();
+        mainWid->close();
+
+    }
+
+}
+
 // 实现键盘响应
 void MainWindow::keyPressEvent(QKeyEvent *event)
 {
@@ -1068,18 +1092,9 @@ void MainWindow::goset()
 
 void MainWindow::handlingSlot(bool isOk)
 {
-//    if(isOk == true)
-//    {
-
-//        msg->hide();
-
-//    }
-//    else
-//    {
-//        msg->button(QMessageBox::Yes)->setText(tr("OK"));
-//        msg->show();
-//    }
-
+    WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Transcoding..."), QMessageBox::Yes );
+    WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
+    WrrMsg->exec();
 }
 
 void MainWindow::slotListItemAdd(QString fileName,int i)
