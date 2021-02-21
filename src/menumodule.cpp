@@ -16,20 +16,27 @@ void menuModule::initAction(){
     menuButton = new QToolButton(MainWindow::mutual->titleRightWid);
     aboutWindow = new QWidget();
     mainlyt = new QVBoxLayout();
+    ft = QFont();
+    ft.setPixelSize(14);
     titleLyt = initTitleBar();
     bodylyt = initBody();
     m_menu = new QMenu();
     QList<QAction *> actions ;
     QAction *actionSetting = new QAction(m_menu);
     actionSetting->setText(tr("Setting"));
+    actionSetting->setFont(ft);
     QAction *actionTheme = new QAction(m_menu);
     actionTheme->setText(tr("Theme"));
+    actionTheme->setFont(ft);
     QAction *actionHelp = new QAction(m_menu);
     actionHelp->setText(tr("Help"));
+    actionHelp->setFont(ft);
     QAction *actionAbout = new QAction(m_menu);
     actionAbout->setText(tr("About"));
+    actionAbout->setFont(ft);
     QAction *actionQuit = new QAction(m_menu);
     actionQuit->setText(tr("Quit"));
+    actionQuit->setFont(ft);
     actions<<actionSetting/*<<actionTheme*/<<actionHelp<<actionAbout<<actionQuit;//暂时禁掉主题切换按钮
     m_menu->addActions(actions);
 //    互斥按钮组
