@@ -1,3 +1,9 @@
+kylin-recorder (1.2.23kord~rc5) v101; urgency=medium
+
+  * 修复bug# 38511：更改系统字体大小后，麒麟录音文字显示不全
+
+ -- zoujunnan <zoujunnan@kylinos.cn>  Sun, 21 Feb 2021 09:30:00 +0800
+
 kylin-recorder (1.2.23kord~rc4) v101; urgency=medium
 
   * 2021/02/04版本
