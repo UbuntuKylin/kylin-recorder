@@ -190,8 +190,10 @@ void menuModule::initAbout(){
     aboutWindow->setWindowTitle(tr("About"));
 
     //TODO:在屏幕中央显示
-    QRect availableGeometry = qApp->primaryScreen()->availableGeometry();
-    aboutWindow->move((availableGeometry.width()-aboutWindow->width())/2,(availableGeometry.height()- aboutWindow->height())/2);
+//    QRect availableGeometry = qApp->primaryScreen()->availableGeometry();
+//    aboutWindow->move((availableGeometry.width()-aboutWindow->width())/2,(availableGeometry.height()- aboutWindow->height())/2);
+    //TODO:在app中央显示
+    aboutWindow->move(MainWindow::mutual->mainWid->geometry().center() - aboutWindow->rect().center());
 //    aboutWindow->setStyleSheet(".QWidget{background-color:rgba(255,255,255,1);}");
     aboutWindow->show();
 }
@@ -248,7 +250,7 @@ QVBoxLayout* menuModule::initBody(){
     bodyAppVersion->setText(tr("Version: ") + appVersion);
     bodyAppVersion->setAlignment(Qt::AlignLeft);
     bodyAppVersion->setStyleSheet("font-size:14px;");
-    QLabel* bodySupport = new QLabel();
+    bodySupport = new QLabel();
     bodySupport->setText(tr("Service & Support: ") +
                              "<a href=\"mailto://support@kylinos.cn\""
                              "style=\"color:rgba(0,0,0,1)\">"
@@ -303,6 +305,11 @@ void menuModule::setThemeDark(){
     qDebug()<<"set theme dark";
     if(aboutWindow)
     {
+        bodySupport->setStyleSheet("color:rgba(255,255,255,1);font-size:14px;");
+        bodySupport->setText(tr("Service & Support: ") +
+                             "<a href=\"mailto://support@kylinos.cn\""
+                             "style=\"color:rgba(255,255,255,1)\">"
+                             "support@kylinos.cn</a>");
 //        aboutWindow->setStyleSheet("background-color:rgba(31,32,34，1);");
 //        titleBtnClose->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
     }
@@ -313,6 +320,11 @@ void menuModule::setThemeLight(){
     qDebug()<<"set theme light";
     if(aboutWindow)
     {
+        bodySupport->setStyleSheet("color:rgba(0,0,0,1);font-size:14px;");
+        bodySupport->setText(tr("Service & Support: ") +
+                             "<a href=\"mailto://support@kylinos.cn\""
+                             "style=\"color:rgba(0,0,0,1)\">"
+                             "support@kylinos.cn</a>");
 //        aboutWindow->setStyleSheet("background-color:rgba(255，255，255，1);");
     }
     emit menuModuleSetThemeStyle("light-theme");

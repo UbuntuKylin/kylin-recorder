@@ -273,10 +273,14 @@ void MainWindow::closeWindow()
 
     if (isRecording == true)
     {
-        myThread->stop_saveDefault();
-        thread->quit();
-        thread->wait();
-        mainWid->close();
+//        myThread->stop_saveDefault();
+        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
+                                 ,tr("Please stop recording before closing!"),QMessageBox::Yes );
+        WrrMsg->move(mainWid->geometry().center() - WrrMsg->rect().center());
+        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
+
+        WrrMsg->exec();
+        return ;
 
     }else
     {
@@ -772,8 +776,9 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 
 void MainWindow::miniShow()
 {
-    mainWid->hide();
+
     mini.miniWid->showNormal();
+    mainWid->hide();
 }
 
 //开始和暂停
@@ -1088,6 +1093,9 @@ void MainWindow::changeVoicePicture()
 void MainWindow::goset()
 {
     set.mainWid->show();
+    set.mainWid->move(mainWid->geometry().center() - set.mainWid->rect().center());
+
+
 }
 
 void MainWindow::handlingSlot(bool isOk)

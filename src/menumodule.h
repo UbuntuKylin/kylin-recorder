@@ -44,6 +44,7 @@ public:
     QString iconPath = ":/svg/svg/recording_128.svg";
     QString confPath = "org.kylin-recorder-data.settings";
     QFont ft;
+    QLabel* bodySupport;
 
     QGSettings *m_pGsettingThemeStatus = nullptr;
     QWidget *aboutWindow = nullptr;
