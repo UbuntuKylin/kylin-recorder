@@ -84,7 +84,8 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
 
     QString limitThemeColor ;
     menuModule *menumodule = nullptr;
-
+    ItemsWindow *itemswindow = nullptr;
+//    myWave *wave = nullptr;
     // 用户手册功能
     DaemonDbus *mDaemonIpcDbus;
 

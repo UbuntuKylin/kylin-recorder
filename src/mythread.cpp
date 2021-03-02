@@ -246,7 +246,7 @@ void MyThread::record_pressed()
 //Mp3格式
 QAudioFormat MyThread::Mp3()
 {
-    QAudioFormat format;
+    QAudioFormat format = QAudioFormat();
     format.setSampleRate(48000);/*
                                 *每秒钟对声音的采样次数，越大越精细，48000HZ(标准CD级)，
                                 *48000HZ的采样率(每秒钟采集48000个声波的点)
@@ -261,7 +261,7 @@ QAudioFormat MyThread::Mp3()
 //格式Wav格式
 QAudioFormat MyThread::Wav()
 {
-    QAudioFormat format;
+    QAudioFormat format = QAudioFormat();
     format.setSampleRate(48000);/*
                                 *每秒钟对声音的采样次数，越大越精细，
                                 *48000HZ的采样率(每秒钟采集48000个声波的点)
@@ -277,7 +277,7 @@ QAudioFormat MyThread::Wav()
 //格式M4a格式
 QAudioFormat MyThread::M4a()
 {
-    QAudioFormat format;
+    QAudioFormat format = QAudioFormat();
     format.setSampleRate(48000);/*
                                 *每秒钟对声音的采样次数，越大越精细，
                                 *48000HZ的采样率(每秒钟采集48000个声波的点)

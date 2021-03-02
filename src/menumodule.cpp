@@ -165,7 +165,10 @@ void menuModule::helpAction(){
 #if DEBUG_MENUMODULE
     appName = "tools/kylin-recorder";
 #endif
-    DaemonDbus *ipcDbus = new DaemonDbus();
+    if(!ipcDbus){
+        ipcDbus = new DaemonDbus();
+    }
+
     if(!ipcDbus->daemonIsNotRunning()){
         ipcDbus->showGuide(appName);
     }
