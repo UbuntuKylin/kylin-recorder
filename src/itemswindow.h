@@ -51,6 +51,7 @@ class ItemsWindow : public QMainWindow
 public:
 
     explicit ItemsWindow(QWidget *parent = nullptr);
+    ~ItemsWindow();
     int initTag=0;
     int isPlayerEnd = 0;//是当前音频文件是否播放结束
     QGSettings  *itemData= nullptr;
@@ -61,7 +62,7 @@ public:
 
     QString executeLinuxCmd(QString);
     QString strResult1;
-
+    myWave *wave = nullptr;
 
 
     QString itemsThemeColor;//主题颜色
@@ -104,7 +105,6 @@ public:
     QHBoxLayout *rectangleLayout;
 //    QStackedLayout *clipperstackLayout;//剪裁堆叠布局
     QList<int> amplitudeNum;//存储振幅的大小的整型列表
-
     QLabel *timelengthlb;//测试label
     QTime totalTime;
 //    void enterEvent(QEvent*);

@@ -85,6 +85,7 @@ private:
     void setThemeStyle();
     void setThemeLight();
     void setThemeDark();
+    DaemonDbus *ipcDbus = nullptr;
 //    void updateTheme(); //点击菜单中的主题设置后更新一次主题
 
     void refreshThemeBySystemConf();    //通过系统配置更改主题

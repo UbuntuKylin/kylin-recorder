@@ -208,7 +208,7 @@ void MiniWindow::normalShow()
 
     MainWindow::mutual->mainWid->showNormal();
     miniWid->hide();
-
+    
 }
 void MiniWindow::closeWindow()//关闭mini和主窗体
 {
