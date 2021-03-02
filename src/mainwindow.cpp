@@ -278,7 +278,6 @@ void MainWindow::closeWindow()
                                  ,tr("Please stop recording before closing!"),QMessageBox::Yes );
         WrrMsg->move(mainWid->geometry().center() - WrrMsg->rect().center());
         WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-
         WrrMsg->exec();
         return ;
 
@@ -287,6 +286,7 @@ void MainWindow::closeWindow()
         thread->quit();
         thread->wait();
         mainWid->close();
+        mini.miniWid->close();
 
     }
 

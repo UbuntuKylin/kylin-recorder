@@ -211,13 +211,8 @@ void MiniWindow::normalShow()
 
 }
 void MiniWindow::closeWindow()//关闭mini和主窗体
-{
-     MainWindow::mutual->closeWindow();
-     miniWid->close();
-     MainWindow::mutual->thread->quit();
-     MainWindow::mutual->thread->wait();
-     MainWindow::mutual->close();
-
+{  
+    MainWindow::mutual->closeWindow();
 }
 void MiniWindow::start_pauseSlot()
 {
