@@ -209,8 +209,7 @@ void MyThread::record_pressed()
         format=M4a();
 
     }
-
-    InitMonitor();
+    audioInputFile = new QAudioInput(format, this);
     file =new QFile();
     QString str = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
     absolutionPath = str + "/.cache/record.raw";//raw缓存文件放在绝对路径
@@ -223,6 +222,7 @@ void MyThread::record_pressed()
         exit(1);
     }
 
+    InitMonitor();
     //    QAudioDeviceInfo info = monitorVoiceSource(i);
     //    for( QAudioDeviceInfo &deviceInfo: QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
     //    {
@@ -235,7 +235,7 @@ void MyThread::record_pressed()
     //        }
     //    }
 
-    audioInputFile = new QAudioInput(format, this);
+
     qDebug()<<"录音开始";
     audioInputFile->start(file);
 

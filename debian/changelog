@@ -1,8 +1,16 @@
+kylin-recorder (1.2.23kord~rc8) v101; urgency=high
+
+  * 修复bug41279：静音图标显示不全
+  * 修复bug41257：录制时将音量调制静音，点击停止，再次点击录音后音量条在最左端却不显示静音图标
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 4 Mar 2021 20:25:00 +0800
+
 kylin-recorder (1.2.23kord~rc7) v101; urgency=high
 
   * 修复漏洞
+  * 解决mini模式下录音时点击关闭弹出提示框后还能关闭的问题。
 
- -- zoujunnan <zoujunnan@kylinos.cn>  Tue, 2 Mar 2021 09:30:00 +0800
+ -- baijincheng <baijincheng@kylinos.cn>  Tue, 2 Mar 2021 19:19:00 +0800
 
 kylin-recorder (1.2.23kord~rc6) v101; urgency=high
 

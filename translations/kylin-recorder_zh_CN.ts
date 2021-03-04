@@ -29,55 +29,55 @@
         <translation>完成</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="433"/>
+        <location filename="../src/itemswindow.cpp" line="443"/>
         <source>Save as</source>
         <translation>另存为</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="434"/>
+        <location filename="../src/itemswindow.cpp" line="444"/>
         <source>Open folder position</source>
         <translation>打开文件位置</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="463"/>
-        <location filename="../src/itemswindow.cpp" line="494"/>
-        <location filename="../src/itemswindow.cpp" line="598"/>
-        <location filename="../src/itemswindow.cpp" line="742"/>
-        <location filename="../src/itemswindow.cpp" line="765"/>
-        <location filename="../src/itemswindow.cpp" line="950"/>
+        <location filename="../src/itemswindow.cpp" line="473"/>
+        <location filename="../src/itemswindow.cpp" line="505"/>
+        <location filename="../src/itemswindow.cpp" line="610"/>
+        <location filename="../src/itemswindow.cpp" line="756"/>
+        <location filename="../src/itemswindow.cpp" line="780"/>
+        <location filename="../src/itemswindow.cpp" line="967"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="464"/>
-        <location filename="../src/itemswindow.cpp" line="495"/>
-        <location filename="../src/itemswindow.cpp" line="599"/>
-        <location filename="../src/itemswindow.cpp" line="951"/>
+        <location filename="../src/itemswindow.cpp" line="474"/>
+        <location filename="../src/itemswindow.cpp" line="506"/>
+        <location filename="../src/itemswindow.cpp" line="611"/>
+        <location filename="../src/itemswindow.cpp" line="968"/>
         <source>The file path does not exist or has been deleted!</source>
         <translation>文件路径不存在或已经被删除!</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="465"/>
-        <location filename="../src/itemswindow.cpp" line="496"/>
-        <location filename="../src/itemswindow.cpp" line="600"/>
-        <location filename="../src/itemswindow.cpp" line="744"/>
-        <location filename="../src/itemswindow.cpp" line="767"/>
-        <location filename="../src/itemswindow.cpp" line="952"/>
+        <location filename="../src/itemswindow.cpp" line="475"/>
+        <location filename="../src/itemswindow.cpp" line="507"/>
+        <location filename="../src/itemswindow.cpp" line="612"/>
+        <location filename="../src/itemswindow.cpp" line="758"/>
+        <location filename="../src/itemswindow.cpp" line="782"/>
+        <location filename="../src/itemswindow.cpp" line="969"/>
         <source>OK</source>
         <translation>确认</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="743"/>
+        <location filename="../src/itemswindow.cpp" line="757"/>
         <source>The current number of list files is 0.</source>
         <translation>当前文件列表数目为0.</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="766"/>
+        <location filename="../src/itemswindow.cpp" line="781"/>
         <source>Playing, please stop and delete!</source>
         <translation>正在播放，请停止后删除!</translation>
     </message>
     <message>
-        <location filename="../src/itemswindow.cpp" line="1032"/>
+        <location filename="../src/itemswindow.cpp" line="1050"/>
         <source>剪裁成功</source>
         <translation>Clip Successed</translation>
     </message>
@@ -148,7 +148,7 @@
         <translation>请停止录音后关闭!</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1103"/>
+        <location filename="../src/mainwindow.cpp" line="1109"/>
         <source>Transcoding...</source>
         <translation>音频转码中...</translation>
     </message>
@@ -179,14 +179,14 @@
         <translation type="vanished">  文件列表  </translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1065"/>
+        <location filename="../src/mainwindow.cpp" line="1071"/>
         <source>There is audio playing, please stop after recording!</source>
         <translation>有正在播放的音频，请停止后在录音</translation>
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="280"/>
-        <location filename="../src/mainwindow.cpp" line="1066"/>
-        <location filename="../src/mainwindow.cpp" line="1104"/>
+        <location filename="../src/mainwindow.cpp" line="1072"/>
+        <location filename="../src/mainwindow.cpp" line="1110"/>
         <source>OK</source>
         <translation>确认</translation>
     </message>
@@ -200,8 +200,8 @@
     </message>
     <message>
         <location filename="../src/mainwindow.cpp" line="277"/>
-        <location filename="../src/mainwindow.cpp" line="1064"/>
-        <location filename="../src/mainwindow.cpp" line="1103"/>
+        <location filename="../src/mainwindow.cpp" line="1070"/>
+        <location filename="../src/mainwindow.cpp" line="1109"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
@@ -210,7 +210,7 @@
         <translation type="vanished">没有检测到设备!</translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="1113"/>
+        <location filename="../src/mainwindow.cpp" line="1120"/>
         <source>recorder</source>
         <translation>录音</translation>
     </message>
@@ -248,17 +248,17 @@
         <translation>关闭</translation>
     </message>
     <message>
-        <location filename="../src/miniwindow.cpp" line="294"/>
+        <location filename="../src/miniwindow.cpp" line="289"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../src/miniwindow.cpp" line="295"/>
+        <location filename="../src/miniwindow.cpp" line="290"/>
         <source>There is audio playing, please stop after recording!</source>
         <translation>有正在播放的音频，请停止后在录音</translation>
     </message>
     <message>
-        <location filename="../src/miniwindow.cpp" line="296"/>
+        <location filename="../src/miniwindow.cpp" line="291"/>
         <source>OK</source>
         <translation>确认</translation>
     </message>
@@ -506,7 +506,7 @@
     <message>
         <location filename="../src/menumodule.cpp" line="35"/>
         <location filename="../src/menumodule.cpp" line="121"/>
-        <location filename="../src/menumodule.cpp" line="190"/>
+        <location filename="../src/menumodule.cpp" line="193"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
@@ -517,16 +517,16 @@
         <translation>退出</translation>
     </message>
     <message>
-        <location filename="../src/menumodule.cpp" line="250"/>
+        <location filename="../src/menumodule.cpp" line="253"/>
         <source>Version: </source>
         <translation>版本:</translation>
     </message>
     <message>
-        <location filename="../src/menumodule.cpp" line="254"/>
-        <location filename="../src/menumodule.cpp" line="309"/>
-        <location filename="../src/menumodule.cpp" line="324"/>
+        <location filename="../src/menumodule.cpp" line="257"/>
+        <location filename="../src/menumodule.cpp" line="312"/>
+        <location filename="../src/menumodule.cpp" line="327"/>
         <source>Service &amp; Support: </source>
-        <translation>服务与支持:</translation>
+        <translation type="unfinished">服务与支持团队:</translation>
     </message>
     <message>
         <source>Support: baibai@kylinos.cn</source>

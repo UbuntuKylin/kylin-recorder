@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
 
     checkSingle();//检查单例模式
+    initDbus();//初始化dbus
     mutual = this;
     defaultPathData = new QGSettings(KYLINRECORDER);
     // 用户手册功能
@@ -266,6 +267,56 @@ MainWindow::MainWindow(QWidget *parent)
 //    setMouseTracking(true);
 //    list->setMouseTracking(true);
     mainWid->show();
+}
+
+void MainWindow::initDbus()
+{
+    QDBusConnection sessionBus = QDBusConnection::sessionBus();
+    if(sessionBus.registerService("org.ukui.kylin_recorder"))
+    {
+        sessionBus.registerObject("/org/ukui/kylin_recorder",this,
+                                  QDBusConnection::ExportAllContents);
+        qDebug()<<"初始化DBUS成功";
+    }
+    else
+        qDebug()<<"初始化DBUS失败";
+    //S3 S4策略
+    QDBusConnection::systemBus().connect(QString("org.freedesktop.login1"),
+                                         QString("/org/freedesktop/login1"),
+                                         QString("org.freedesktop.login1.Manager"),
+                                         QString("PrepareForShutdown"), this,
+                                         SLOT(onPrepareForShutdown(bool)));
+    QDBusConnection::systemBus().connect(QString("org.freedesktop.login1"),
+                                         QString("/org/freedesktop/login1"),
+                                         QString("org.freedesktop.login1.Manager"),
+                                         QString("PrepareForSleep"), this,
+                                         SLOT(onPrepareForSleep(bool)));
+}
+
+void MainWindow::onPrepareForShutdown(bool Shutdown)
+{
+    //目前只做事件监听，不处理
+    qDebug()<<"onPrepareForShutdown"<<Shutdown;
+}
+
+void MainWindow::onPrepareForSleep(bool isSleep)
+{
+    //990
+    //空指针检验
+    //------此处空指针校验（如果用了指针）------
+    //系统事件
+    if(isSleep)
+    {
+        strat_pause = false;
+        play_pause_clicked();//检测到睡眠时要暂停录制
+        qDebug()<<"睡眠！！！";
+    }
+    else
+    {
+        strat_pause = true;
+        play_pause_clicked();//检测到唤醒时要开始录制
+        qDebug()<<"唤醒！！！";
+    }
 }
 
 void MainWindow::closeWindow()
@@ -947,9 +998,10 @@ void MainWindow::mainWindow_page2()
 
     slider->setOrientation(Qt::Horizontal);
     slider->setValue(myThread->soundVolume);
-    voiceBtn->setIcon(QIcon::fromTheme("audio-volume-medium"));
     voiceBtn->setProperty("isWindowButton", 0x1);
     voiceBtn->setProperty("useIconHighlightEffect", 0x2);
+    voiceBtn->setIconSize(QSize(24,24));//重置图标大小
+    voiceBtn->setFixedSize(22,18);
     voiceBtn->setAutoRaise(true);
     play_pauseButton->setIconSize(QSize(56,56));//重置图标大小
     play_pauseButton->setEnabled(true);//按下后，开始录音可以按暂停
@@ -984,7 +1036,7 @@ void MainWindow::mainWindow_page2()
     stopButton->setIconSize(QSize(56,56));//重置图标大小
     showTimelb->setText("00:00:00");
     showTimelb->setStyleSheet("font: bold; font-size:18px;");
-    voiceBtn->setFixedSize(22,18);
+
 
     showTimelbLayout->addWidget(showTimelb,0,Qt::AlignCenter);//在布局的中央
     showTimelbWid->setLayout(showTimelbLayout);

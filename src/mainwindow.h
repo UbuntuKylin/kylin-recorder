@@ -59,6 +59,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+//s3s4需要用DBus接口
+#include <QDBusConnection>
+#include <QDBusInterface>
+
 #include "mywave.h"
 #include "mythread.h"
 #include "settings.h"
@@ -69,12 +73,11 @@
 
 #include "menumodule.h"
 
-
 #define INIT_MAINWINDOW_RECTANGLE_COUNT 130//用于初始化矩形条个数
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
+    Q_CLASSINFO("D-Bus Interface", "org.ukui.kylin_recorder")//调用DBus一定要加这一行
 public://放在public都是有原因的因为不同类之间中调用需要公用！！
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -164,7 +167,6 @@ private:
     QAudioRecorder *audioRecorder;
     QLabel *seatlb;
 
-
     QPushButton *setButton;//设置按钮
     QMenu *menu;//下拉菜单
     QAction *actionSet;//设置项
@@ -180,14 +182,8 @@ private:
     QPushButton *recordButton;//录音按钮
     QLabel *messageStart;//提示录音开始按钮
 
-
     QToolButton *stopButton;
     QToolButton *play_pauseButton;
-
-
-
-
-
 
     QWidget *leftMainWid;//主左Wid
     QWidget *rightMainWid;//主右Wid
@@ -247,26 +243,16 @@ private:
     void mouseReleaseEvent(QMouseEvent *event);
     //鼠标移动事件
     void mouseMoveEvent(QMouseEvent *event);
-
-
-
     bool eventFilter(QObject *obj, QEvent *event);
     void wheelEvent(QWheelEvent *event);
 
-
-
-
-//    bool isRecording = false;
+    void initDbus();//初始化dbus
 
 private://音频相关
 
     QSlider *slider;
 
     QVector<myWave*> mywave;
-
-
-
-
 
 signals://主线程的信号
 
@@ -304,6 +290,9 @@ public slots:
 
     void handlingSlot(bool isOk);
     void slotListItemAdd(QString fileName,int i);
+
+    void onPrepareForSleep(bool isSleep);//S3  S4策略
+    void onPrepareForShutdown(bool Shutdown);//S3  S4策略
 
 };
 
