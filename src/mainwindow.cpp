@@ -273,16 +273,20 @@ void MainWindow::closeWindow()
 
     if (isRecording == true)
     {
-        myThread->stop_saveDefault();
-        thread->quit();
-        thread->wait();
-        mainWid->close();
+//        myThread->stop_saveDefault();
+        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
+                                 ,tr("Please stop recording before closing!"),QMessageBox::Yes );
+        WrrMsg->move(mainWid->geometry().center() - WrrMsg->rect().center());
+        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
+        WrrMsg->exec();
+        return ;
 
     }else
     {
         thread->quit();
         thread->wait();
         mainWid->close();
+        mini.miniWid->close();
 
     }
 
@@ -303,7 +307,12 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 MainWindow::~MainWindow()
 {
-
+    delete itemswindow;
+    QList<myWave*> list = this->findChildren<myWave*>();
+    for(myWave* tmp:list)
+    {
+        tmp->deleteLater();
+    }
 }
 
 void MainWindow::isFileNull(int n)
@@ -772,8 +781,9 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 
 void MainWindow::miniShow()
 {
-    mainWid->hide();
+
     mini.miniWid->showNormal();
+    mainWid->hide();
 }
 
 //开始和暂停
@@ -982,6 +992,7 @@ void MainWindow::mainWindow_page2()
     for (int i=0;i<rectangleCount;i++)//频率直方图
     {
         myWave *wave=new myWave(this);//每次都要初始化一个矩形框
+//        wave=new myWave(this);
 //      wave->setMaximumWidth(100);
         wave->setRange(0,100);
         mywave.push_back(wave);
@@ -1088,6 +1099,9 @@ void MainWindow::changeVoicePicture()
 void MainWindow::goset()
 {
     set.mainWid->show();
+    set.mainWid->move(mainWid->geometry().center() - set.mainWid->rect().center());
+
+
 }
 
 void MainWindow::handlingSlot(bool isOk)
@@ -1100,7 +1114,8 @@ void MainWindow::handlingSlot(bool isOk)
 void MainWindow::slotListItemAdd(QString fileName,int i)
 {
     qDebug()<<"更新";
-    ItemsWindow *itemswindow = new ItemsWindow(this);//初始化Item录音文件类必须加this,
+    itemswindow = new ItemsWindow(this);
+//    ItemsWindow *itemswindow = new ItemsWindow(this);//初始化Item录音文件类必须加this,
                                                      //因为后期要判断子类的子控件
     itemswindow->listNum->setText(tr("recorder")+QString::number(i));
     //添加当前录音文件的文件名(以时间命名)

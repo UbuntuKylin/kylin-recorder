@@ -211,6 +211,16 @@ void ItemsWindow::setClipper()//设置剪裁界面
     clipperstackWid -> addWidget(itemsWid);
     clipperstackWid -> addWidget(clipperWid);
 
+//    QList<AppUpdateWid*> list = this->findChilden<AppUpdateWid*>();
+//    for(AppUpdateWid* tmp:list)
+//    {
+//        qDebug<<"111";
+//    }
+
+}
+ItemsWindow::~ItemsWindow()
+{
+    delete wave;
 }
 
 void ItemsWindow::initThemeGsetting()
@@ -300,7 +310,7 @@ void ItemsWindow::positionChange(qint64 position)
         QString current_timeStr = currentTime.toString("hh:mm:ss");
         QTime totalTime(0,(MainWindow::mutual->playerCompoment->duration()/60000) % 60,
                        (MainWindow::mutual->playerCompoment->duration() / 1000) % 60);
-        qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");
+//        qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
 
     }
 
@@ -464,6 +474,7 @@ void ItemsWindow::actionSaveasSlot()
                                          ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
                 WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                 WrrMsg->exec();
+                my->deleteLater();
                 return ;
             }
         }
@@ -495,6 +506,7 @@ void ItemsWindow::actionOpenFolderSlot()
                                             ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
                    WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                    WrrMsg->exec();
+                   my->deleteLater();
    //                MainWindow::mutual->list->takeItem(i-1);
                    return ;
                }
@@ -599,10 +611,12 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
                                          ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
                 WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                 WrrMsg->exec();
+                myth->deleteLater();
                 return ;
             }
         }
     }
+    myth->deleteLater();
 
 }
 
@@ -743,6 +757,7 @@ void ItemsWindow::delFile()
                                  ,tr("The current number of list files is 0."),QMessageBox::Yes );
         WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
         WrrMsg->exec();
+        myth->deleteLater();
         return ;
     }
     for(int i = 1; i<m; i++)
@@ -766,6 +781,7 @@ void ItemsWindow::delFile()
                                                  ,tr("Playing, please stop and delete!"),QMessageBox::Yes );
                         WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                         WrrMsg->exec();
+                        myth->deleteLater();
                         return ;
                     }
                     QString subStr = ","+str;//子串
@@ -816,6 +832,7 @@ void ItemsWindow::delFile()
 
     }
     listFileNumUpdate(MainWindow::mutual->list->count());
+    myth->deleteLater();
     return ;
 }
 
@@ -951,12 +968,13 @@ int ItemsWindow::createCutWave()
                                          ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
                 WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
                 WrrMsg->exec();
+                myth->deleteLater();
                 return -1;
             }
         } 
 
     }
-
+    myth->deleteLater();
     return 0;
 }
 
@@ -1147,7 +1165,8 @@ void ItemsWindow::initRectangleWave()//初始化矩形框
     {
         for (int i=0;i<ITEMWINDOW_RECTANGLE_COUNT;i++)//频率直方图
         {
-            myWave *wave=new myWave(this);//每次都要初始化一个矩形框
+//            myWave *wave=new myWave(this);//每次都要初始化一个矩形框
+            wave=new myWave(this);
             wave->setRange(0,100);
             mywave.append(wave);
             waveLayout->addWidget(wave);

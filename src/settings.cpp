@@ -48,8 +48,8 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     setFocusPolicy(Qt::ClickFocus);//this->setFocusPolicy(Qt::NoFocus);//设置焦点类型
     setWindowTitle(tr("Settings"));
     mainWid->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
-    QScreen *screen = QGuiApplication::primaryScreen();
-    mainWid ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
+//    QScreen *screen = QGuiApplication::primaryScreen();
+//    mainWid ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
     //显示在活动屏幕中间新方法
 
     //标题栏设置和布局
@@ -59,6 +59,8 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     piclb->setStyleSheet("QLabel{border-image: url(:/png/png/recording_32.png);}");
     piclb->setFixedSize(25,25);
     lb->setText(tr("Settings"));//
+    lb->setStyleSheet("font-size:14px;");
+
 
     //关闭按钮
     closeButton = new QToolButton(this);
@@ -85,6 +87,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     //        QGridLayout *layout = new QGridLayout();
     //设置界面内容
     label = new QLabel(tr("Storage"));
+    label->setStyleSheet("font-size:14px;");
     radioButton = new QRadioButton(this);
     //    radioButton->setCheckable(1);
     //radioButton->setChecked(1);//默认选中状态
@@ -92,32 +95,43 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     connect(radioButton,&QRadioButton::clicked,this,&Settings::gotosave);
 
     label_2 = new QLabel(tr("Save as"));
+    label_2->setStyleSheet("font-size:14px;");
     radioButton_2 = new QRadioButton(this);
     //    connect(radioButton_2,&QRadioButton::clicked,this,&subMainWindow::userdirectory);
     connect(radioButton_2,&QRadioButton::clicked,this,&Settings::closesave);
 
     label_3 = new QLabel(tr("Default storage："));
+    label_3->setStyleSheet("font-size:14px;");
 //    label_3->setFixedWidth(120);
     lineEdit = new QLineEdit(this);
     defaultLocation = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
     lineEdit->setText(defaultLocation);
+    lineEdit->setStyleSheet("font-size:14px;");
     lineEdit->setFocusPolicy(Qt::NoFocus);//设置不可编辑状态
 //    lineEdit->setStyleSheet("QLineEdit{border-radius:4px;border:1px solid rgba(0,0,0,0.25); background-color:transparent;}");
     label_4 = new QLabel(tr("Source"));
+    label_4->setStyleSheet("font-size:14px;");
     radioButton_3 = new QRadioButton(this);
     label_5 = new QLabel(tr("All"));
+    label_5->setStyleSheet("font-size:14px;");
     radioButton_4 = new QRadioButton();
     label_6 = new QLabel(tr("Inside"));
+    label_6->setStyleSheet("font-size:14px;");
     radioButton_5 = new QRadioButton(this);
     label_7 = new QLabel(tr("Microphone"));
     label_8 = new QLabel(tr("File format"));
+    label_7->setStyleSheet("font-size:14px;");
+    label_8->setStyleSheet("font-size:14px;");
 
     radioButton_6 = new QRadioButton(this);
     label_9 = new QLabel("mp3");
+    label_9->setStyleSheet("font-size:14px;");
     radioButton_7 = new QRadioButton();
     label_10 = new QLabel("m4a  ");
+    label_10->setStyleSheet("font-size:14px;");
     radioButton_8 = new QRadioButton(this);
     label_11 = new QLabel("wav");
+    label_11->setStyleSheet("font-size:14px;");
     connect(radioButton_6,&QRadioButton::clicked,this,&Settings::saveTypeMp3);
     connect(radioButton_7,&QRadioButton::clicked,this,&Settings::saveTypeM4a);
     connect(radioButton_8,&QRadioButton::clicked,this,&Settings::saveTypeWav);
@@ -157,10 +171,10 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     pg->addWidget(label_7,3,3,1,1);//解封后改为3711
     pg->addWidget(label_8,4,0,1,2);
     pg->addWidget(radioButton_6,4,2,1,1);//mp3
-    pg->addWidget(label_9,4,3,1,1);\
+    pg->addWidget(label_9,4,3,1,1);
     label_9->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-    pg->addWidget(radioButton_7,4,4,1,1);//M4a格式
-    pg->addWidget(label_10,4,5,1,1);
+//    pg->addWidget(radioButton_7,4,4,1,1);//M4a格式
+//    pg->addWidget(label_10,4,5,1,1);
     label_10->setAlignment(Qt::AlignLeft|Qt::AlignTop);
     pg->addWidget(radioButton_8,4,6,1,1);//wav,后期改为4611
     pg->addWidget(label_11,4,7,1,1);//后期改为4711

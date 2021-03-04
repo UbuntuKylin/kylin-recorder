@@ -205,18 +205,14 @@ bool MiniWindow::eventFilter(QObject *obj, QEvent *event)
 }
 void MiniWindow::normalShow()
 {
-    miniWid->hide();
-    MainWindow::mutual->mainWid->showNormal();
 
+    MainWindow::mutual->mainWid->showNormal();
+    miniWid->hide();
+    
 }
 void MiniWindow::closeWindow()//关闭mini和主窗体
-{
-     MainWindow::mutual->closeWindow();
-     miniWid->close();
-     MainWindow::mutual->thread->quit();
-     MainWindow::mutual->thread->wait();
-     MainWindow::mutual->close();
-
+{  
+    MainWindow::mutual->closeWindow();
 }
 void MiniWindow::start_pauseSlot()
 {
