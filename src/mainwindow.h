@@ -246,7 +246,11 @@ private:
     bool eventFilter(QObject *obj, QEvent *event);
     void wheelEvent(QWheelEvent *event);
 
+    //DBus相关
     void initDbus();//初始化dbus
+
+    bool isPlug = false;//是否是插
+
 
 private://音频相关
 
@@ -293,6 +297,8 @@ public slots:
 
     void onPrepareForSleep(bool isSleep);//S3  S4策略
     void onPrepareForShutdown(bool Shutdown);//S3  S4策略
+
+    void inputDevice_get(QString str);
 
 };
 

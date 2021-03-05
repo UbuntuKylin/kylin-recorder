@@ -291,6 +291,23 @@ void MainWindow::initDbus()
                                          QString("org.freedesktop.login1.Manager"),
                                          QString("PrepareForSleep"), this,
                                          SLOT(onPrepareForSleep(bool)));
+    //插拔耳机的信号
+    QDBusConnection::sessionBus().connect(QString(), QString( "/"), "org.ukui.media", "DbusSingleTest",this, SLOT(inputDevice_get(QString)));
+}
+
+//对于台式机，可以收到耳机插拔的DBus信号
+void MainWindow::inputDevice_get(QString str)
+{
+    qDebug()<<"插拔";
+    if(isRecording)
+    {
+        //录音时，插拔要停止录音,并生成文件
+        stop_clicked();
+    }
+    else
+    {
+        qDebug()<<"应用没有在录音！";
+    }
 }
 
 void MainWindow::onPrepareForShutdown(bool Shutdown)
@@ -307,15 +324,31 @@ void MainWindow::onPrepareForSleep(bool isSleep)
     //系统事件
     if(isSleep)
     {
-        strat_pause = false;
-        play_pause_clicked();//检测到睡眠时要暂停录制
-        qDebug()<<"睡眠！！！";
+        if(isRecording)
+        {
+            play_pause_clicked();//检测到睡眠时要暂停录制
+            qDebug()<<"睡眠！！！";
+        }
+
     }
     else
     {
-        strat_pause = true;
-        play_pause_clicked();//检测到唤醒时要开始录制
-        qDebug()<<"唤醒！！！";
+        if(isRecording)
+        {
+            play_pause_clicked();//检测到唤醒时要开始录制
+            qDebug()<<"唤醒！！！";
+        }
+        else
+        {
+            //一种情况是压根就没开始录制他就睡眠了。因此就不会做其他事情
+            if(strat_pause)
+            {
+                play_pause_clicked();//检测到唤醒时要开始录制
+            }
+
+        }
+
+
     }
 }
 
