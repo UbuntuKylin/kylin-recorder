@@ -42,20 +42,25 @@ MyThread::MyThread(QWidget *parent) : QMainWindow(parent)
 {
 
     qDebug()<<"子线程MyThread::startThreadSlot QThread::currentThreadId()=="<<QThread::currentThreadId();
-    pTimer = new QTimer;
     audioInputSound = nullptr;
     audioOutputSound = nullptr;
     inputDevSound = nullptr;
     recordData = new QGSettings(KYLINRECORDER);
 
     my_time=new QTimer;//延时检测
+    tipTimer = new QTimer;//延时process,防止tip界面卡顿//不需要了
+
     process = new QProcess;//调用外部程序如：ffmpeg进行音频文件转码
-    connect(process, SIGNAL(finished(int)), this, SLOT(audioConversionFinish(int)), Qt::UniqueConnection);
+    connect(process,SIGNAL(started()),this,SLOT(uploadStarted()));
+//    connect(process, SIGNAL(finished(int)), this, SLOT(audioConversionFinish(int)), Qt::UniqueConnection);
+    connect(process,SIGNAL(finished(int, QProcess::ExitStatus)),this,SLOT(audioConversionFinish(int, QProcess::ExitStatus)));
+        connect(this,&MyThread::handling,MainWindow::mutual,&MainWindow::handlingSlot);//处理中...
+
     connect(my_time,&QTimer::timeout,this,[=]{
         canMonitor=true;
     });
     connect(this,&MyThread::listItemAddSignal,MainWindow::mutual,&MainWindow::slotListItemAdd);
-    connect(this,&MyThread::handling,MainWindow::mutual,&MainWindow::handlingSlot);//处理中...
+
 
 }
 
@@ -128,8 +133,7 @@ qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
 //    qDebug()<<"******"<<catheFileName<<"*"<<cmd<<"******";
 
     process->start(cmd);
-    emit handling(true);
-    process->waitForFinished();
+//    process->waitForFinished();//此方式会阻塞界面，即进程会阻塞
 
 
     cacheFile.close();
@@ -162,8 +166,8 @@ qint64 MyThread::toConvertM4a(QString catheFileName , QString m4aFileName)
     //qDebug()<<"******"<<catheFileName<<"*"<<cmd<<"******";
 
     process->start(cmd);
-    emit handling(true);
-    process->waitForFinished();
+//    emit handling(true);
+//    process->waitForFinished();
 
     cacheFile.close();
     m4aFile.close();
@@ -171,18 +175,26 @@ qint64 MyThread::toConvertM4a(QString catheFileName , QString m4aFileName)
     return nFileLen;
 }
 
-void MyThread::audioConversionFinish(int isOk)
+void MyThread::uploadStarted()
+{
+    qDebug()<<"执行中!!!";
+    emit handling(true);
+}
+
+void MyThread::audioConversionFinish(int isOk,QProcess::ExitStatus)
 {
     if(isOk==0)
     {
         qDebug() << "音频格式转换成功"<<isOk;
         isSuccess=isOk;
-        MainWindow::mutual->WrrMsg->hide();
+//        MainWindow::mutual->WrrMsg->hide();
+        MainWindow::mutual->tipWindow->hide();
     }
     else
     {
         qDebug() << "失败"<<isOk;
         isSuccess=isOk;
+        MainWindow::mutual->tipWindow->hide();
     }
 
 }
@@ -312,22 +324,22 @@ void MyThread::saveAs(QString oldFileName)//右键另存为可以选择存储音
             qDebug() <<"旧文件名:"<<oldFileName<<"新文件名:"<<newFileName<<newFileName.split(".").last();
             QString cmd="ffmpeg -y -i \""+oldFileName+"\" \""+newFileName+"\"";
             process->start(cmd);
-            emit handling(true);
-            process->waitForFinished();
+//            emit handling(true);
+//            process->waitForFinished();
         }
         else if(newFileName.split(".").last() == "wav")
         {
             QString cmd="ffmpeg -y -i \""+oldFileName+"\" \""+newFileName+"\"";
             process->start(cmd);
-            emit handling(true);
-            process->waitForFinished();
+//            emit handling(true);
+//            process->waitForFinished();
         }
         else if(newFileName.split(".").last() == "m4a")
         {
             QString cmd="ffmpeg -y -i \""+oldFileName+"\" \""+newFileName+"\"";
             process->start(cmd);
-            emit handling(true);
-            process->waitForFinished();
+//            emit handling(true);
+//            process->waitForFinished();
         }
         //QFile::copy(oldFileName,newFileName);
     }

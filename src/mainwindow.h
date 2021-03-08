@@ -88,6 +88,7 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QString limitThemeColor ;
     menuModule *menumodule = nullptr;
     ItemsWindow *itemswindow = nullptr;
+    TipWindow *tipWindow = nullptr;
 //    myWave *wave = nullptr;
     // 用户手册功能
     DaemonDbus *mDaemonIpcDbus;
@@ -155,12 +156,17 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QMediaPlayer *playerCompoment;
     QMediaPlaylist *playList;
     QString tempPath = "";
+
+    QToolButton *stopButton;
+    QToolButton *play_pauseButton;
+
 private:
 
     int timeTag = 0;
 
     QList<int> maxNum;//存储振幅的大小的整型列表
     bool stop=false;//停止
+    bool isFirstRun = true;
 
     bool max_min=false;//最大最小化
 
@@ -182,8 +188,7 @@ private:
     QPushButton *recordButton;//录音按钮
     QLabel *messageStart;//提示录音开始按钮
 
-    QToolButton *stopButton;
-    QToolButton *play_pauseButton;
+
 
     QWidget *leftMainWid;//主左Wid
     QWidget *rightMainWid;//主右Wid
@@ -294,6 +299,8 @@ public slots:
 
     void handlingSlot(bool isOk);
     void slotListItemAdd(QString fileName,int i);
+
+//    void fileListAdd_ByStopButton(int second);
 
     void onPrepareForSleep(bool isSleep);//S3  S4策略
     void onPrepareForShutdown(bool Shutdown);//S3  S4策略

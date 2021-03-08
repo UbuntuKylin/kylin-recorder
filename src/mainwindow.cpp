@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 用户手册功能
     mDaemonIpcDbus = new DaemonDbus();
 
+
     int WIDTH = 800 ;
     int HEIGHT = 460 ;
 
@@ -257,6 +258,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     playerCompoment = new QMediaPlayer;//播放组件
     playList = new QMediaPlaylist;//播放列表
+        tipWindow = new TipWindow();
+
+
 
     MainWindowLayout();//主窗体布局方法
     initThemeGsetting();//初始化主题配置文件
@@ -352,6 +356,17 @@ void MainWindow::onPrepareForSleep(bool isSleep)
     }
 }
 
+void MainWindow::handlingSlot(bool isOk)
+{
+//    WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Transcoding..."),QMessageBox::Yes);
+//    WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
+//    WrrMsg->exec();
+    tipWindow->move(mainWid->geometry().center() - tipWindow->rect().center());
+    tipWindow->show();
+    qDebug()<<"接收到界面消息!";
+
+}
+
 void MainWindow::closeWindow()
 {
 
@@ -397,6 +412,7 @@ MainWindow::~MainWindow()
     {
         tmp->deleteLater();
     }
+    delete tipWindow;
 }
 
 void MainWindow::isFileNull(int n)
@@ -704,7 +720,7 @@ QString MainWindow::playerTotalTime(QString filePath)
         if(fileinfo.suffix().contains("mp3"))
         {
             fileSize = file.size();
-            qDebug()<<file.size();
+            qDebug()<<file.size()<<"后缀:mp3";
             time = fileSize/16000;//时间长度=文件大小/比特率
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
@@ -814,6 +830,7 @@ void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,
         }
 
     }
+    isFirstRun = false;//所有文件都显示全才置为false;
 
 }
 
@@ -1064,7 +1081,7 @@ void MainWindow::mainWindow_page2()
                                   "QToolButton:hover{image: url(:/svg/svg/finish-hover.svg);}"
                                   "QToolButton:pressed{image: url(:/svg/svg/finish-click.svg);}");
     }
-    stop=true;
+    stop=true;//stop按钮默认是true代表停止中
 
     stopButton->setIconSize(QSize(56,56));//重置图标大小
     showTimelb->setText("00:00:00");
@@ -1189,24 +1206,23 @@ void MainWindow::goset()
 
 }
 
-void MainWindow::handlingSlot(bool isOk)
-{
-    WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Transcoding..."), QMessageBox::Yes );
-    WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-    WrrMsg->exec();
-}
-
 void MainWindow::slotListItemAdd(QString fileName,int i)
 {
     qDebug()<<"更新";
-    itemswindow = new ItemsWindow(this);
-//    ItemsWindow *itemswindow = new ItemsWindow(this);//初始化Item录音文件类必须加this,
-                                                     //因为后期要判断子类的子控件
+    itemswindow = new ItemsWindow(this);//初始化Item录音文件类必须加this,
+                                        //因为后期要判断子类的子控件
+//    ItemsWindow *itemswindow = new ItemsWindow(this);
     itemswindow->listNum->setText(tr("recorder")+QString::number(i));
     //添加当前录音文件的文件名(以时间命名)
     itemswindow->recordFileName->setText(fileName.split("/").last());
-    //添加当前录音文件的时长
-    itemswindow->timelengthlb->setText(playerTotalTime(fileName));
+    //添加当前录音文件的时长,要判断一下是按了停止按钮还是应用重启时的刷新
+    if(isFirstRun){
+        //首次
+        itemswindow->timelengthlb->setText(playerTotalTime(fileName));
+    }else{
+        //非首次:根据showTimelb设置timelengthlb显示的内容
+        itemswindow->timelengthlb->setText(showTimelb->text());
+    }
     QListWidgetItem *aItem = new QListWidgetItem(list);//添加自定义的item
     list->setItemWidget(aItem,itemswindow->clipperstackWid);
     //list->addItem(aItem);
@@ -1214,6 +1230,8 @@ void MainWindow::slotListItemAdd(QString fileName,int i)
     isFileNull(list->count());//item个数从0开始增加时文件列表不应该显示"文件列表空"的字样
 
 }
+
+
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {

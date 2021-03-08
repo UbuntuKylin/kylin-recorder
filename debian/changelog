@@ -1,3 +1,16 @@
+kylin-recorder (1.2.23kord~rc10) v101; urgency=high
+
+  * 修复bug41693：长时间录音（10分钟以上），点击停止录音，弹出弹窗点击确定，连续多次点击停止录音，麒麟录音闪退
+  * 修复bug41685：长时间录音（10分钟以上），点击停止录音，弹出弹窗点击确定，连续多次点击停止录音，保存多个录音文件
+
+ -- baijincheng <baijincheng@kylinos.cn>  Mon, 8 Mar 2021 17:52:00 +0800
+
+kylin-recorder (1.2.23kord~rc9) v101; urgency=high
+
+  * DBus信号接收，代码对接
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 4 Mar 2021 20:25:00 +0800
+
 kylin-recorder (1.2.23kord~rc8) v101; urgency=high
 
   * 修复bug41279：静音图标显示不全
