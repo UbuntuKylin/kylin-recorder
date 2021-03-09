@@ -1,8 +1,37 @@
+kylin-recorder (1.2.23kord~rc11) v101; urgency=high
+
+  * 修复bug41447：点击开始录音后，大概卡顿两秒后才开始录音
+  * 修复bug41442：在主界面点击录音图标后，鼠标悬浮文件列表某一文件，录音开始后，此文件一直为被选中状态
+  * 修复bug41589：开始录音时，连续点击暂停按钮，进度条不能正常进行
+
+ -- baijincheng <baijincheng@kylinos.cn>  Tue, 9 Mar 2021 15:27:00 +0800s
+
+kylin-recorder (1.2.23kord~rc10) v101; urgency=high
+
+  * 修复bug41693：长时间录音（10分钟以上），点击停止录音，弹出弹窗点击确定，连续多次点击停止录音，麒麟录音闪退
+  * 修复bug41685：长时间录音（10分钟以上），点击停止录音，弹出弹窗点击确定，连续多次点击停止录音，保存多个录音文件
+
+ -- baijincheng <baijincheng@kylinos.cn>  Mon, 8 Mar 2021 17:52:00 +0800
+
+kylin-recorder (1.2.23kord~rc9) v101; urgency=high
+
+  * DBus信号接收，代码对接
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 4 Mar 2021 20:25:00 +0800
+
+kylin-recorder (1.2.23kord~rc8) v101; urgency=high
+
+  * 修复bug41279：静音图标显示不全
+  * 修复bug41257：录制时将音量调制静音，点击停止，再次点击录音后音量条在最左端却不显示静音图标
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 4 Mar 2021 20:25:00 +0800
+
 kylin-recorder (1.2.23kord~rc7) v101; urgency=high
 
   * 修复漏洞
+  * 解决mini模式下录音时点击关闭弹出提示框后还能关闭的问题。
 
- -- zoujunnan <zoujunnan@kylinos.cn>  Tue, 2 Mar 2021 09:30:00 +0800
+ -- baijincheng <baijincheng@kylinos.cn>  Tue, 2 Mar 2021 19:19:00 +0800
 
 kylin-recorder (1.2.23kord~rc6) v101; urgency=high
 

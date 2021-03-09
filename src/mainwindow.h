@@ -59,6 +59,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+//s3s4需要用DBus接口
+#include <QDBusConnection>
+#include <QDBusInterface>
+
 #include "mywave.h"
 #include "mythread.h"
 #include "settings.h"
@@ -69,12 +73,11 @@
 
 #include "menumodule.h"
 
-
 #define INIT_MAINWINDOW_RECTANGLE_COUNT 130//用于初始化矩形条个数
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
+    Q_CLASSINFO("D-Bus Interface", "org.ukui.kylin_recorder")//调用DBus一定要加这一行
 public://放在public都是有原因的因为不同类之间中调用需要公用！！
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -85,6 +88,7 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QString limitThemeColor ;
     menuModule *menumodule = nullptr;
     ItemsWindow *itemswindow = nullptr;
+    TipWindow *tipWindow = nullptr;
 //    myWave *wave = nullptr;
     // 用户手册功能
     DaemonDbus *mDaemonIpcDbus;
@@ -109,7 +113,8 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     MyThread *myThread;//子线程
     MiniWindow mini;
     static MainWindow *mutual;//！！！指针类型静态成员变量
-    bool strat_pause=false;//开始和暂停1
+    bool strat_pause = false;//开始和暂停1
+//    bool limitTag = true;//显示录音时间的标记
     QStackedWidget *m_pStackedWidget;//堆叠布局
 
     QLabel *lb;
@@ -143,6 +148,8 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     int now=0;
     QTimer *pTimer;//1
     QTime baseTime;//1
+    QTimer *limitTimer;//设置时间,此定时器为限制录音时长所用目前规定只允许录制不超过15分钟的录音.
+
     QWidget *titleRightWid;//右标题栏Wid
     QWidget *mainWid;
 
@@ -152,18 +159,22 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QMediaPlayer *playerCompoment;
     QMediaPlaylist *playList;
     QString tempPath = "";
+
+    QToolButton *stopButton;
+    QToolButton *play_pauseButton;
+
 private:
 
     int timeTag = 0;
 
     QList<int> maxNum;//存储振幅的大小的整型列表
     bool stop=false;//停止
+    bool isFirstRun = true;
 
     bool max_min=false;//最大最小化
 
     QAudioRecorder *audioRecorder;
     QLabel *seatlb;
-
 
     QPushButton *setButton;//设置按钮
     QMenu *menu;//下拉菜单
@@ -179,13 +190,6 @@ private:
 
     QPushButton *recordButton;//录音按钮
     QLabel *messageStart;//提示录音开始按钮
-
-
-    QToolButton *stopButton;
-    QToolButton *play_pauseButton;
-
-
-
 
 
 
@@ -247,26 +251,20 @@ private:
     void mouseReleaseEvent(QMouseEvent *event);
     //鼠标移动事件
     void mouseMoveEvent(QMouseEvent *event);
-
-
-
     bool eventFilter(QObject *obj, QEvent *event);
     void wheelEvent(QWheelEvent *event);
 
+    //DBus相关
+    void initDbus();//初始化dbus
 
+    bool isPlug = false;//是否是插
 
-
-//    bool isRecording = false;
 
 private://音频相关
 
     QSlider *slider;
 
     QVector<myWave*> mywave;
-
-
-
-
 
 signals://主线程的信号
 
@@ -304,6 +302,15 @@ public slots:
 
     void handlingSlot(bool isOk);
     void slotListItemAdd(QString fileName,int i);
+
+//    void fileListAdd_ByStopButton(int second);
+
+    void onPrepareForSleep(bool isSleep);//S3  S4策略
+    void onPrepareForShutdown(bool Shutdown);//S3  S4策略
+
+    void inputDevice_get(QString str);
+
+    void limitRecordingTime();
 
 };
 

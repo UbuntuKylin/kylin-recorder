@@ -47,6 +47,7 @@
 #include "save.h"
 #include "mp3encoder.h"
 #include "itemswindow.h"
+#include "tipwindow.h"
 //==================
 
 #define BufferSize 35280
@@ -91,6 +92,8 @@ public:
 
     QString absolutionPath;//raw存放的绝对路径
 
+        QTimer *tipTimer;//延时执行process
+
 signals:
     void recordPaint(int);
     void stopRecord();
@@ -123,7 +126,7 @@ private:
     QAudioFormat mFormatSound;
     QAudioInput *audioInputSound;		// 负责监听声音
     QAudioOutput *audioOutputSound;
-    QTimer *pTimer;//1
+
 
     //mp3
 
@@ -152,6 +155,8 @@ private slots:
     void InitMonitor();
     void OnReadMore();
 
+    void uploadStarted();//加载tips界面
+
     //void sendCurrentRecordList(QString filePath);
 public slots:
 
@@ -167,7 +172,7 @@ public slots:
     void selectMp3();//选择保存路径Mp3
     void selectWav();//选择保存路径Wav
     void selectM4a();//选择保存路径M4a
-    void audioConversionFinish(int isOk);
+    void audioConversionFinish(int isOk,QProcess::ExitStatus);
 
 };
 

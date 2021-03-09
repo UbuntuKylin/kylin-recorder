@@ -70,6 +70,7 @@ SOURCES += \
         src/mywave.cpp \
         src/save.cpp \
         src/settings.cpp \
+        src/tipwindow.cpp \
         src/xatom-helper.cpp
 
 HEADERS += \
@@ -85,6 +86,7 @@ HEADERS += \
         src/mywave.h \
         src/save.h \
         src/settings.h \
+        src/tipwindow.h \
         src/xatom-helper.h
 
 RESOURCES += \

@@ -197,7 +197,6 @@ void menuModule::initAbout(){
 //    aboutWindow->move((availableGeometry.width()-aboutWindow->width())/2,(availableGeometry.height()- aboutWindow->height())/2);
     //TODO:在app中央显示
     aboutWindow->move(MainWindow::mutual->mainWid->geometry().center() - aboutWindow->rect().center());
-//    aboutWindow->setStyleSheet(".QWidget{background-color:rgba(255,255,255,1);}");
     aboutWindow->show();
 }
 

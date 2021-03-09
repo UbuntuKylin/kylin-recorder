@@ -370,54 +370,13 @@ bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点�
         if(!MainWindow::mutual->isRecording)
         {
             itemsWid->setAttribute(Qt::WA_Hover,true);//****关键代码,若不加此行代码则没有悬浮特效****
+            hover_ChangeState(event);//悬浮item时的变化
         }
         else
         {
             itemsWid->setAttribute(Qt::WA_Hover,false);
         }
-        listNumChangeColor = itemsWid->findChild<QLabel *>(listNum->objectName());
-        recordFileNameChangeColor = itemsWid->findChild<QLabel *>(recordFileName->objectName());
-        if(event->type() == QEvent::HoverEnter)//显示浮窗
-        {
-            //qDebug()<<"进入";
-            listNumChangeColor->setStyleSheet("font-size:14px;color:#3790FA;");
-            recordFileNameChangeColor->setStyleSheet("font-size:14px;color:#3790FA;");
-            int nIndex = stackLayout->currentIndex();
-            nIndex++;
-            stackLayout->setCurrentIndex(1);//切换至录音按钮stackLayout
-            if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
-            {
-                qDebug()<<"当前:"<<MainWindow::mutual->tempPath<<" "<<this->recordFileName->text();
-                if(MainWindow::mutual->tempPath.contains(this->recordFileName->text()))
-                {
-                    splitLinestackWid->setCurrentIndex(1);//切换至进度条
-                }
 
-            }
-            else
-            {
-                 splitLinestackWid->setCurrentIndex(0);
-            }
-
-
-        }
-        else if(event->type() == QEvent::HoverLeave)//收起浮窗
-        {
-            //qDebug()<<"离开";
-            //此处为鼠标悬停离开某item时,字体颜色变化要注意和主题对应黑主题白字白主题黑字
-            if(MainWindow::mutual->themeData->get("style-name").toString() == "ukui-dark"||MainWindow::mutual->themeData->get("style-name").toString() == "ukui-black")
-            {
-                listNumChangeColor->setStyleSheet("font-size:14px;color:white;");
-                recordFileNameChangeColor->setStyleSheet("font-size:14px;color:white;");
-            }
-            else
-            {
-                listNumChangeColor->setStyleSheet("font-size:14px;color:black;");
-                recordFileNameChangeColor->setStyleSheet("font-size:14px;color:black;");
-            }
-            stackLayout->setCurrentIndex(0);//切换至录音按钮stackLayout
-            splitLinestackWid->setCurrentIndex(0);//切换至分割线
-        }
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if(mouseEvent->button() == Qt::RightButton)
         {
@@ -429,6 +388,53 @@ bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点�
 
     }
     return QWidget::eventFilter(obj,event);
+}
+
+void ItemsWindow::hover_ChangeState(QEvent *event)
+{
+    listNumChangeColor = itemsWid->findChild<QLabel *>(listNum->objectName());
+    recordFileNameChangeColor = itemsWid->findChild<QLabel *>(recordFileName->objectName());
+    if(event->type() == QEvent::HoverEnter||event->type() == QEvent::HoverMove)//显示浮窗
+    {
+        //qDebug()<<"进入";
+        listNumChangeColor->setStyleSheet("font-size:14px;color:#3790FA;");
+        recordFileNameChangeColor->setStyleSheet("font-size:14px;color:#3790FA;");
+        int nIndex = stackLayout->currentIndex();
+        nIndex++;
+        stackLayout->setCurrentIndex(1);//切换至录音按钮stackLayout
+        if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
+        {
+            qDebug()<<"当前:"<<MainWindow::mutual->tempPath<<" "<<this->recordFileName->text();
+            if(MainWindow::mutual->tempPath.contains(this->recordFileName->text()))
+            {
+                splitLinestackWid->setCurrentIndex(1);//切换至进度条
+            }
+
+        }
+        else
+        {
+             splitLinestackWid->setCurrentIndex(0);
+        }
+
+
+    }
+    else if(event->type() == QEvent::HoverLeave)//收起浮窗
+    {
+        //qDebug()<<"离开";
+        //此处为鼠标悬停离开某item时,字体颜色变化要注意和主题对应黑主题白字白主题黑字
+        if(MainWindow::mutual->themeData->get("style-name").toString() == "ukui-dark"||MainWindow::mutual->themeData->get("style-name").toString() == "ukui-black")
+        {
+            listNumChangeColor->setStyleSheet("font-size:14px;color:white;");
+            recordFileNameChangeColor->setStyleSheet("font-size:14px;color:white;");
+        }
+        else
+        {
+            listNumChangeColor->setStyleSheet("font-size:14px;color:black;");
+            recordFileNameChangeColor->setStyleSheet("font-size:14px;color:black;");
+        }
+        stackLayout->setCurrentIndex(0);//切换至录音按钮stackLayout
+        splitLinestackWid->setCurrentIndex(0);//切换至分割线
+    }
 }
 
 void ItemsWindow::rightClickedMenuRequest()//右击弹出Menu菜单

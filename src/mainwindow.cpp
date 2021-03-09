@@ -38,10 +38,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
 
     checkSingle();//检查单例模式
+    initDbus();//初始化dbus
     mutual = this;
     defaultPathData = new QGSettings(KYLINRECORDER);
     // 用户手册功能
     mDaemonIpcDbus = new DaemonDbus();
+
 
     int WIDTH = 800 ;
     int HEIGHT = 460 ;
@@ -155,6 +157,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     //第二个页面的控件初始化
     pTimer = new QTimer;//定时器,用来记录
+    limitTimer = new QTimer;//设置定时器为限制录音时长所用目前规定只允许录制不超过15分钟的录音.
+
     showTimelb = new QLabel(this);
     voiceBtn = new QToolButton(this);
 
@@ -177,8 +181,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     //线程的使用
-    myThread=new MyThread;//子线程
-    thread=new QThread;//主线程
+    myThread = new MyThread;//子线程
+    thread = new QThread;//主线程
     //开始时也要把数组都初始化为0，2020.11.12先隐藏此功能
     for(int i=0;i<INIT_MAINWINDOW_RECTANGLE_COUNT;i++)
     {
@@ -193,6 +197,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this,    &MainWindow::pauseRecord, myThread, &MyThread::pauseRecord);
 
     connect(pTimer,       &QTimer::timeout,         this,  &MainWindow::updateDisplay);
+    connect(limitTimer,   &QTimer::timeout,         this,  &MainWindow::limitRecordingTime);
     connect(slider,    SIGNAL(valueChanged(int)),myThread, SLOT(OnSliderValueChanged(int)));
     connect(stopButton,&QToolButton::clicked,       this,  &MainWindow::stop_clicked);
     connect(play_pauseButton,&QToolButton::clicked, this,  &MainWindow::play_pause_clicked);
@@ -256,6 +261,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     playerCompoment = new QMediaPlayer;//播放组件
     playList = new QMediaPlaylist;//播放列表
+    tipWindow = new TipWindow();
+
+
 
     MainWindowLayout();//主窗体布局方法
     initThemeGsetting();//初始化主题配置文件
@@ -266,6 +274,100 @@ MainWindow::MainWindow(QWidget *parent)
 //    setMouseTracking(true);
 //    list->setMouseTracking(true);
     mainWid->show();
+}
+
+void MainWindow::initDbus()
+{
+    QDBusConnection sessionBus = QDBusConnection::sessionBus();
+    if(sessionBus.registerService("org.ukui.kylin_recorder"))
+    {
+        sessionBus.registerObject("/org/ukui/kylin_recorder",this,
+                                  QDBusConnection::ExportAllContents);
+        qDebug()<<"初始化DBUS成功";
+    }
+    else
+        qDebug()<<"初始化DBUS失败";
+    //S3 S4策略
+    QDBusConnection::systemBus().connect(QString("org.freedesktop.login1"),
+                                         QString("/org/freedesktop/login1"),
+                                         QString("org.freedesktop.login1.Manager"),
+                                         QString("PrepareForShutdown"), this,
+                                         SLOT(onPrepareForShutdown(bool)));
+    QDBusConnection::systemBus().connect(QString("org.freedesktop.login1"),
+                                         QString("/org/freedesktop/login1"),
+                                         QString("org.freedesktop.login1.Manager"),
+                                         QString("PrepareForSleep"), this,
+                                         SLOT(onPrepareForSleep(bool)));
+    //插拔耳机的信号
+    QDBusConnection::sessionBus().connect(QString(), QString( "/"), "org.ukui.media", "DbusSingleTest",this, SLOT(inputDevice_get(QString)));
+}
+
+//对于台式机，可以收到耳机插拔的DBus信号
+void MainWindow::inputDevice_get(QString str)
+{
+    qDebug()<<"插拔";
+    if(isRecording)
+    {
+        //录音时，插拔要停止录音,并生成文件
+        stop_clicked();
+    }
+    else
+    {
+        qDebug()<<"应用没有在录音！";
+    }
+}
+
+void MainWindow::onPrepareForShutdown(bool Shutdown)
+{
+    //目前只做事件监听，不处理
+    qDebug()<<"onPrepareForShutdown"<<Shutdown;
+}
+
+void MainWindow::onPrepareForSleep(bool isSleep)
+{
+    //990
+    //空指针检验
+    //------此处空指针校验（如果用了指针）------
+    //系统事件
+    if(isSleep)
+    {
+        if(isRecording)
+        {
+            play_pause_clicked();//检测到睡眠时要暂停录制
+            qDebug()<<"睡眠！！！";
+        }
+
+    }
+    else
+    {
+        if(isRecording)
+        {
+            play_pause_clicked();//检测到唤醒时要开始录制
+            qDebug()<<"唤醒！！！";
+        }
+        else
+        {
+            //一种情况是压根就没开始录制他就睡眠了。因此就不会做其他事情
+            if(strat_pause)
+            {
+                play_pause_clicked();//检测到唤醒时要开始录制
+            }
+
+        }
+
+
+    }
+}
+
+void MainWindow::handlingSlot(bool isOk)
+{
+//    WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Transcoding..."),QMessageBox::Yes);
+//    WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
+//    WrrMsg->exec();
+    tipWindow->move(mainWid->geometry().center() - tipWindow->rect().center());
+    tipWindow->show();
+    qDebug()<<"接收到界面消息!";
+
 }
 
 void MainWindow::closeWindow()
@@ -313,6 +415,7 @@ MainWindow::~MainWindow()
     {
         tmp->deleteLater();
     }
+    delete tipWindow;
 }
 
 void MainWindow::isFileNull(int n)
@@ -620,7 +723,7 @@ QString MainWindow::playerTotalTime(QString filePath)
         if(fileinfo.suffix().contains("mp3"))
         {
             fileSize = file.size();
-            qDebug()<<file.size();
+            qDebug()<<file.size()<<"后缀:mp3";
             time = fileSize/16000;//时间长度=文件大小/比特率
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
@@ -730,6 +833,7 @@ void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,
         }
 
     }
+    isFirstRun = false;//所有文件都显示全才置为false;
 
 }
 
@@ -781,7 +885,6 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 
 void MainWindow::miniShow()
 {
-
     mini.miniWid->showNormal();
     mainWid->hide();
 }
@@ -793,17 +896,17 @@ void MainWindow::play_pause_clicked()
     if(strat_pause)
     {
        emit playRecord();
-       menumodule->menuButton->setEnabled(false);
+       menumodule -> menuButton->setEnabled(false);
        isRecording = true;//开始时正在录音的标记值为true,其为true时禁止Item的悬浮特效
        cut = QTime::currentTime();//记录开始时的时间
        int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
-
+       limitTimer->start(1000);
        baseTime = baseTime.addSecs(t);
-       pTimer->start(1000);
-       mini.baseTime= mini.baseTime.addSecs(t);
-       mini.pTimer->start(1000);
-       mini.start_pause= false;
-       strat_pause=false;
+       pTimer->start(100);
+       mini.baseTime = mini.baseTime.addSecs(t);
+       mini.pTimer->start(100);
+       mini.start_pause = false;
+       strat_pause = false;
        if(themeData->get("style-name").toString() == "ukui-dark"||themeData->get("style-name").toString() == "ukui-black")
        {
            mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-dark.svg);}"
@@ -830,6 +933,7 @@ void MainWindow::play_pause_clicked()
         qDebug()<<"pause";
         emit pauseRecord();
         isRecording = false;//暂停时正在录音的标记值为false,其为false时Item的悬浮特效可以被开启
+        limitTimer->stop();
         pTimer->stop();
         mini.pTimer->stop();
         //mini.pTimer->stop();
@@ -856,8 +960,6 @@ void MainWindow::play_pause_clicked()
                         "QToolButton:hover{image: url(:/svg/svg/continue-hover.svg);}"
                         "QToolButton:pressed{image: url(:/svg/svg/continue-click.svg);}");
         }
-
-
     }
 
 }
@@ -876,6 +978,7 @@ void MainWindow::stop_clicked()//停止按钮
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
         menumodule->menuButton->setEnabled(true);
+        limitTimer->stop();//停止记录录音时间
         pTimer->stop();//计时停止
         mini.pTimer->stop();
         emit stopRecord();
@@ -911,6 +1014,7 @@ void MainWindow::stop_clicked()//停止按钮
         stop=false;
         m_pStackedWidget->setCurrentIndex(0);
         mini.recordStackedWidget->setCurrentIndex(0);
+        timeTag = 0;//只有在停止时让计时归零
     }
 
 }
@@ -931,9 +1035,12 @@ void MainWindow::updateDisplay()
     showTime = showTime.addSecs(t);
     this->timeStr = showTime.toString("hh:mm:ss");
     this->showTimelb->setText(timeStr);
+}
 
-    timeTag++;
-    if(timeTag==900)//超过15分钟自动保存
+void MainWindow::limitRecordingTime()
+{
+    timeTag ++;
+    if(timeTag == 900)//超过15分钟自动保存
     {
        timeTag = 0;
        stop_clicked();
@@ -947,9 +1054,10 @@ void MainWindow::mainWindow_page2()
 
     slider->setOrientation(Qt::Horizontal);
     slider->setValue(myThread->soundVolume);
-    voiceBtn->setIcon(QIcon::fromTheme("audio-volume-medium"));
     voiceBtn->setProperty("isWindowButton", 0x1);
     voiceBtn->setProperty("useIconHighlightEffect", 0x2);
+    voiceBtn->setIconSize(QSize(24,24));//重置图标大小
+    voiceBtn->setFixedSize(22,18);
     voiceBtn->setAutoRaise(true);
     play_pauseButton->setIconSize(QSize(56,56));//重置图标大小
     play_pauseButton->setEnabled(true);//按下后，开始录音可以按暂停
@@ -979,12 +1087,12 @@ void MainWindow::mainWindow_page2()
                                   "QToolButton:hover{image: url(:/svg/svg/finish-hover.svg);}"
                                   "QToolButton:pressed{image: url(:/svg/svg/finish-click.svg);}");
     }
-    stop=true;
+    stop=true;//stop按钮默认是true代表停止中
 
     stopButton->setIconSize(QSize(56,56));//重置图标大小
     showTimelb->setText("00:00:00");
     showTimelb->setStyleSheet("font: bold; font-size:18px;");
-    voiceBtn->setFixedSize(22,18);
+
 
     showTimelbLayout->addWidget(showTimelb,0,Qt::AlignCenter);//在布局的中央
     showTimelbWid->setLayout(showTimelbLayout);
@@ -1042,16 +1150,17 @@ void MainWindow::switchPage()
 //            break;
 //        }
 //    }
-    if(!isplaying)//判断是否有音频在播放，若有音频播放则阻止录音
+    if(!isplaying)//判断是否有音频在播放，若无音频播放则可以录音
     {
+        isRecording = true;//正在录音时此标记为true，此为true时悬浮特效被禁止,这一行一定要在前面
         emit startRecord();
-//        emit recordingSignal(true);//发送一个录音的信号表明正在录音
         mainWindow_page2();//必须加
         //刚开始点击按钮时才可以开启定时器
-        MainWindow::mutual->pTimer->start(1000);
-        MainWindow::mutual->baseTime = MainWindow::mutual->baseTime.currentTime();
-        MainWindow::mutual->mini.baseTime = MainWindow::mutual->mini.baseTime.currentTime();
-        MainWindow::mutual->mini.pTimer->start(1000);
+        limitTimer->start(1000);//开始记录录音时长
+        pTimer->start(100);
+        baseTime = baseTime.currentTime();
+        mini.baseTime = mini.baseTime.currentTime();
+        mini.pTimer->start(100);
 
         int nCount = m_pStackedWidget->count();
         int nIndex = m_pStackedWidget->currentIndex();
@@ -1062,11 +1171,12 @@ void MainWindow::switchPage()
             nIndex = 0;
         mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
         m_pStackedWidget->setCurrentIndex(nIndex);
-        isRecording = true;//正在录音时此标记为true，此为true时悬浮特效被禁止
+
         menumodule->menuButton->setEnabled(false);
     }
     else
     {
+
         WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
                                  ,tr("There is audio playing, please stop after recording!"),QMessageBox::Yes );
         WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
@@ -1104,24 +1214,23 @@ void MainWindow::goset()
 
 }
 
-void MainWindow::handlingSlot(bool isOk)
-{
-    WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Transcoding..."), QMessageBox::Yes );
-    WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-    WrrMsg->exec();
-}
-
 void MainWindow::slotListItemAdd(QString fileName,int i)
 {
     qDebug()<<"更新";
-    itemswindow = new ItemsWindow(this);
-//    ItemsWindow *itemswindow = new ItemsWindow(this);//初始化Item录音文件类必须加this,
-                                                     //因为后期要判断子类的子控件
+    itemswindow = new ItemsWindow(this);//初始化Item录音文件类必须加this,
+                                        //因为后期要判断子类的子控件
+//    ItemsWindow *itemswindow = new ItemsWindow(this);
     itemswindow->listNum->setText(tr("recorder")+QString::number(i));
     //添加当前录音文件的文件名(以时间命名)
     itemswindow->recordFileName->setText(fileName.split("/").last());
-    //添加当前录音文件的时长
-    itemswindow->timelengthlb->setText(playerTotalTime(fileName));
+    //添加当前录音文件的时长,要判断一下是按了停止按钮还是应用重启时的刷新
+    if(isFirstRun){
+        //首次
+        itemswindow->timelengthlb->setText(playerTotalTime(fileName));
+    }else{
+        //非首次:根据showTimelb设置timelengthlb显示的内容
+        itemswindow->timelengthlb->setText(showTimelb->text());
+    }
     QListWidgetItem *aItem = new QListWidgetItem(list);//添加自定义的item
     list->setItemWidget(aItem,itemswindow->clipperstackWid);
     //list->addItem(aItem);
@@ -1129,6 +1238,8 @@ void MainWindow::slotListItemAdd(QString fileName,int i)
     isFileNull(list->count());//item个数从0开始增加时文件列表不应该显示"文件列表空"的字样
 
 }
+
+
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
