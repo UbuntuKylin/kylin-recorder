@@ -113,7 +113,8 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     MyThread *myThread;//子线程
     MiniWindow mini;
     static MainWindow *mutual;//！！！指针类型静态成员变量
-    bool strat_pause=false;//开始和暂停1
+    bool strat_pause = false;//开始和暂停1
+//    bool limitTag = true;//显示录音时间的标记
     QStackedWidget *m_pStackedWidget;//堆叠布局
 
     QLabel *lb;
@@ -147,6 +148,8 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     int now=0;
     QTimer *pTimer;//1
     QTime baseTime;//1
+    QTimer *limitTimer;//设置时间,此定时器为限制录音时长所用目前规定只允许录制不超过15分钟的录音.
+
     QWidget *titleRightWid;//右标题栏Wid
     QWidget *mainWid;
 
@@ -306,6 +309,8 @@ public slots:
     void onPrepareForShutdown(bool Shutdown);//S3  S4策略
 
     void inputDevice_get(QString str);
+
+    void limitRecordingTime();
 
 };
 

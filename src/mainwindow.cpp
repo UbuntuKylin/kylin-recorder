@@ -157,6 +157,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     //第二个页面的控件初始化
     pTimer = new QTimer;//定时器,用来记录
+    limitTimer = new QTimer;//设置定时器为限制录音时长所用目前规定只允许录制不超过15分钟的录音.
+
     showTimelb = new QLabel(this);
     voiceBtn = new QToolButton(this);
 
@@ -179,8 +181,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     //线程的使用
-    myThread=new MyThread;//子线程
-    thread=new QThread;//主线程
+    myThread = new MyThread;//子线程
+    thread = new QThread;//主线程
     //开始时也要把数组都初始化为0，2020.11.12先隐藏此功能
     for(int i=0;i<INIT_MAINWINDOW_RECTANGLE_COUNT;i++)
     {
@@ -195,6 +197,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this,    &MainWindow::pauseRecord, myThread, &MyThread::pauseRecord);
 
     connect(pTimer,       &QTimer::timeout,         this,  &MainWindow::updateDisplay);
+    connect(limitTimer,   &QTimer::timeout,         this,  &MainWindow::limitRecordingTime);
     connect(slider,    SIGNAL(valueChanged(int)),myThread, SLOT(OnSliderValueChanged(int)));
     connect(stopButton,&QToolButton::clicked,       this,  &MainWindow::stop_clicked);
     connect(play_pauseButton,&QToolButton::clicked, this,  &MainWindow::play_pause_clicked);
@@ -258,7 +261,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     playerCompoment = new QMediaPlayer;//播放组件
     playList = new QMediaPlaylist;//播放列表
-        tipWindow = new TipWindow();
+    tipWindow = new TipWindow();
 
 
 
@@ -882,7 +885,6 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 
 void MainWindow::miniShow()
 {
-
     mini.miniWid->showNormal();
     mainWid->hide();
 }
@@ -894,17 +896,17 @@ void MainWindow::play_pause_clicked()
     if(strat_pause)
     {
        emit playRecord();
-       menumodule->menuButton->setEnabled(false);
+       menumodule -> menuButton->setEnabled(false);
        isRecording = true;//开始时正在录音的标记值为true,其为true时禁止Item的悬浮特效
        cut = QTime::currentTime();//记录开始时的时间
        int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
-
+       limitTimer->start(1000);
        baseTime = baseTime.addSecs(t);
-       pTimer->start(1000);
-       mini.baseTime= mini.baseTime.addSecs(t);
-       mini.pTimer->start(1000);
-       mini.start_pause= false;
-       strat_pause=false;
+       pTimer->start(100);
+       mini.baseTime = mini.baseTime.addSecs(t);
+       mini.pTimer->start(100);
+       mini.start_pause = false;
+       strat_pause = false;
        if(themeData->get("style-name").toString() == "ukui-dark"||themeData->get("style-name").toString() == "ukui-black")
        {
            mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-dark.svg);}"
@@ -931,6 +933,7 @@ void MainWindow::play_pause_clicked()
         qDebug()<<"pause";
         emit pauseRecord();
         isRecording = false;//暂停时正在录音的标记值为false,其为false时Item的悬浮特效可以被开启
+        limitTimer->stop();
         pTimer->stop();
         mini.pTimer->stop();
         //mini.pTimer->stop();
@@ -957,8 +960,6 @@ void MainWindow::play_pause_clicked()
                         "QToolButton:hover{image: url(:/svg/svg/continue-hover.svg);}"
                         "QToolButton:pressed{image: url(:/svg/svg/continue-click.svg);}");
         }
-
-
     }
 
 }
@@ -977,6 +978,7 @@ void MainWindow::stop_clicked()//停止按钮
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
         menumodule->menuButton->setEnabled(true);
+        limitTimer->stop();//停止记录录音时间
         pTimer->stop();//计时停止
         mini.pTimer->stop();
         emit stopRecord();
@@ -1012,6 +1014,7 @@ void MainWindow::stop_clicked()//停止按钮
         stop=false;
         m_pStackedWidget->setCurrentIndex(0);
         mini.recordStackedWidget->setCurrentIndex(0);
+        timeTag = 0;//只有在停止时让计时归零
     }
 
 }
@@ -1032,9 +1035,12 @@ void MainWindow::updateDisplay()
     showTime = showTime.addSecs(t);
     this->timeStr = showTime.toString("hh:mm:ss");
     this->showTimelb->setText(timeStr);
+}
 
-    timeTag++;
-    if(timeTag==900)//超过15分钟自动保存
+void MainWindow::limitRecordingTime()
+{
+    timeTag ++;
+    if(timeTag == 900)//超过15分钟自动保存
     {
        timeTag = 0;
        stop_clicked();
@@ -1144,16 +1150,17 @@ void MainWindow::switchPage()
 //            break;
 //        }
 //    }
-    if(!isplaying)//判断是否有音频在播放，若有音频播放则阻止录音
+    if(!isplaying)//判断是否有音频在播放，若无音频播放则可以录音
     {
+        isRecording = true;//正在录音时此标记为true，此为true时悬浮特效被禁止,这一行一定要在前面
         emit startRecord();
-//        emit recordingSignal(true);//发送一个录音的信号表明正在录音
         mainWindow_page2();//必须加
         //刚开始点击按钮时才可以开启定时器
-        MainWindow::mutual->pTimer->start(1000);
-        MainWindow::mutual->baseTime = MainWindow::mutual->baseTime.currentTime();
-        MainWindow::mutual->mini.baseTime = MainWindow::mutual->mini.baseTime.currentTime();
-        MainWindow::mutual->mini.pTimer->start(1000);
+        limitTimer->start(1000);//开始记录录音时长
+        pTimer->start(100);
+        baseTime = baseTime.currentTime();
+        mini.baseTime = mini.baseTime.currentTime();
+        mini.pTimer->start(100);
 
         int nCount = m_pStackedWidget->count();
         int nIndex = m_pStackedWidget->currentIndex();
@@ -1164,11 +1171,12 @@ void MainWindow::switchPage()
             nIndex = 0;
         mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
         m_pStackedWidget->setCurrentIndex(nIndex);
-        isRecording = true;//正在录音时此标记为true，此为true时悬浮特效被禁止
+
         menumodule->menuButton->setEnabled(false);
     }
     else
     {
+
         WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
                                  ,tr("There is audio playing, please stop after recording!"),QMessageBox::Yes );
         WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));

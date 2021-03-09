@@ -1,3 +1,11 @@
+kylin-recorder (1.2.23kord~rc11) v101; urgency=high
+
+  * 修复bug41447：点击开始录音后，大概卡顿两秒后才开始录音
+  * 修复bug41442：在主界面点击录音图标后，鼠标悬浮文件列表某一文件，录音开始后，此文件一直为被选中状态
+  * 修复bug41589：开始录音时，连续点击暂停按钮，进度条不能正常进行
+
+ -- baijincheng <baijincheng@kylinos.cn>  Tue, 9 Mar 2021 15:27:00 +0800s
+
 kylin-recorder (1.2.23kord~rc10) v101; urgency=high
 
   * 修复bug41693：长时间录音（10分钟以上），点击停止录音，弹出弹窗点击确定，连续多次点击停止录音，麒麟录音闪退

@@ -203,7 +203,6 @@ void MyThread::audioConversionFinish(int isOk,QProcess::ExitStatus)
 void MyThread::record_pressed()
 {
     qDebug()<<"开始录音:";
-
     //开始前，count先从0开始
     count=0;
     my_time->start(150);//每隔xms检测一次，波形图缓慢刷新，这行代码一定在前面

@@ -173,9 +173,6 @@ private:
 
 private:
 
-
-
-
     void initRectangleWave();//停止录音后再生成110个矩形框,防止多次初始化造成cpu占用率过高
     void deleteWaves();
 
@@ -196,7 +193,7 @@ private:
     void judgeState(enum QMediaPlayer::State,QString path);//判断播放状态
     void listFileNumUpdate(int num);
 
-
+    void hover_ChangeState(QEvent *event);
     QPoint pressPoint;
 
 signals:
