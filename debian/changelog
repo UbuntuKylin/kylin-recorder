@@ -1,3 +1,18 @@
+kylin-recorder (1.2.23kord~rc13) v101; urgency=high
+
+  * 修复bug42881：改变系统字号，文件列表时长跟随变化了，但功能菜单下拉列表没有跟随变化
+  * 修复bug42574：根据用户手册，设置中缺少m4a格式
+  * 修复bug41587：多个录音文件，连续删除时，删除1-2个文件后会有一个1~3s的卡顿
+  * 修复bug36574：连接蓝牙耳机无法录制音频
+
+ -- baijincheng <baijincheng@kylinos.cn>  Tue, 16 Mar 2021 12:05:00 +0800
+
+kylin-recorder (1.2.23kord~rc12) v101; urgency=high
+
+  * 修复bug40381：文件列表第7个文件显示一半
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 11 Mar 2021 21:27:00 +0800
+
 kylin-recorder (1.2.23kord~rc11) v101; urgency=high
 
   * 修复bug41447：点击开始录音后，大概卡顿两秒后才开始录音

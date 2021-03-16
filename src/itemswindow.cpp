@@ -106,6 +106,7 @@ void ItemsWindow::setItemWid()//设置ItemWid的界面
     recordFileName->setStyleSheet("font-size:14px;");//录音文件名
     testlb->setText(" ");
     timelengthlb->setText("00:00:00");
+    timelengthlb->setStyleSheet("font-size : 14px");
     itemPlay_PauseButton->setFixedSize(32,32);
     itemPlay_PauseButton->setToolTip(tr("play/pause"));
 

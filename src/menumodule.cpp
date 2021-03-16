@@ -24,19 +24,19 @@ void menuModule::initAction(){
     QList<QAction *> actions ;
     QAction *actionSetting = new QAction(m_menu);
     actionSetting->setText(tr("Setting"));
-    actionSetting->setFont(ft);
+//    actionSetting->setFont(ft);
     QAction *actionTheme = new QAction(m_menu);
     actionTheme->setText(tr("Theme"));
     actionTheme->setFont(ft);
     QAction *actionHelp = new QAction(m_menu);
     actionHelp->setText(tr("Help"));
-    actionHelp->setFont(ft);
+//    actionHelp->setFont(ft);
     QAction *actionAbout = new QAction(m_menu);
     actionAbout->setText(tr("About"));
-    actionAbout->setFont(ft);
+//    actionAbout->setFont(ft);
     QAction *actionQuit = new QAction(m_menu);
     actionQuit->setText(tr("Quit"));
-    actionQuit->setFont(ft);
+//    actionQuit->setFont(ft);
     actions<<actionSetting/*<<actionTheme*/<<actionHelp<<actionAbout<<actionQuit;//暂时禁掉主题切换按钮
     m_menu->addActions(actions);
 //    互斥按钮组

@@ -44,15 +44,12 @@ MainWindow::MainWindow(QWidget *parent)
     // 用户手册功能
     mDaemonIpcDbus = new DaemonDbus();
 
-
     int WIDTH = 800 ;
     int HEIGHT = 460 ;
 
     mainWid = new QWidget();//主wid
 //    mainWid->grabKeyboard();
     mainWid->installEventFilter(this);
-
-
 
     MotifWmHints hints;
     hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
@@ -249,7 +246,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     fileListLayout->addWidget(fileListlb);
-    fileListLayout->setContentsMargins(31,0,0,0);
+    fileListLayout->setContentsMargins(31,0,0,10);//31,0,0,0改为31,0,0,10即不多不少显示6个
     fileListWid->setLayout(fileListLayout);
 
     listLayout->addWidget(fileListWid);
@@ -329,7 +326,7 @@ void MainWindow::onPrepareForSleep(bool isSleep)
     //空指针检验
     //------此处空指针校验（如果用了指针）------
     //系统事件
-    if(isSleep)
+    if(isSleep)//睡眠分支
     {
         if(isRecording)
         {
@@ -338,21 +335,16 @@ void MainWindow::onPrepareForSleep(bool isSleep)
         }
 
     }
-    else
+    else//唤醒分支
     {
-        if(isRecording)
+        if(!isRecording)//如果没有录音则走此分支
         {
-            play_pause_clicked();//检测到唤醒时要开始录制
-            qDebug()<<"唤醒！！！";
-        }
-        else
-        {
-            //一种情况是压根就没开始录制他就睡眠了。因此就不会做其他事情
-            if(strat_pause)
+            if(strat_pause)//因为暂停录音时strat_pause会置true
             {
                 play_pause_clicked();//检测到唤醒时要开始录制
+                qDebug()<<"唤醒！！！";
             }
-
+            //一种情况是压根就没开始录制他就睡眠了。因此就不会做其他事情
         }
 
 
