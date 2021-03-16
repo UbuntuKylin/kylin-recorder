@@ -183,7 +183,7 @@ void menuModule::initAbout(){
     XAtomHelper::getInstance()->setWindowMotifHint(aboutWindow->winId(), hints);
 
     aboutWindow->setAttribute(Qt::WA_ShowModal, true);//模态窗口
-    aboutWindow->setFixedSize(420,324);
+    aboutWindow->setFixedSize(420,400);
     aboutWindow->setMinimumHeight(324);
     mainlyt->setMargin(0);
     mainlyt->addLayout(titleLyt);
@@ -261,6 +261,14 @@ QVBoxLayout* menuModule::initBody(){
     bodySupport->setContextMenuPolicy(Qt::NoContextMenu);//此行为禁用链接右键点击弹出的复制链接的功能
     bodySupport->setFixedHeight(24);
     bodySupport->setStyleSheet("font-size:14px;");
+    SoftWare_Introducelb = new QLabel();
+    SoftWare_Introducelb->setFixedWidth(380);
+    SoftWare_Introducelb->setStyleSheet("font-size:14px;");
+    SoftWare_Introducelb->setText(tr("The UI is friendly and easy to operate. "
+                                     "It supports MP3 and WAV audio formats"
+                                     " by microphone, playing and deleting in file list,"
+                                     " and switching between Mini mode and Night mode"));
+    SoftWare_Introducelb->setWordWrap(true);
     QVBoxLayout *vlyt = new QVBoxLayout;
     vlyt->setMargin(0);
     vlyt->setSpacing(0);
@@ -270,6 +278,8 @@ QVBoxLayout* menuModule::initBody(){
     vlyt->addWidget(bodyAppName,0,Qt::AlignHCenter);
     vlyt->addSpacing(12);
     vlyt->addWidget(bodyAppVersion,0,Qt::AlignHCenter);
+    vlyt->addSpacing(12);
+    vlyt->addWidget(SoftWare_Introducelb,0,Qt::AlignHCenter);
     vlyt->addSpacing(12);
     vlyt->addWidget(bodySupport,0,Qt::AlignHCenter);
     vlyt->addStretch();

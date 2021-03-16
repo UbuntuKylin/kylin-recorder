@@ -193,18 +193,6 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
 //    this->setAttribute(Qt::WA_TranslucentBackground);//窗体透明
 //    this->setStyleSheet("border-radius:6px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
-
-    if(darkData->get("style-name").toString()=="ukui-dark"||darkData->get("style-name").toString() == "ukui-black")
-    {
-        closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
-        lineEdit->setStyleSheet("background-color:rgba(255,255,255,0.06);height:36px;border-radius: 6px;");
-
-    }
-    else
-    {
-        closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
-    }
-
     if(Data->get("savedefault").toInt()==1)
     {
         radioButton->setChecked(1);

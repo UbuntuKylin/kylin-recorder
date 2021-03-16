@@ -320,6 +320,7 @@ void MainWindow::onPrepareForShutdown(bool Shutdown)
     qDebug()<<"onPrepareForShutdown"<<Shutdown;
 }
 
+//监听系统睡眠信号
 void MainWindow::onPrepareForSleep(bool isSleep)
 {
     //990
@@ -333,7 +334,6 @@ void MainWindow::onPrepareForSleep(bool isSleep)
             play_pause_clicked();//检测到睡眠时要暂停录制
             qDebug()<<"睡眠！！！";
         }
-
     }
     else//唤醒分支
     {
@@ -346,8 +346,6 @@ void MainWindow::onPrepareForSleep(bool isSleep)
             }
             //一种情况是压根就没开始录制他就睡眠了。因此就不会做其他事情
         }
-
-
     }
 }
 
@@ -381,7 +379,6 @@ void MainWindow::closeWindow()
         thread->wait();
         mainWid->close();
         mini.miniWid->close();
-
     }
 
 }
@@ -526,7 +523,6 @@ void MainWindow::themeWindow(QString themeColor)
                                     border-top-left-radius:0px;\
                                     border-bottom-left-radius:0px;}");
         recordButtonWid->setStyleSheet("background-color:#222222;");
-        set.closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
 //        itemswindow->setStyleSheet("background-color:#222222;");//后期适配主题颜s;
 
     }
@@ -556,9 +552,6 @@ void MainWindow::themeWindow(QString themeColor)
         mainWid->setObjectName("mainWid");//设置命名空间
         mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
         recordButtonWid->setStyleSheet("background-color:#FFFFFF;opacity:0.1;");
-        set.closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
-
-
     }
 }
 void MainWindow::themeButton(QString themeColor)
