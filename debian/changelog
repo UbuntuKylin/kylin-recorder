@@ -1,3 +1,10 @@
+kylin-recorder (1.2.23kord~rc15) v101; urgency=high
+
+  * 修复bug42578：点击迷你模式后点击还原，窗口是最小化在任务栏，不是还原到正常窗口
+  * 修复bug32962：点击“迷你”后再点击“还原”按钮，概率性出现最小化到任务栏
+
+ -- baijincheng <baijincheng@kylinos.cn>  Wed, 17 Mar 2021 16:13:00 +0800
+
 kylin-recorder (1.2.23kord~rc14) v101; urgency=high
 
   * 修复bug42481：关于中没有软件功能的描述

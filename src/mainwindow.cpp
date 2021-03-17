@@ -510,7 +510,7 @@ void MainWindow::themeWindow(QString themeColor)
                                    "border-bottom-right-radius:0px;");
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{background-color:#141414;}");//自定义窗体(圆角+背景色)
+        mainWid->setStyleSheet(".QWidget{background-color:#141414;}");//自定义窗体(圆角+背景色)
         //mini主界面
         mini.miniWid->setStyleSheet(".Widget{background-color:#222222;}");//后期适配主题颜s;
 
@@ -550,7 +550,7 @@ void MainWindow::themeWindow(QString themeColor)
         //设置界面
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
+        mainWid->setStyleSheet(".QWidget{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
         recordButtonWid->setStyleSheet("background-color:#FFFFFF;opacity:0.1;");
     }
 }
@@ -1138,6 +1138,8 @@ void MainWindow::switchPage()
     if(!isplaying)//判断是否有音频在播放，若无音频播放则可以录音
     {
         isRecording = true;//正在录音时此标记为true，此为true时悬浮特效被禁止,这一行一定要在前面
+        m_pStackedWidget->setCurrentIndex(1);
+        mini.recordStackedWidget->setCurrentIndex(1);//切换至录音按钮
         emit startRecord();
         mainWindow_page2();//必须加
         //刚开始点击按钮时才可以开启定时器
@@ -1147,15 +1149,16 @@ void MainWindow::switchPage()
         mini.baseTime = mini.baseTime.currentTime();
         mini.pTimer->start(100);
 
-        int nCount = m_pStackedWidget->count();
-        int nIndex = m_pStackedWidget->currentIndex();
-        // 获取下一个需要显示的页面索引
-        nIndex++;
-        // 当需要显示的页面索引大于等于总页面时，切换至首页
-        if (nIndex >= nCount)
-            nIndex = 0;
-        mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
-        m_pStackedWidget->setCurrentIndex(nIndex);
+//        int nCount = m_pStackedWidget->count();
+//        int nIndex = m_pStackedWidget->currentIndex();
+//        // 获取下一个需要显示的页面索引
+//        nIndex++;
+//        // 当需要显示的页面索引大于等于总页面时，切换至首页
+//        if (nIndex >= nCount)
+//            nIndex = 0;
+//        mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
+//        m_pStackedWidget->setCurrentIndex(nIndex);
+
 
         menumodule->menuButton->setEnabled(false);
     }
@@ -1195,8 +1198,6 @@ void MainWindow::goset()
 {
     set.mainWid->show();
     set.mainWid->move(mainWid->geometry().center() - set.mainWid->rect().center());
-
-
 }
 
 void MainWindow::slotListItemAdd(QString fileName,int i)

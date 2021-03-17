@@ -206,7 +206,7 @@ bool MiniWindow::eventFilter(QObject *obj, QEvent *event)
 void MiniWindow::normalShow()
 {
 
-    MainWindow::mutual->mainWid->showNormal();
+    MainWindow::mutual->mainWid->showMaximized();
     miniWid->hide();
     
 }
