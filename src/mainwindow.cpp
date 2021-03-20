@@ -255,12 +255,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     listWid->setLayout(listLayout);
 
-
     playerCompoment = new QMediaPlayer;//播放组件
     playList = new QMediaPlaylist;//播放列表
     tipWindow = new TipWindow();
-
-
 
     MainWindowLayout();//主窗体布局方法
     initThemeGsetting();//初始化主题配置文件

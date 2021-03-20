@@ -717,7 +717,6 @@ void MyThread::InitMonitor()
     int i=recordData->get("source").toInt();
     monitorVoiceSource(i);
 
-
     connect(inputDevSound, SIGNAL(readyRead()),this,SLOT(OnReadMore()));
 
 }
@@ -726,11 +725,11 @@ QAudioDeviceInfo MyThread::monitorVoiceSource(int i)
 {
     qDebug()<<"配置文件中的值(1.全部2.内部3.麦克风)"<<i;
     QStringList deviceList;
-    for( QAudioDeviceInfo &deviceInfo: QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
-    {
-        deviceList += deviceInfo.deviceName();
-//         qDebug()<<"当前输入设备:"<<deviceInfo.deviceName()<<mFormatSound;//可以判断当前输入设备
-    }
+//    for( QAudioDeviceInfo &deviceInfo: QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
+//    {
+//        deviceList += deviceInfo.deviceName();
+////         qDebug()<<"当前输入设备:"<<deviceInfo.deviceName()<<mFormatSound;//可以判断当前输入设备
+//    }
     if(i==2)//系统内部
     {
         //当录制系统内部声音时吊用此方法
@@ -808,7 +807,7 @@ void MyThread::OnReadMore()
     qint64 l = inputDevSound->read(_Buffer.data(), len);
     if(l <= 0) return;
         short* tempData = (short*)_Buffer.data();
-        outdata=tempData;
+        outdata = tempData;
         MaxValue = 0;
         for (int i=0; i<len;i++ )
         {
@@ -873,7 +872,7 @@ QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时�
     QStringList listAmplitude = recordData->get("amplitude").toString().split(";");//波形图配置文件;
     if (keyList.contains("recorderpath"))
     {
-        int  m=readNumList();
+        int m=readNumList();
         qDebug()<<"这时的数量:"<<m;
         qDebug()<<filePath;
         for(int i=1;i<m;i++)

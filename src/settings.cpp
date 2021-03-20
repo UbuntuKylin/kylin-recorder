@@ -165,16 +165,16 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     pg->addWidget(label_4,3,0,1,2);
     //        pg->addWidget(radioButton_3,3,2,1,1);
     //        pg->addWidget(label_5,3,3,1,1);
-    //        pg->addWidget(radioButton_4,3,4,1,1);//系统内部解封后改为3,4,1,1
-    //        pg->addWidget(label_6,3,5,1,1);//系统内部解封后改为3,5,1,1
+    //        pg->addWidget(radioButton_4,3,4,1,1);//系统内部声音解封后改为3,4,1,1
+    //        pg->addWidget(label_6,3,5,1,1);//系统内部声音解封后改为3,5,1,1
     pg->addWidget(radioButton_5,3,2,1,1);//解封后改为3611
     pg->addWidget(label_7,3,3,1,1);//解封后改为3711
     pg->addWidget(label_8,4,0,1,2);
     pg->addWidget(radioButton_6,4,2,1,1);//mp3
     pg->addWidget(label_9,4,3,1,1);
     label_9->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-//    pg->addWidget(radioButton_7,4,4,1,1);//M4a格式
-//    pg->addWidget(label_10,4,5,1,1);
+    pg->addWidget(radioButton_7,4,4,1,1);//M4a格式
+    pg->addWidget(label_10,4,5,1,1);
     label_10->setAlignment(Qt::AlignLeft|Qt::AlignTop);
     pg->addWidget(radioButton_8,4,6,1,1);//wav,后期改为4611
     pg->addWidget(label_11,4,7,1,1);//后期改为4711
