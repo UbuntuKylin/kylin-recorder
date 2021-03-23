@@ -166,6 +166,8 @@ private:
 
     int timeTag = 0;
 
+    qint64 real_time ;
+
     QList<int> maxNum;//存储振幅的大小的整型列表
     bool stop=false;//停止
     bool isFirstRun = true;

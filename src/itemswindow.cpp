@@ -814,9 +814,10 @@ void ItemsWindow::delFile()
                     MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-x);//删除操作
                     qDebug()<<"**********路径存在，删除第"<<i<<"个"<<str;
                     MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
-                    QString Home_path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-                                        strResult1 = executeLinuxCmd("mv " + str + ' '+Home_path+"/.local/share/Trash/files");
-                    QFile::remove(str);//从本地删除
+//                    QString Home_path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+//                                        strResult1 = executeLinuxCmd("mv " + str + ' '+Home_path+"/.local/share/Trash/files");
+//                    QFile::remove(str);//从本地删除
+                     deleteImage(str);//移入回收站
                 }
                 else
                 {
@@ -841,6 +842,21 @@ void ItemsWindow::delFile()
     listFileNumUpdate(MainWindow::mutual->list->count());
     myth->deleteLater();
     return ;
+}
+
+void ItemsWindow::deleteImage(const QString &savepath)
+{
+    _processStart("gio",QStringList() << "trash" << savepath);
+}
+
+void ItemsWindow::_processStart(const QString &cmd, QStringList arguments)
+{
+    QString cmdTmp = cmd;
+    for(QString &x : arguments){
+        cmdTmp += " ";
+        cmdTmp += x;
+    }
+    system(cmdTmp.toLocal8Bit().data());
 }
 
 QString ItemsWindow::executeLinuxCmd(QString strCmd)

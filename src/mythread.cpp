@@ -123,7 +123,7 @@ qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
     qint64 nFileLen = cacheFile.bytesAvailable();
     QByteArray ba = cacheFile.readAll();
 
-        qDebug() <<"缓存长度:"<<ba.size()<< nFileLen ;
+    qDebug() <<"缓存长度:"<<ba.size()<< nFileLen ;
     //ffmpeg -y -f s16le -ar 16k -ac 1 -i input.raw output.mp3//ffmpeg命令真香
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
    // code->fromUnicode(catheFileName).data();
@@ -676,8 +676,6 @@ void MyThread::pauseRecord()//暂停录制
 {
     audioInputFile->stop();
     audioInputSound->stop();
-
-
 }
 
 void MyThread::playRecord()//开始录制

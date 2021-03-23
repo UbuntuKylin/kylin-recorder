@@ -444,7 +444,7 @@ void MainWindow::MainWindowLayout()
     recordButtonLayout->addWidget(recordButton,0,Qt::AlignCenter);//录音按钮所在Wid
 
     recordButtonWid->setLayout(recordButtonLayout);
-    recordButtonWid->setFixedHeight(250);//必须这么写为了让m_pStackedWidget在垂直距离的中间
+    recordButtonWid->setFixedHeight(210);//必须这么写为了让m_pStackedWidget在垂直距离的中间
 
     m_pStackedWidget->addWidget(recordButtonWid);
     m_pStackedWidget->addWidget(ui_2Wid);
@@ -729,7 +729,6 @@ QString MainWindow::playerTotalTime(QString filePath)
         file.close();
         return timeStr;
     }
-
 
 }
 
@@ -1016,15 +1015,16 @@ void MainWindow::updateDisplay()
     QTime showTime(0,0,0);
     showTime = showTime.addSecs(t);
     this->timeStr = showTime.toString("hh:mm:ss");
+//    qDebug()<<"秒："<<showTime.second();
+    timeTag = showTime.minute();
     this->showTimelb->setText(timeStr);
 }
 
 void MainWindow::limitRecordingTime()
 {
-    timeTag ++;
-    if(timeTag == 900)//超过15分钟自动保存
+    qDebug()<<"查看计数:"<<timeTag;
+    if(timeTag >= 15)//超过15分钟自动保存
     {
-       timeTag = 0;
        stop_clicked();
     }
 }
@@ -1103,7 +1103,7 @@ void MainWindow::mainWindow_page2()
 
     ui_2Layout->addWidget(showTimelbWid);
     ui_2Layout->addWidget(waveWid);
-    ui_2Layout->addWidget(voiceAndSliderWid);
+//    ui_2Layout->addWidget(voiceAndSliderWid);
     ui_2Layout->addWidget(controlPlay_PauseWid);
 
     ui_2Wid->setLayout(ui_2Layout);
