@@ -45,6 +45,7 @@ public:
     QString confPath = "org.kylin-recorder-data.settings";
     QFont ft;
     QLabel* bodySupport;
+    QLabel *SoftWare_Introducelb;//根据宽度自动适应换行
 
     QGSettings *m_pGsettingThemeStatus = nullptr;
     QWidget *aboutWindow = nullptr;

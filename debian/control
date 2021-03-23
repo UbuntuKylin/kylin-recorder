@@ -25,6 +25,7 @@ Package: kylin-recorder
 Architecture: any
 Depends: libburner-media3-1,
          gstreamer1.0-plugins-good,
+         gstreamer1.0-plugins-bad,
          gstreamer1.0-pulseaudio,
          ${shlibs:Depends}, 
 		 ${misc:Depends}

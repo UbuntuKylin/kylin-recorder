@@ -44,15 +44,12 @@ MainWindow::MainWindow(QWidget *parent)
     // 用户手册功能
     mDaemonIpcDbus = new DaemonDbus();
 
-
     int WIDTH = 800 ;
     int HEIGHT = 460 ;
 
     mainWid = new QWidget();//主wid
 //    mainWid->grabKeyboard();
     mainWid->installEventFilter(this);
-
-
 
     MotifWmHints hints;
     hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
@@ -249,7 +246,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 
     fileListLayout->addWidget(fileListlb);
-    fileListLayout->setContentsMargins(31,0,0,0);
+    fileListLayout->setContentsMargins(31,0,0,10);//31,0,0,0改为31,0,0,10即不多不少显示6个
     fileListWid->setLayout(fileListLayout);
 
     listLayout->addWidget(fileListWid);
@@ -258,12 +255,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     listWid->setLayout(listLayout);
 
-
     playerCompoment = new QMediaPlayer;//播放组件
     playList = new QMediaPlaylist;//播放列表
     tipWindow = new TipWindow();
-
-
 
     MainWindowLayout();//主窗体布局方法
     initThemeGsetting();//初始化主题配置文件
@@ -323,39 +317,32 @@ void MainWindow::onPrepareForShutdown(bool Shutdown)
     qDebug()<<"onPrepareForShutdown"<<Shutdown;
 }
 
+//监听系统睡眠信号
 void MainWindow::onPrepareForSleep(bool isSleep)
 {
     //990
     //空指针检验
     //------此处空指针校验（如果用了指针）------
     //系统事件
-    if(isSleep)
+    if(isSleep)//睡眠分支
     {
         if(isRecording)
         {
             play_pause_clicked();//检测到睡眠时要暂停录制
             qDebug()<<"睡眠！！！";
         }
-
     }
-    else
+    else//唤醒分支
     {
-        if(isRecording)
+        if(!isRecording)//如果没有录音则走此分支
         {
-            play_pause_clicked();//检测到唤醒时要开始录制
-            qDebug()<<"唤醒！！！";
-        }
-        else
-        {
-            //一种情况是压根就没开始录制他就睡眠了。因此就不会做其他事情
-            if(strat_pause)
+            if(strat_pause)//因为暂停录音时strat_pause会置true
             {
                 play_pause_clicked();//检测到唤醒时要开始录制
+                qDebug()<<"唤醒！！！";
             }
-
+            //一种情况是压根就没开始录制他就睡眠了。因此就不会做其他事情
         }
-
-
     }
 }
 
@@ -389,7 +376,6 @@ void MainWindow::closeWindow()
         thread->wait();
         mainWid->close();
         mini.miniWid->close();
-
     }
 
 }
@@ -521,7 +507,7 @@ void MainWindow::themeWindow(QString themeColor)
                                    "border-bottom-right-radius:0px;");
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{background-color:#141414;}");//自定义窗体(圆角+背景色)
+        mainWid->setStyleSheet(".QWidget{background-color:#141414;}");//自定义窗体(圆角+背景色)
         //mini主界面
         mini.miniWid->setStyleSheet(".Widget{background-color:#222222;}");//后期适配主题颜s;
 
@@ -534,7 +520,6 @@ void MainWindow::themeWindow(QString themeColor)
                                     border-top-left-radius:0px;\
                                     border-bottom-left-radius:0px;}");
         recordButtonWid->setStyleSheet("background-color:#222222;");
-        set.closeButton->setIcon(QIcon(":/svg/svg/dark-window-close.svg"));
 //        itemswindow->setStyleSheet("background-color:#222222;");//后期适配主题颜s;
 
     }
@@ -562,11 +547,8 @@ void MainWindow::themeWindow(QString themeColor)
         //设置界面
         //主界面
         mainWid->setObjectName("mainWid");//设置命名空间
-        mainWid->setStyleSheet("#mainWid{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
+        mainWid->setStyleSheet(".QWidget{background-color:#FFFFFF;}");//自定义窗体(圆角+背景色)
         recordButtonWid->setStyleSheet("background-color:#FFFFFF;opacity:0.1;");
-        set.closeButton->setIcon(QIcon(":/svg/svg/window-close.svg"));
-
-
     }
 }
 void MainWindow::themeButton(QString themeColor)
@@ -1153,6 +1135,8 @@ void MainWindow::switchPage()
     if(!isplaying)//判断是否有音频在播放，若无音频播放则可以录音
     {
         isRecording = true;//正在录音时此标记为true，此为true时悬浮特效被禁止,这一行一定要在前面
+        m_pStackedWidget->setCurrentIndex(1);
+        mini.recordStackedWidget->setCurrentIndex(1);//切换至录音按钮
         emit startRecord();
         mainWindow_page2();//必须加
         //刚开始点击按钮时才可以开启定时器
@@ -1162,15 +1146,16 @@ void MainWindow::switchPage()
         mini.baseTime = mini.baseTime.currentTime();
         mini.pTimer->start(100);
 
-        int nCount = m_pStackedWidget->count();
-        int nIndex = m_pStackedWidget->currentIndex();
-        // 获取下一个需要显示的页面索引
-        nIndex++;
-        // 当需要显示的页面索引大于等于总页面时，切换至首页
-        if (nIndex >= nCount)
-            nIndex = 0;
-        mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
-        m_pStackedWidget->setCurrentIndex(nIndex);
+//        int nCount = m_pStackedWidget->count();
+//        int nIndex = m_pStackedWidget->currentIndex();
+//        // 获取下一个需要显示的页面索引
+//        nIndex++;
+//        // 当需要显示的页面索引大于等于总页面时，切换至首页
+//        if (nIndex >= nCount)
+//            nIndex = 0;
+//        mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
+//        m_pStackedWidget->setCurrentIndex(nIndex);
+
 
         menumodule->menuButton->setEnabled(false);
     }
@@ -1210,8 +1195,6 @@ void MainWindow::goset()
 {
     set.mainWid->show();
     set.mainWid->move(mainWid->geometry().center() - set.mainWid->rect().center());
-
-
 }
 
 void MainWindow::slotListItemAdd(QString fileName,int i)

@@ -24,19 +24,19 @@ void menuModule::initAction(){
     QList<QAction *> actions ;
     QAction *actionSetting = new QAction(m_menu);
     actionSetting->setText(tr("Setting"));
-    actionSetting->setFont(ft);
+//    actionSetting->setFont(ft);
     QAction *actionTheme = new QAction(m_menu);
     actionTheme->setText(tr("Theme"));
     actionTheme->setFont(ft);
     QAction *actionHelp = new QAction(m_menu);
     actionHelp->setText(tr("Help"));
-    actionHelp->setFont(ft);
+//    actionHelp->setFont(ft);
     QAction *actionAbout = new QAction(m_menu);
     actionAbout->setText(tr("About"));
-    actionAbout->setFont(ft);
+//    actionAbout->setFont(ft);
     QAction *actionQuit = new QAction(m_menu);
     actionQuit->setText(tr("Quit"));
-    actionQuit->setFont(ft);
+//    actionQuit->setFont(ft);
     actions<<actionSetting/*<<actionTheme*/<<actionHelp<<actionAbout<<actionQuit;//暂时禁掉主题切换按钮
     m_menu->addActions(actions);
 //    互斥按钮组
@@ -183,7 +183,7 @@ void menuModule::initAbout(){
     XAtomHelper::getInstance()->setWindowMotifHint(aboutWindow->winId(), hints);
 
     aboutWindow->setAttribute(Qt::WA_ShowModal, true);//模态窗口
-    aboutWindow->setFixedSize(420,324);
+    aboutWindow->setFixedSize(420,400);
     aboutWindow->setMinimumHeight(324);
     mainlyt->setMargin(0);
     mainlyt->addLayout(titleLyt);
@@ -261,6 +261,14 @@ QVBoxLayout* menuModule::initBody(){
     bodySupport->setContextMenuPolicy(Qt::NoContextMenu);//此行为禁用链接右键点击弹出的复制链接的功能
     bodySupport->setFixedHeight(24);
     bodySupport->setStyleSheet("font-size:14px;");
+    SoftWare_Introducelb = new QLabel();
+    SoftWare_Introducelb->setFixedWidth(380);
+    SoftWare_Introducelb->setStyleSheet("font-size:14px;");
+    SoftWare_Introducelb->setText(tr("The UI is friendly and easy to operate. "
+                                     "It supports MP3 and WAV audio formats"
+                                     " by microphone, playing and deleting in file list,"
+                                     " and switching between Mini mode and Night mode"));
+    SoftWare_Introducelb->setWordWrap(true);
     QVBoxLayout *vlyt = new QVBoxLayout;
     vlyt->setMargin(0);
     vlyt->setSpacing(0);
@@ -270,6 +278,8 @@ QVBoxLayout* menuModule::initBody(){
     vlyt->addWidget(bodyAppName,0,Qt::AlignHCenter);
     vlyt->addSpacing(12);
     vlyt->addWidget(bodyAppVersion,0,Qt::AlignHCenter);
+    vlyt->addSpacing(12);
+    vlyt->addWidget(SoftWare_Introducelb,0,Qt::AlignHCenter);
     vlyt->addSpacing(12);
     vlyt->addWidget(bodySupport,0,Qt::AlignHCenter);
     vlyt->addStretch();

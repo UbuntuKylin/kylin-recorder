@@ -1,3 +1,38 @@
+kylin-recorder (1.2.23kord~rc16) v101; urgency=high
+
+  * 修复bug43240：用户手册内容与麒麟录音实际情况不符
+  * 修复bug41447：点击开始录音后，大概卡顿两秒后才开始录音
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 18 Mar 2021 16:22:00 +0800
+
+kylin-recorder (1.2.23kord~rc15) v101; urgency=high
+
+  * 修复bug42578：点击迷你模式后点击还原，窗口是最小化在任务栏，不是还原到正常窗口
+  * 修复bug32962：点击“迷你”后再点击“还原”按钮，概率性出现最小化到任务栏
+
+ -- baijincheng <baijincheng@kylinos.cn>  Wed, 17 Mar 2021 16:13:00 +0800
+
+kylin-recorder (1.2.23kord~rc14) v101; urgency=high
+
+  * 修复bug42481：关于中没有软件功能的描述
+
+ -- baijincheng <baijincheng@kylinos.cn>  Tue, 16 Mar 2021 21:54:00 +0800
+
+kylin-recorder (1.2.23kord~rc13) v101; urgency=high
+
+  * 修复bug42881：改变系统字号，文件列表时长跟随变化了，但功能菜单下拉列表没有跟随变化
+  * 修复bug42574：根据用户手册，设置中缺少m4a格式
+  * 修复bug41587：多个录音文件，连续删除时，删除1-2个文件后会有一个1~3s的卡顿
+  * 修复bug36574：连接蓝牙耳机无法录制音频
+
+ -- baijincheng <baijincheng@kylinos.cn>  Tue, 16 Mar 2021 12:05:00 +0800
+
+kylin-recorder (1.2.23kord~rc12) v101; urgency=high
+
+  * 修复bug40381：文件列表第7个文件显示一半
+
+ -- baijincheng <baijincheng@kylinos.cn>  Thu, 11 Mar 2021 21:27:00 +0800
+
 kylin-recorder (1.2.23kord~rc11) v101; urgency=high
 
   * 修复bug41447：点击开始录音后，大概卡顿两秒后才开始录音
