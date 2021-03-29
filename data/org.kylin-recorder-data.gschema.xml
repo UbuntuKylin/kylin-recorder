@@ -1,0 +1,45 @@
+<schemalist gettext-domain="kylin-recorder">
+     <schema id="org.kylin-recorder-data.settings"  path="/org/kylin-recorder/">
+         <key name="recorderpath" type="s" >
+             <default>""</default>
+             <summary>recorderpath</summary>
+             <description>recorderpath</description>
+         </key>
+         <key name="num" type="i" >
+             <default>1</default>
+             <summary>num</summary>
+             <description>num</description>
+         </key>
+         <key name="savedefault" type="i" >
+             <default>0</default>
+             <summary>savedefault</summary>
+             <description>savedefault</description>
+         </key>
+         <key name="type" type="i" >
+             <default>1</default>
+             <summary>type</summary>
+             <description>type</description>
+         </key>
+         <key name="source" type="i" >
+             <default>3</default>
+             <summary>source</summary>
+             <description>source</description>
+         </key>
+         <key name="amplitude" type="s" >
+             <default>""</default>
+             <summary>amplitude</summary>
+             <description>amplitude</description>
+         </key>
+         <key name="samefilenum" type="i" >
+             <default>1</default>
+             <summary>samefilenum</summary>
+             <description>samefilenum</description>
+         </key>
+         <key name="thememode" type="s" >
+             <default>"auto"</default>
+             <summary>thememode</summary>
+             <description>thememode</description>
+         </key>
+
+     </schema>
+</schemalist>
