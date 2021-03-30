@@ -337,6 +337,7 @@ void ItemsWindow::stateChanged(enum QMediaPlayer::State)
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
         setPosition(0);
         emit playingSignal(false);//播放结束才可以点击录音
+        splitLinestackWid->setCurrentIndex(0);//切换至分割线
     }
 
 }
@@ -434,7 +435,7 @@ void ItemsWindow::hover_ChangeState(QEvent *event)
             recordFileNameChangeColor->setStyleSheet("font-size:14px;color:black;");
         }
         stackLayout->setCurrentIndex(0);//切换至录音按钮stackLayout
-        splitLinestackWid->setCurrentIndex(0);//切换至分割线
+//        splitLinestackWid->setCurrentIndex(0);//切换至分割线
     }
 }
 

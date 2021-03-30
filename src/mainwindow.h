@@ -78,7 +78,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.ukui.kylin_recorder")//调用DBus一定要加这一行
 public://放在public都是有原因的因为不同类之间中调用需要公用！！
-    MainWindow(QWidget *parent = 0);
+    MainWindow(QStringList str,QWidget *parent = 0);
     ~MainWindow();
     QMessageBox *WrrMsg;
     QGSettings  *defaultPathData= nullptr;
@@ -139,7 +139,7 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
 
     QString playerTotalTime(QString filePath);
 
-    void checkSingle();//检查单例模式
+    void checkSingle(QStringList path);//检查单例模式
     int itemSelect=0;
     void isFileNull(int n);//检查文件列表是否为空
 
@@ -257,8 +257,12 @@ private:
 
     //DBus相关
     void initDbus();//初始化dbus
+    void initMainWindow();//初始化MainWindow
+    void setTwoPageWindow();//设置MainWindow布局
 
-    bool isPlug = false;//是否是插
+    int command_Control(QString cmd1);//命令控制
+    bool isFirstObject = false;//判断是否是唯一的对象
+    QStringList argName;
 
 
 private://音频相关

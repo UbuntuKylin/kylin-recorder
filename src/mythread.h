@@ -66,7 +66,7 @@ public:
 
     int type=1;
     QMessageBox *WrrMsg;
-    int soundVolume=50;//初始音量为50
+    int soundVolume=65;//初始音量为70
     Settings set;
     Save saveas;
     QString fileName;
