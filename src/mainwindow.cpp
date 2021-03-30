@@ -25,7 +25,6 @@
 #include <QSlider>
 #include <qtextcodec.h>//保存中文路径时用上此头文件
 #include <QMessageBox>
-
 #include <QFileDialog>
 
 #include "xatom-helper.h"
@@ -33,174 +32,28 @@
 //const qint64 TIME_TRANSFORM = 1000 * 1000;              // 微妙转秒;
 #define rectangleCount 79//矩形条个数
 MainWindow *MainWindow::mutual = nullptr;//初始化！！！
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QStringList str,QWidget *parent)
     :QMainWindow(parent)
 {
-
-    checkSingle();//检查单例模式
-    initDbus();//初始化dbus
     mutual = this;
     defaultPathData = new QGSettings(KYLINRECORDER);
     // 用户手册功能
     mDaemonIpcDbus = new DaemonDbus();
+    isFirstObject = false;//可以接收外部命令
+    checkSingle(str);//检查单例模式
+    qDebug()<<"sssssssssssss"<<str;
 
-    int WIDTH = 800 ;
-    int HEIGHT = 460 ;
+    initDbus();//初始化插拔信号和s3/s4的dbus
+    initMainWindow();//初始化主界面
+    setTwoPageWindow();//设置点击按钮切换的第二个页面
 
-    mainWid = new QWidget();//主wid
-//    mainWid->grabKeyboard();
-    mainWid->installEventFilter(this);
-
-    MotifWmHints hints;
-    hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
-    hints.functions = MWM_FUNC_ALL;
-    hints.decorations = MWM_DECOR_BORDER;
-    XAtomHelper::getInstance()->setWindowMotifHint(mainWid->winId(), hints);
-
-    mainWid ->setFixedSize(WIDTH,HEIGHT);
-    mainWid ->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
-    mainWid ->setWindowTitle(tr("kylin-recorder"));
-    //屏幕中间老方法
-    //    this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
-    //显示在活动屏幕中间新方法
-    QScreen *screen = QGuiApplication::primaryScreen();
-    mainWid ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
-
-    titleLeftWid = new QWidget();
-    titleRightWid = new QWidget(mainWid);
-    mainLayout = new QHBoxLayout(mainWid);//主窗体的布局
-    m_pStackedWidget = new QStackedWidget();//录音图标和波形图的堆栈Wid
-    listWid = new QWidget();//列表Wid
-    leftMainWid = new QWidget();//主左Wid
-    rightMainWid = new QWidget(mainWid);//主右Wid
-    listLayout = new QVBoxLayout();
-    recordButtonWid = new QWidget();
-    titleLeftLayout = new QHBoxLayout();//左标题布局
-    titleRightLayout = new QHBoxLayout(titleRightWid);//右标题布局
-
-    leftMainWidLayout = new QVBoxLayout();//主左布局
-    rightMainWidLayout = new QVBoxLayout();//主右布局
-
-    //(三)按钮及下拉菜单
-    menumodule = new menuModule(mainWid);
-    menumodule->menuButton->setToolTip(tr("Menu"));
-    menumodule->menuButton->setFixedSize(30,30);
-    menumodule->menuButton->setIcon(QIcon::fromTheme("open-menu-symbolic"));
-    menumodule->menuButton->setAutoRaise(true);
-    menumodule->menuButton->setProperty("isWindowButton", 0x1);
-    menumodule->menuButton->setProperty("useIconHighlightEffect",0x2);
-    menumodule->menuButton->setPopupMode(QToolButton::InstantPopup);//QToolButton必须加上的
-
-    //setButton已弃用
-    setButton = new QPushButton(this);
-    setButton->setIcon(QIcon::fromTheme("open-menu-symbolic"));//主题库的菜单图标
-
-    menu = new QMenu(this);
-    actionSet = new QAction(tr("Set"),menu);
-    actionHelp = new QAction(tr("Help"),menu);
-    actionAbout = new QAction(tr("About"),menu);
-//    actions<<actionSet/*<<actionHelp<<actionAbout*/;
-//    menu->addActions(actions);
-//    setButton->setMenu(menu);
-
-    //mini按钮
-    miniButton = new QToolButton(this);
-    miniButton->setFixedSize(30,30);
-    miniButton->setToolTip(tr("Mini"));
-    miniButton->setProperty("isWindowButton", 0x1);
-    miniButton->setProperty("useIconHighlightEffect", 0x2);
-    miniButton->setAutoRaise(true);
-    miniButton->setIcon(QIcon::fromTheme("ukui-mini"));//主题库的mini图标
-
-    //最小化按钮
-    minButton = new QToolButton(this);
-    minButton->setFixedSize(30,30);
-    minButton->setToolTip(tr("Minimize"));
-    minButton->setProperty("isWindowButton", 0x1);
-    minButton->setProperty("useIconHighlightEffect", 0x2);
-    minButton->setAutoRaise(true);
-    minButton->setIcon(QIcon::fromTheme("window-minimize-symbolic"));//主题库的最小化图标  
-
-    //最大化按钮
-    maxButton = new QToolButton(this);
-    maxButton->setToolTip(tr("Max"));
-    maxButton->setProperty("isWindowButton", 0x1);
-    maxButton->setProperty("useIconHighlightEffect", 0x2);
-    maxButton->setAutoRaise(true);
-    maxButton->setIcon(QIcon::fromTheme("window-maximize-symbolic"));//主题库的最小化图标
-
-    //关闭按钮
-    closeButton = new QToolButton(this);
-    closeButton->setFixedSize(30,30);
-    closeButton->setToolTip(tr("Close"));
-    closeButton->setIcon(QIcon::fromTheme("window-close-symbolic"));//主题库的叉子图标
-    closeButton->setProperty("isWindowButton", 0x2);
-    closeButton->setProperty("useIconHighlightEffect", 0x8);
-    closeButton->setAutoRaise(true);
-    //主界面按钮
-    recordButton = new QPushButton(this);
-    recordButton->setToolTip(tr("Recording"));
-
-    list = new QListWidget(this);
-    list->installEventFilter(this);//安装事件过滤器
-    list->setSortingEnabled(true);
-    list->sortItems(Qt::DescendingOrder);
-
-    zeroFile_Messagelb = new QLabel(this);
-    zeroFile_Messagelb->setFixedSize(200,50);
-    zeroFile_Messagelb->setText(tr("None of the Recording File"));//列表无录音文件时
-
-//    itemswindow = new ItemsWindow(this);
-
-    //第二个页面的控件初始化
-    pTimer = new QTimer;//定时器,用来记录
-    limitTimer = new QTimer;//设置定时器为限制录音时长所用目前规定只允许录制不超过15分钟的录音.
-
-    showTimelb = new QLabel(this);
-    voiceBtn = new QToolButton(this);
-
-    slider = new QSlider(this);
-    stopButton = new QToolButton(this);
-    stopButton->setToolTip(tr("stop"));
-    play_pauseButton = new QToolButton(this);
-    play_pauseButton->setToolTip(tr("pause/start"));
-
-    ui_2Wid = new QWidget();//第二个页面wid
-    showTimelbWid = new QWidget();//时间wid
-    waveWid = new QWidget();//波形图wid
-    voiceAndSliderWid = new QWidget();//音量wid
-    controlPlay_PauseWid = new QWidget();
-
-    showTimelbLayout = new QHBoxLayout();
-    voiceAndSliderLayout = new QHBoxLayout();
-    controlPlay_PauseLayout = new QHBoxLayout();
-    ui_2Layout = new QVBoxLayout();
-
-
-    //线程的使用
-    myThread = new MyThread;//子线程
-    thread = new QThread;//主线程
-    //开始时也要把数组都初始化为0，2020.11.12先隐藏此功能
-    for(int i=0;i<INIT_MAINWINDOW_RECTANGLE_COUNT;i++)
-    {
-        valueArray[i] = 0;
-    }
-    connect(this,    &MainWindow::startRecord, myThread, &MyThread::record_pressed);
-//    connect(this,    &MainWindow::recordingSignal,MainWindow::,&ItemsWindow::getRecordingSlot);//发送录音时的信号
-    connect(myThread,&MyThread::recordPaint,       this, &MainWindow::recordPaint);//绘波形图
-    connect(myThread,&MyThread::changeVoicePicture,this, &MainWindow::changeVoicePicture);
-    connect(this,    &MainWindow::stopRecord,  myThread, &MyThread::stop_btnPressed);
-    connect(this,    &MainWindow::playRecord,  myThread, &MyThread::playRecord);
-    connect(this,    &MainWindow::pauseRecord, myThread, &MyThread::pauseRecord);
-
-    connect(pTimer,       &QTimer::timeout,         this,  &MainWindow::updateDisplay);
-    connect(limitTimer,   &QTimer::timeout,         this,  &MainWindow::limitRecordingTime);
-    connect(slider,    SIGNAL(valueChanged(int)),myThread, SLOT(OnSliderValueChanged(int)));
-    connect(stopButton,&QToolButton::clicked,       this,  &MainWindow::stop_clicked);
-    connect(play_pauseButton,&QToolButton::clicked, this,  &MainWindow::play_pause_clicked);
+//    this->setWindowFlags((Qt::FramelessWindowHint));//设置窗体无边框**加窗管协议后要将此注释调**
+    MainWindowLayout(); //主窗体布局方法
+    initThemeGsetting();//初始化主题配置文件
+    mainWindow_page2(); //必须加上初始化第二个主页面(此函数有两处需要被调用:构造函数+切换页面时)
+    updateGsetting_ListWidget();
 
     qDebug()<<"主线程:"<<QThread::currentThread();
-
     myThread->moveToThread(thread);
     thread->start();
     //qDebug()<<"子线程:";
@@ -209,64 +62,18 @@ MainWindow::MainWindow(QWidget *parent)
         thread->quit();
           thread->wait();
     });
-//    this->setWindowFlags((Qt::FramelessWindowHint));//设置窗体无边框**加窗管协议后要将此注释调**
-    setWindowTitle(tr("kylin-recorder"));
-    lb=new QLabel(this);
-    appPicture=new QToolButton(this);//窗体左上角标题图片
-    appPicture->setIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/png/png/recording_32.png")));
-//    appPicture->setStyleSheet("QLabel{border-image: url(:/png/png/recording_32.png);}");
-    appPicture->setFixedSize(24,24);
-    appPicture->setIconSize(QSize(24,24));//重置图标大小
-    lb->setText(tr("kylin-recorder"));//？字体待修改
-    lb->setStyleSheet("font-size:14px;");//修改字体显示
-    lb->setFixedHeight(24);
-    fileListlb=new QLabel(this);
-    fileListlb->setText(tr("File List"));
-    fileListlb->setStyleSheet("font: bold; font-size:18px;");//修改字体显示
-    fileListWid = new QWidget();
-    fileListLayout = new QHBoxLayout();
-
-
-    seatlb=new QLabel(this);
-    seatlb->setText("  ");//占位
-
-    recordButton->setIcon(QIcon(":/svg/svg/start-recording.svg"));
-
-    recordButton->setFixedSize(128,128);
-    recordButton->setIconSize(QSize(128,128));//重置图标大小
-    connect(miniButton,   &QToolButton::clicked, this, &MainWindow::miniShow);//mini窗口
-    connect(minButton,    &QToolButton::clicked, this, &MainWindow::minShow);//最小化窗口
-    connect(maxButton,    &QToolButton::clicked, this, &MainWindow::maxShow);//最大化窗口
-//    connect(closeButton,  &QToolButton::clicked, mainWid, &MainWindow::close);//关闭
-    connect(closeButton,  &QToolButton::clicked, this, &MainWindow::closeWindow);//关闭
-    connect(recordButton, &QPushButton::clicked, this, &MainWindow::switchPage);//换页
-    connect(actionSet,    &QAction::triggered,   this, &MainWindow::goset);//跳转设置界面
-
-    zeroFile_Messagelb->move((listWid->width()-zeroFile_Messagelb->width()/2)/3,(listWid->height()-zeroFile_Messagelb->height()/3)/3);
-
-
-    fileListLayout->addWidget(fileListlb);
-    fileListLayout->setContentsMargins(31,0,0,10);//31,0,0,0改为31,0,0,10即不多不少显示6个
-    fileListWid->setLayout(fileListLayout);
-
-    listLayout->addWidget(fileListWid);
-    listLayout->addWidget(list);
-    listLayout->setMargin(2);
-
-    listWid->setLayout(listLayout);
-
-    playerCompoment = new QMediaPlayer;//播放组件
-    playList = new QMediaPlaylist;//播放列表
-    tipWindow = new TipWindow();
-
-    MainWindowLayout();//主窗体布局方法
-    initThemeGsetting();//初始化主题配置文件
-    mainWindow_page2();//必须加上初始化第二个主页面(此函数有两处需要被调用:构造函数+切换页面时)
-    updateGsetting_ListWidget();
-    list->setViewMode(QListView::ListMode);
-//    list->setAttribute(Qt::WA_TranslucentBackground);
-//    setMouseTracking(true);
-//    list->setMouseTracking(true);
+    //这个分支要放在下面,对于执行命令时有些还没来得及实例化所以要放在后面
+    if(!argName.isEmpty())
+    {
+        int num = argName.size();
+        switch (num) {
+        case 1:
+            command_Control(argName[0]);
+            break;
+        default:
+            break;
+        }
+    }
     mainWid->show();
 }
 
@@ -294,6 +101,213 @@ void MainWindow::initDbus()
                                          SLOT(onPrepareForSleep(bool)));
     //插拔耳机的信号
     QDBusConnection::sessionBus().connect(QString(), QString( "/"), "org.ukui.media", "DbusSingleTest",this, SLOT(inputDevice_get(QString)));
+}
+
+//初始化主界面
+void MainWindow::initMainWindow()
+{
+    mainWid = new QWidget();//主wid
+    int WIDTH = 800 ;
+    int HEIGHT = 460 ;
+    MotifWmHints hints;
+    hints.flags = MWM_HINTS_FUNCTIONS|MWM_HINTS_DECORATIONS;
+    hints.functions = MWM_FUNC_ALL;
+    hints.decorations = MWM_DECOR_BORDER;
+    XAtomHelper::getInstance()->setWindowMotifHint(mainWid->winId(), hints);
+    mainWid->installEventFilter(this);
+
+    mainWid ->setFixedSize(WIDTH,HEIGHT);
+    mainWid ->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+    mainWid ->setWindowTitle(tr("kylin-recorder"));
+    //屏幕中间老方法
+    //    this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
+    //显示在活动屏幕中间新方法
+    QScreen *screen = QGuiApplication::primaryScreen();
+    mainWid ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
+
+    titleLeftWid = new QWidget();
+    titleRightWid = new QWidget();
+    mainLayout = new QHBoxLayout();//主窗体的布局
+    m_pStackedWidget = new QStackedWidget();//录音图标和波形图的堆栈Wid
+    listWid = new QWidget();//列表Wid
+    leftMainWid = new QWidget();//主左Wid
+    rightMainWid = new QWidget();//主右Wid
+    listLayout = new QVBoxLayout();
+    recordButtonWid = new QWidget();
+    titleLeftLayout = new QHBoxLayout();//左标题布局
+    titleRightLayout = new QHBoxLayout();//右标题布局
+
+    leftMainWidLayout = new QVBoxLayout();//主左布局
+    rightMainWidLayout = new QVBoxLayout();//主右布局
+
+    appPicture=new QToolButton(this);//窗体左上角标题图片
+    appPicture->setIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/png/png/recording_32.png")));
+    appPicture->setFixedSize(24,24);
+    appPicture->setIconSize(QSize(24,24));//重置图标大小
+    lb=new QLabel(this);
+    lb->setText(tr("kylin-recorder"));//？字体待修改
+    lb->setStyleSheet("font-size:14px;");//修改字体显示
+    lb->setFixedHeight(24);
+
+    //setButton已弃用
+    setButton = new QPushButton(this);
+    setButton->setIcon(QIcon::fromTheme("open-menu-symbolic"));//主题库的菜单图标
+    menu = new QMenu(this);
+    actionSet = new QAction(tr("Set"),menu);
+    actionHelp = new QAction(tr("Help"),menu);
+    actionAbout = new QAction(tr("About"),menu);
+
+    //(三)按钮及下拉菜单
+    menumodule = new menuModule(mainWid);
+    menumodule->menuButton->setToolTip(tr("Menu"));
+    menumodule->menuButton->setFixedSize(30,30);
+    menumodule->menuButton->setIcon(QIcon::fromTheme("open-menu-symbolic"));
+    menumodule->menuButton->setAutoRaise(true);
+    menumodule->menuButton->setProperty("isWindowButton", 0x1);
+    menumodule->menuButton->setProperty("useIconHighlightEffect",0x2);
+    menumodule->menuButton->setPopupMode(QToolButton::InstantPopup);//QToolButton必须加上的
+
+    //mini按钮
+    miniButton = new QToolButton(this);
+    miniButton->setFixedSize(30,30);
+    miniButton->setToolTip(tr("Mini"));
+    miniButton->setProperty("isWindowButton", 0x1);
+    miniButton->setProperty("useIconHighlightEffect", 0x2);
+    miniButton->setAutoRaise(true);
+    miniButton->setIcon(QIcon::fromTheme("ukui-mini"));//主题库的mini图标
+
+    //最小化按钮
+    minButton = new QToolButton(this);
+    minButton->setFixedSize(30,30);
+    minButton->setToolTip(tr("Minimize"));
+    minButton->setProperty("isWindowButton", 0x1);
+    minButton->setProperty("useIconHighlightEffect", 0x2);
+    minButton->setAutoRaise(true);
+    minButton->setIcon(QIcon::fromTheme("window-minimize-symbolic"));//主题库的最小化图标
+
+    //最大化按钮
+    maxButton = new QToolButton(this);
+    maxButton->setToolTip(tr("Max"));
+    maxButton->setProperty("isWindowButton", 0x1);
+    maxButton->setProperty("useIconHighlightEffect", 0x2);
+    maxButton->setAutoRaise(true);
+    maxButton->setIcon(QIcon::fromTheme("window-maximize-symbolic"));//主题库的最小化图标
+
+    //关闭按钮
+    closeButton = new QToolButton(this);
+    closeButton->setFixedSize(30,30);
+    closeButton->setToolTip(tr("Close"));
+    closeButton->setIcon(QIcon::fromTheme("window-close-symbolic"));//主题库的叉子图标
+    closeButton->setProperty("isWindowButton", 0x2);
+    closeButton->setProperty("useIconHighlightEffect", 0x8);
+    closeButton->setAutoRaise(true);
+    recordButton = new QPushButton(this);
+    recordButton->setToolTip(tr("Recording"));
+    recordButton->setIcon(QIcon(":/svg/svg/start-recording.svg"));
+    recordButton->setFixedSize(128,128);
+    recordButton->setIconSize(QSize(128,128));//重置图标大小
+
+    connect(miniButton,   &QToolButton::clicked, this, &MainWindow::miniShow);//mini窗口
+    connect(minButton,    &QToolButton::clicked, this, &MainWindow::minShow);//最小化窗口
+    connect(maxButton,    &QToolButton::clicked, this, &MainWindow::maxShow);//最大化窗口
+//    connect(closeButton,  &QToolButton::clicked, mainWid, &MainWindow::close);//关闭
+    connect(closeButton,  &QToolButton::clicked, this, &MainWindow::closeWindow);//关闭
+    connect(actionSet,    &QAction::triggered,   this, &MainWindow::goset);//跳转设置界面
+    //主界面按钮
+    connect(recordButton, &QPushButton::clicked, this, &MainWindow::switchPage);//换页
+
+}
+
+//设置第二个页面
+void MainWindow::setTwoPageWindow()
+{
+    //线程的使用
+    myThread = new MyThread;//子线程
+    thread = new QThread;//主线程
+    //第二个页面的控件初始化
+    pTimer = new QTimer;//定时器,用来记录
+    limitTimer = new QTimer;//设置定时器为限制录音时长所用目前规定只允许录制不超过15分钟的录音.
+
+    showTimelb = new QLabel(this);
+    voiceBtn = new QToolButton(this);
+
+    slider = new QSlider(this);
+    stopButton = new QToolButton(this);
+    stopButton->setToolTip(tr("stop"));
+    play_pauseButton = new QToolButton(this);
+    play_pauseButton->setToolTip(tr("pause/start"));
+
+    ui_2Wid = new QWidget();//第二个页面wid
+    showTimelbWid = new QWidget();//时间wid
+    waveWid = new QWidget();//波形图wid
+    voiceAndSliderWid = new QWidget();//音量wid
+    controlPlay_PauseWid = new QWidget();
+
+    showTimelbLayout = new QHBoxLayout();
+    voiceAndSliderLayout = new QHBoxLayout();
+    controlPlay_PauseLayout = new QHBoxLayout();
+    ui_2Layout = new QVBoxLayout();
+    playerCompoment = new QMediaPlayer;//播放组件
+    playList = new QMediaPlaylist;//播放列表
+    tipWindow = new TipWindow();
+
+    setWindowTitle(tr("kylin-recorder"));
+    //主界面右侧listWidget
+    fileListlb=new QLabel(this);
+    fileListlb->setText(tr("File List"));
+    fileListlb->setStyleSheet("font: bold; font-size:18px;");//修改字体显示
+    fileListWid = new QWidget();
+    fileListLayout = new QHBoxLayout();
+    zeroFile_Messagelb = new QLabel(this);
+
+    seatlb=new QLabel(this);
+    seatlb->setText("  ");//占位
+
+    list = new QListWidget(this);
+    list->installEventFilter(this);//安装事件过滤器
+    list->setSortingEnabled(true);
+    list->sortItems(Qt::DescendingOrder);
+    list->setViewMode(QListView::ListMode);
+
+    //开始时也要把数组都初始化为0，2020.11.12先隐藏此功能
+    for(int i=0;i<INIT_MAINWINDOW_RECTANGLE_COUNT;i++)
+    {
+        valueArray[i] = 0;
+    }
+    connect(this,    &MainWindow::startRecord, myThread, &MyThread::record_pressed);
+//    connect(this,    &MainWindow::recordingSignal,MainWindow::,&ItemsWindow::getRecordingSlot);//发送录音时的信号
+    connect(myThread,&MyThread::recordPaint,       this, &MainWindow::recordPaint);//绘波形图
+    connect(myThread,&MyThread::changeVoicePicture,this, &MainWindow::changeVoicePicture);
+    connect(this,    &MainWindow::stopRecord,  myThread, &MyThread::stop_btnPressed);
+    connect(this,    &MainWindow::playRecord,  myThread, &MyThread::playRecord);
+    connect(this,    &MainWindow::pauseRecord, myThread, &MyThread::pauseRecord);
+
+    connect(pTimer,       &QTimer::timeout,         this,  &MainWindow::updateDisplay);
+    connect(limitTimer,   &QTimer::timeout,         this,  &MainWindow::limitRecordingTime);
+    connect(slider,    SIGNAL(valueChanged(int)),myThread, SLOT(OnSliderValueChanged(int)));
+    connect(stopButton,&QToolButton::clicked,       this,  &MainWindow::stop_clicked);
+    connect(play_pauseButton,&QToolButton::clicked, this,  &MainWindow::play_pause_clicked);
+
+}
+
+int MainWindow::command_Control(QString cmd1)
+{
+    //990
+    if(isFirstObject&&!QFileInfo::exists(cmd1))//首个实例不接受文件以外的参数
+    {
+        qDebug()<<"首个实例不接受文件以外的参数"<<cmd1;
+        isFirstObject = false;//可以接收其他命令
+//        return 0;
+    }
+    qDebug()<<"*********************************";
+    if(cmd1=="-s"||cmd1=="-start")//播放
+    {
+        //------播放------
+        qDebug()<<"录音开始";
+        switchPage();
+//        isPlay = true;
+        return 0;
+    }
 }
 
 //对于台式机，可以收到耳机插拔的DBus信号
@@ -420,6 +434,20 @@ void MainWindow::isFileNull(int n)
 
 void MainWindow::MainWindowLayout()
 {
+
+    zeroFile_Messagelb->setFixedSize(200,50);
+    zeroFile_Messagelb->setText(tr("None of the Recording File"));//列表无录音文件时
+    zeroFile_Messagelb->move((listWid->width()-zeroFile_Messagelb->width()/2)/3,(listWid->height()-zeroFile_Messagelb->height()/3)/3);
+
+    fileListLayout->addWidget(fileListlb);
+    fileListLayout->setContentsMargins(31,0,0,10);//31,0,0,0改为31,0,0,10即不多不少显示6个
+    fileListWid->setLayout(fileListLayout);
+
+    listLayout->addWidget(fileListWid);
+    listLayout->addWidget(list);
+    listLayout->setMargin(2);
+    listWid->setLayout(listLayout);
+
     titleLeftLayout->addWidget(appPicture);
     titleLeftLayout->addWidget(lb);
     titleLeftLayout->setSpacing(8);//内部按钮间距8px
@@ -587,7 +615,6 @@ void MainWindow::themeButton(QString themeColor)
                                  "QPushButton:pressed{background-color:rgba(255,255,255,0.15);}"
                                  "QPushButton::menu-indicator{image:None;}");
 
-
         //最大化按钮
 //        maxButton->setIcon(QIcon(":/svg/svg/dark-window-maximize.svg"));
         maxButton->setFixedSize(30,30);
@@ -595,9 +622,7 @@ void MainWindow::themeButton(QString themeColor)
                                  "QToolButton:hover{background-color:#E5E5E5;opacity:0.15;}"
                                  "QToolButton:pressed{background-color:#D9D9D9;opacity:0.20;}");
         //关闭按钮
-
         closeButton->setFixedSize(30,30);
-
         stopButton->setStyleSheet("QToolButton{image: url(:/svg/svg/finish-defalut-dark.svg);}"
                                   "QToolButton:hover{image: url(:/svg/svg/finish-hover.svg);}"
                                   "QToolButton:pressed{image: url(:/svg/svg/finish-click.svg);}");
@@ -825,16 +850,27 @@ void MainWindow::themeStyle(QString themeColor)
     themeWindow(themeColor);//窗体类切换
 }
 
-void MainWindow::checkSingle()//检查单例模式
+void MainWindow::checkSingle(QStringList path)//检查单例模式
 {
+    QString str;
+    if(path.size() > 1)
+    {
+        str = path[1];
+    }
     QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
     //兼容VNC的单例模式
-    int fd = open(QString(homePath.at(0) + "/.config/kylin-recorder%1.lock").arg(getenv("DISPLAY")).toUtf8().data(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-    if (fd < 0) { exit(1); }
+    int fd = open(QString(homePath.at(0) + "/.config/kylin-recorder%1.lock").arg(getenv("DISPLAY")).toUtf8().data(),
+                  O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    if (fd < 0) {
+        exit(1);
+    }
     if (lockf(fd, F_TLOCK, 0)) {
         qDebug()<<"Can't lock single file, kylin-recorder is already running!";
         exit(0);
     }
+    isFirstObject = true;//我是首个对象
+    argName << str;
+    qDebug()<<"argName"<<argName;
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)

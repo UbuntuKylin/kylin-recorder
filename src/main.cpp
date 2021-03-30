@@ -101,7 +101,7 @@ void messageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
 
 int main(int argc, char *argv[])
 {
-    qInstallMessageHandler(messageOutput);//日志输出功能
+//    qInstallMessageHandler(messageOutput);//日志输出功能,穿版本之前务必解开
     /*
      * 添加4K 屏幕支持。
      */
@@ -157,7 +157,62 @@ int main(int argc, char *argv[])
     {
         qDebug() << "加载中文失败";
     }
-    MainWindow w;
+    QStringList strList;
+    QString str1;
+    for(int i = 0; i < argc; i++)
+    {
+        str1 = argv[i];
+        strList << str1;
+    }
+    QString str = "";
+    QString str2 = "";
+    QString str3 = "";
+    if(strList.size() > 1)
+    {
+        str = argv[1];
+        if(strList.size() == 4)
+        {
+            str2 = argv[2];
+            str3 = argv[3];
+        }
+    }
+    if (str != "")
+    {
+        if(str=="--help"||str=="--h")//帮助
+        {
+            qDebug()<<"\nkylin-recorder [cmd]\n"
+                      "-s -start  开始录音\n"
+                      "-p -pause   暂停\n"
+                      "-f -finish 停止录音\n"
+                      "-c -close   关闭窗口";
+            return 0;
+        }
+        //如果参数不是命令也不是文件路径，则退出
+        if(!QFileInfo::exists(str)&&str!="-b"&&str!="-back"&&str!="-n"&&str!="-next"&&str!="-p"&&str!="-pause"&&
+                str!="-s"&&str!="-start"&&str!="-i"&&str!="-increase"&&str!="-r"&&str!="-reduce"&&str!="-S"&&
+                str!="-Sequential"&&str!="-C"&&str!="-CurrentItemInLoop"&&str!="-L"&&str!="-Loop"&&str!="-R"&&
+                str!="-Random"&&str!="-m"&&str!="-move"&&str!="-c"&&str!="-close")
+        {
+            qDebug()<<"参数不合规，请使用--h或者--help参数获取帮助";
+            return -1;
+        }
+        if(str == "-m"||str == "-move")
+        {
+            if(str2!=""&&str3!="")
+            {
+                bool ok1;
+                bool ok2;
+                str2.toInt(&ok1);
+                str3.toInt(&ok2);
+                if(!ok1 || !ok2)
+                {
+                    qDebug()<<"参数不合规，请使用--h或者--help参数获取帮助";
+                    return -1;
+                }
+            }
+        }
+    }
+    MainWindow w(strList);
 
     // 添加窗管协议
 //        MotifWmHints hints;
