@@ -1,3 +1,9 @@
+kylin-recorder (1.2.23kord~rc18) v101; urgency=high
+
+  * test增加华为命令控制需求、修改wav的转码方式
+
+ -- baijincheng <baijincheng@kylinos.cn>  Fri, 9 Apr 2021 14:43:00 +0800
+
 kylin-recorder (1.2.23kord~rc17) v101; urgency=high
 
   * 修复bug44130：点击开始录音，等待系统自动关闭，重复多次测试，发现应用录音的时长不一致

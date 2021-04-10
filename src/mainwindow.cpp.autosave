@@ -750,7 +750,7 @@ void MainWindow::themeButton(QString themeColor)
 
     }
 
-}
+
 //计算时长
 QString MainWindow::playerTotalTime(QString filePath)
 {
