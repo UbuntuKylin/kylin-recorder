@@ -952,7 +952,10 @@ void MainWindow::play_pause_clicked()
     if(strat_pause)
     {
         emit playRecord();
-        menumodule -> menuButton->setEnabled(false);
+        set.radioButton_6->setEnabled(false);
+        set.radioButton_7->setEnabled(false);
+        set.radioButton_8->setEnabled(false);
+//        menumodule -> menuButton->setEnabled(false);
         isRecording = true;//开始时正在录音的标记值为true,其为true时禁止Item的悬浮特效
         cut = QTime::currentTime();//记录开始时的时间
         int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
@@ -1033,7 +1036,10 @@ void MainWindow::stop_clicked()//停止按钮
     if(stop)
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
-        menumodule->menuButton->setEnabled(true);
+        set.radioButton_6->setEnabled(true);
+        set.radioButton_7->setEnabled(true);
+        set.radioButton_8->setEnabled(true);
+//        menumodule->menuButton->setEnabled(true);
         limitTimer->stop();//停止记录录音时间
         pTimer->stop();//计时停止
         mini.pTimer->stop();
@@ -1221,19 +1227,10 @@ void MainWindow::switchPage()
         baseTime = baseTime.currentTime();
         mini.baseTime = mini.baseTime.currentTime();
         mini.pTimer->start(100);
-
-//        int nCount = m_pStackedWidget->count();
-//        int nIndex = m_pStackedWidget->currentIndex();
-//        // 获取下一个需要显示的页面索引
-//        nIndex++;
-//        // 当需要显示的页面索引大于等于总页面时，切换至首页
-//        if (nIndex >= nCount)
-//            nIndex = 0;
-//        mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
-//        m_pStackedWidget->setCurrentIndex(nIndex);
-
-
-        menumodule->menuButton->setEnabled(false);
+        set.radioButton_6->setEnabled(false);
+        set.radioButton_7->setEnabled(false);
+        set.radioButton_8->setEnabled(false);
+//        menumodule->menuButton->setEnabled(false);
     }
     else
     {
@@ -1339,8 +1336,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     }
     return QObject::eventFilter(obj,event);
 }
-
-
 
 void MainWindow::wheelEvent(QWheelEvent *wheel)
 {

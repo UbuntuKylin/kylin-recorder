@@ -840,12 +840,6 @@ QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时�
                 }
                 else
                 {
-//                    if(readPathCollected()=="")//首次添加时配置文件一定是空的所以fileinfo.isFile()为false
-//                    {
-//                        emit listItemAddSignal(filePath,MainWindow::mutual->list->count()+1);
-//                        MainWindow::mutual->playList->addMedia(QMediaContent(QUrl(listRecordPath.at(i))));
-//                        return filePath;
-//                    }
                     qDebug()<<str<<"listItemAdd:文件或被删除！";
                     QString subStr = ","+str;//子串
                     QString subAmplitudeStr = listAmplitude.at(i);//子振幅串
@@ -861,6 +855,8 @@ QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时�
                     QString newStr = oldStr.remove(pos,str.length()+1);
                     writePathCollected(newStr);//更新路径串
                     QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
+                    qDebug()<<"新振幅串"<<newAmplitudeStr;
+//                    updateAmplitudeList(MainWindow::mutual->valueArray);
                     recordData->set("amplitude",newAmplitudeStr);//更新振幅串
                     writeNumList(readNumList()-1);
                 }
