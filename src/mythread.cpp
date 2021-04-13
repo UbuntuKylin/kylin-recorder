@@ -307,8 +307,11 @@ void MyThread::saveAs(QString oldFileName)//右键另存为可以选择存储音
                                                      tr("Select a file storage directory"),
                                                      defaultPath+"/RecordFile.mp3",
                                                      fileType);
-    if(newFileName =="")
+    if(newFileName ==""||newFileName.contains(" ")||newFileName.contains("?")||newFileName.contains("'")||newFileName.contains("\"")||newFileName.contains("\/")||newFileName.contains("\\"))
     {
+        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Do not enter illegal file name!"), QMessageBox::Ok );//不要输入非法文件名！
+        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
+        WrrMsg->exec();
         return ;
     }
     if(oldFileName != newFileName)
@@ -862,6 +865,11 @@ QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时�
                 }
 
             }
+            else
+            {
+                emit listItemAddSignal(filePath,MainWindow::mutual->list->count()+1);
+                break;//因为点击保存一次就添加一次所以break
+            }
 
         }
 
@@ -925,9 +933,11 @@ QString MyThread::isSameFileName(QString FileName)
 
 void MyThread::selectMp3()
 {
-    if(fileName.length() == 0)
+    if(fileName.length() == 0||fileName.contains(" ")||fileName.contains("?")||fileName.contains("'")||fileName.contains("\"")||fileName.contains("\/")||fileName.contains("\\"))
     {
-
+        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Do not enter illegal file name!"), QMessageBox::Ok );//不要输入非法文件名！
+        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
+        WrrMsg->exec();
         return ;
     }
     QString filename = fileName.mid(fileName.lastIndexOf("/") +1);
@@ -980,9 +990,11 @@ void MyThread::selectMp3()
 }
 void MyThread::selectM4a()
 {
-    if(fileName.length() == 0)
+    if(fileName.length() == 0||fileName.contains(" ")||fileName.contains("?")||fileName.contains("'")||fileName.contains("\"")||fileName.contains("\/")||fileName.contains("\\"))
     {
-
+        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Do not enter illegal file name!"), QMessageBox::Ok );//不要输入非法文件名！
+        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
+        WrrMsg->exec();
         return ;
     }
     QString filename = fileName.mid(fileName.lastIndexOf("/") +1);
@@ -1033,9 +1045,11 @@ void MyThread::selectM4a()
 }
 void MyThread::selectWav()
 {
-    if(fileName.length() == 0)
+    if(fileName.length() == 0||fileName.contains(" ")||fileName.contains("?")||fileName.contains("'")||fileName.contains("\"")||fileName.contains("\/")||fileName.contains("\\"))
     {
-
+        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Do not enter illegal file name!"), QMessageBox::Ok );//不要输入非法文件名！
+        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
+        WrrMsg->exec();
         return ;
     }
     QString filename = fileName.mid(fileName.lastIndexOf("/") +1);

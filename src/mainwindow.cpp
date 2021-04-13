@@ -357,6 +357,7 @@ void MainWindow::inputDevice_get(QString str)
     else
     {
         qDebug()<<"应用没有在录音！";
+        return;
     }
 }
 
