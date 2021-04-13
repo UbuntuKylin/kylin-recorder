@@ -359,6 +359,7 @@ bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点�
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent->button() == Qt::LeftButton) //判断左键
             {
+               qDebug()<<"maximum"<<playSlider->maximum()<<"minimum"<<playSlider->minimum()<<"mouseEvent->x()"<<mouseEvent->x()<<"playSlider->width()"<<playSlider->width()<<"playSlider->sliderPosition()"<<playSlider->sliderPosition();
                int dur = playSlider->maximum() - playSlider->minimum();
                int pos = playSlider->minimum() + dur * ((double)mouseEvent->x() / playSlider->width());
                if(pos != playSlider->sliderPosition())
@@ -407,7 +408,7 @@ void ItemsWindow::hover_ChangeState(QEvent *event)
         stackLayout->setCurrentIndex(1);//切换至录音按钮stackLayout
         if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
         {
-            qDebug()<<"当前:"<<MainWindow::mutual->tempPath<<" "<<this->recordFileName->text();
+//            qDebug()<<"当前:"<<MainWindow::mutual->tempPath<<" "<<this->recordFileName->text();
             if(MainWindow::mutual->tempPath.contains(this->recordFileName->text()))
             {
                 splitLinestackWid->setCurrentIndex(1);//切换至进度条
