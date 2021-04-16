@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-kylin-recorder (1.2.23kord~rc20) v101; urgency=medium
-=======
 kylin-recorder (1.2.23kord~rc19) v101; urgency=medium
->>>>>>> 69122c9ef008bd7fbfeea4472949871d3783554c
 
   * 修改界面名字为录音
   * 需求号：无

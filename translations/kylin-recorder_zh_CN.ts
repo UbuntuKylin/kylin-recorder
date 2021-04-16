@@ -313,11 +313,7 @@
         <location filename="../src/mythread.cpp" line="995"/>
         <location filename="../src/mythread.cpp" line="1050"/>
         <source>Do not enter illegal file name!</source>
-<<<<<<< HEAD
         <translation>请不要输入非法名！</translation>
-=======
-        <translation type="unfinished"></translation>
->>>>>>> 69122c9ef008bd7fbfeea4472949871d3783554c
     </message>
     <message>
         <location filename="../src/mythread.cpp" line="437"/>
