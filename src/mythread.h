@@ -107,7 +107,7 @@ private:
     int xianzhi=0;//限制为110个
     //int valueArray[110];//主队列
     QList<int> tmpArray2;//副队列
-    qint64 addWavHeader(QString catheFileName , QString wavFileName);
+    qint64 toConvertWAV(QString catheFileName , QString wavFileName);
     qint64 toConvertMp3(QString catheFileName , QString mp3FileName);
     qint64 toConvertM4a(QString catheFileName , QString m4aFileName);
     QAudioFormat Mp3();

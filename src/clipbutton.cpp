@@ -59,7 +59,6 @@ void ClipButton::mouseReleaseEvent(QMouseEvent *event)
             qDebug()<<"右滑块的左边界的位置:"<<rightButton_absolutePos<<"两滑块内距离:"<<padding;
             qDebug()<<"当前按钮的位置:"<<this->pos().rx();
             emit rightBtn_ReleaseGetEndPositon_Signal(rightButton_absolutePos,this->pos().rx() - this->width(),padding);
-
         }
         else
         {

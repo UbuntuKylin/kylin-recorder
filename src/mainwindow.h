@@ -162,6 +162,7 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QToolButton *stopButton;
     QToolButton *play_pauseButton;
 
+    bool isFirstObject = false;//判断是否是唯一的对象
 private:
 
     int timeTag = 0;
@@ -169,7 +170,7 @@ private:
     qint64 real_time ;
 
     QList<int> maxNum;//存储振幅的大小的整型列表
-    bool stop=false;//停止
+    bool stop=true;//停止
     bool isFirstRun = true;
 
     bool max_min=false;//最大最小化
@@ -260,8 +261,8 @@ private:
     void initMainWindow();//初始化MainWindow
     void setTwoPageWindow();//设置MainWindow布局
 
-    int command_Control(QString cmd1);//命令控制
-    bool isFirstObject = false;//判断是否是唯一的对象
+
+
     QStringList argName;
 
 
@@ -288,6 +289,7 @@ signals://主线程的信号
 
 
 public slots:
+    int command_Control(QString cmd1);//命令控制
     void getPlayingSlot(bool );//收到正在播放的信息防止文件列表再播放时录音
 
     void recordPaint(int); 
