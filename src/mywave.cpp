@@ -51,8 +51,6 @@ void myWave::drawSpectrum(QPainter *painter)//振幅、频率
     painter->setPen(Qt::NoPen);
 
     qreal CenterY = (qreal) rect().center().y();
-
-
     qreal HalfHeight = (qreal) height()/2 - PYS_TOP_SPACE ;
     int Range = (m_nMax - m_nMin);//取值范围
     qreal YIncrement = (qreal)HalfHeight/Range;
@@ -67,7 +65,6 @@ void myWave::drawSpectrum(QPainter *painter)//振幅、频率
     TopRectGradient.setColorAt(0.5,PYS_BAR_START_COLOR);
     TopRectGradient.setColorAt(1.0,PYS_BAR_END_COLOR);
     painter->setBrush(TopRectGradient);
-
     painter->drawRect(TopRect);
 
 

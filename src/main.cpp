@@ -101,22 +101,22 @@ void messageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
 
 int main(int argc, char *argv[])
 {
-//    qInstallMessageHandler(messageOutput);//日志输出功能,穿版本之前务必解开
+    qInstallMessageHandler(messageOutput);//日志输出功能,穿版本之前务必解开
     /*
      * 添加4K 屏幕支持。
      */
     #if(QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
-            QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-            QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+        QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     #else
         // do not support 4K.
     #endif
     #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-      QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-      QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
+        QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+        QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
     #endif
     #if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
-      QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
+        QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
     #endif
     QApplication a(argc, argv);
 
@@ -182,18 +182,16 @@ int main(int argc, char *argv[])
         {
             qDebug()<<"\nkylin-recorder [cmd]\n"
                       "-s -start  开始录音\n"
-                      "-p -pause   暂停\n"
+                      "-p -pause   暂停/继续\n"
                       "-f -finish 停止录音\n"
                       "-c -close   关闭窗口";
             return 0;
         }
         //如果参数不是命令也不是文件路径，则退出
         if(!QFileInfo::exists(str)&&str!="-b"&&str!="-back"&&str!="-n"&&str!="-next"&&str!="-p"&&str!="-pause"&&
-                str!="-s"&&str!="-start"&&str!="-i"&&str!="-increase"&&str!="-r"&&str!="-reduce"&&str!="-S"&&
-                str!="-Sequential"&&str!="-C"&&str!="-CurrentItemInLoop"&&str!="-L"&&str!="-Loop"&&str!="-R"&&
-                str!="-Random"&&str!="-m"&&str!="-move"&&str!="-c"&&str!="-close")
+                str!="-s"&&str!="-start"&&str!="-f"&&str!="-finish"&&str!="-c"&&str!="-close")
         {
-            qDebug()<<"参数不合规，请使用--h或者--help参数获取帮助";
+            qDebug()<<"1参数不合规，请使用--h或者--help参数获取帮助";
             return -1;
         }
         if(str == "-m"||str == "-move")
@@ -206,7 +204,7 @@ int main(int argc, char *argv[])
                 str3.toInt(&ok2);
                 if(!ok1 || !ok2)
                 {
-                    qDebug()<<"参数不合规，请使用--h或者--help参数获取帮助";
+                    qDebug()<<"2参数不合规，请使用--h或者--help参数获取帮助";
                     return -1;
                 }
             }

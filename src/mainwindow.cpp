@@ -31,6 +31,7 @@
 #define BufferSize         35280
 //const qint64 TIME_TRANSFORM = 1000 * 1000;              // 微妙转秒;
 #define rectangleCount 79//矩形条个数
+
 MainWindow *MainWindow::mutual = nullptr;//初始化！！！
 MainWindow::MainWindow(QStringList str,QWidget *parent)
     :QMainWindow(parent)
@@ -39,10 +40,23 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
     defaultPathData = new QGSettings(KYLINRECORDER);
     // 用户手册功能
     mDaemonIpcDbus = new DaemonDbus();
-    isFirstObject = false;//可以接收外部命令
+
     checkSingle(str);//检查单例模式
     qDebug()<<"sssssssssssss"<<str;
 
+    if(!argName.isEmpty())
+    {
+        qDebug()<<"argName1111111"<<argName;
+        int num = argName.size();
+        switch (num) {
+        case 1:
+            command_Control(argName[0]);
+            break;
+        default:
+            break;
+        }
+    }
+    isFirstObject = false;//可以接收外部命令
     initDbus();//初始化插拔信号和s3/s4的dbus
     initMainWindow();//初始化主界面
     setTwoPageWindow();//设置点击按钮切换的第二个页面
@@ -63,17 +77,7 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
           thread->wait();
     });
     //这个分支要放在下面,对于执行命令时有些还没来得及实例化所以要放在后面
-    if(!argName.isEmpty())
-    {
-        int num = argName.size();
-        switch (num) {
-        case 1:
-            command_Control(argName[0]);
-            break;
-        default:
-            break;
-        }
-    }
+
     mainWid->show();
 }
 
@@ -118,7 +122,7 @@ void MainWindow::initMainWindow()
 
     mainWid ->setFixedSize(WIDTH,HEIGHT);
     mainWid ->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
-    mainWid ->setWindowTitle(tr("kylin-recorder"));
+    mainWid ->setWindowTitle(tr("Recorder"));
     //屏幕中间老方法
     //    this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
     //显示在活动屏幕中间新方法
@@ -145,7 +149,7 @@ void MainWindow::initMainWindow()
     appPicture->setFixedSize(24,24);
     appPicture->setIconSize(QSize(24,24));//重置图标大小
     lb=new QLabel(this);
-    lb->setText(tr("kylin-recorder"));//？字体待修改
+    lb->setText(tr("Recorder"));//？字体待修改
     lb->setStyleSheet("font-size:14px;");//修改字体显示
     lb->setFixedHeight(24);
 
@@ -210,7 +214,7 @@ void MainWindow::initMainWindow()
     connect(miniButton,   &QToolButton::clicked, this, &MainWindow::miniShow);//mini窗口
     connect(minButton,    &QToolButton::clicked, this, &MainWindow::minShow);//最小化窗口
     connect(maxButton,    &QToolButton::clicked, this, &MainWindow::maxShow);//最大化窗口
-//    connect(closeButton,  &QToolButton::clicked, mainWid, &MainWindow::close);//关闭
+//    connect(closeButton,&QToolButton::clicked, mainWid, &MainWindow::close);//关闭
     connect(closeButton,  &QToolButton::clicked, this, &MainWindow::closeWindow);//关闭
     connect(actionSet,    &QAction::triggered,   this, &MainWindow::goset);//跳转设置界面
     //主界面按钮
@@ -251,7 +255,7 @@ void MainWindow::setTwoPageWindow()
     playList = new QMediaPlaylist;//播放列表
     tipWindow = new TipWindow();
 
-    setWindowTitle(tr("kylin-recorder"));
+    setWindowTitle(tr("Recorder"));
     //主界面右侧listWidget
     fileListlb=new QLabel(this);
     fileListlb->setText(tr("File List"));
@@ -275,7 +279,7 @@ void MainWindow::setTwoPageWindow()
         valueArray[i] = 0;
     }
     connect(this,    &MainWindow::startRecord, myThread, &MyThread::record_pressed);
-//    connect(this,    &MainWindow::recordingSignal,MainWindow::,&ItemsWindow::getRecordingSlot);//发送录音时的信号
+//    connect(this,  &MainWindow::recordingSignal,MainWindow::,&ItemsWindow::getRecordingSlot);//发送录音时的信号
     connect(myThread,&MyThread::recordPaint,       this, &MainWindow::recordPaint);//绘波形图
     connect(myThread,&MyThread::changeVoicePicture,this, &MainWindow::changeVoicePicture);
     connect(this,    &MainWindow::stopRecord,  myThread, &MyThread::stop_btnPressed);
@@ -292,20 +296,51 @@ void MainWindow::setTwoPageWindow()
 
 int MainWindow::command_Control(QString cmd1)
 {
-    //990
+    qDebug()<<"命令:"<<cmd1;
+    //990需求命令行控制
     if(isFirstObject&&!QFileInfo::exists(cmd1))//首个实例不接受文件以外的参数
     {
         qDebug()<<"首个实例不接受文件以外的参数"<<cmd1;
         isFirstObject = false;//可以接收其他命令
-//        return 0;
+        return 0;
     }
-    qDebug()<<"*********************************";
-    if(cmd1=="-s"||cmd1=="-start")//播放
+    if(cmd1=="-s"||cmd1=="-start")//开始录音
     {
-        //------播放------
-        qDebug()<<"录音开始";
-        switchPage();
-//        isPlay = true;
+        //------录音------
+        qDebug()<<"isRecording = "<<isRecording<<" "<<strat_pause;
+        if(!isRecording&&!strat_pause)
+        {
+            qDebug()<<"可以录音";
+            switchPage();
+        }
+        return 0;
+    }
+    if(cmd1=="-p"||cmd1=="-pause")//暂停
+    {
+        //------暂停------
+        if(isRecording)
+        {
+            qDebug()<<isRecording<<" "<<strat_pause;
+            qDebug()<<"录音暂停";
+            play_pause_clicked();//检测到正在录音时才可以暂停录制
+        }
+        else
+        {
+            if(strat_pause)//因为暂停录音时strat_pause会置true
+            {
+                play_pause_clicked();//开始录制
+            }
+        }
+        return 0;
+    }
+    if(cmd1=="-f"||cmd1=="finish")//结束录音
+    {
+        qDebug()<<"isRecording = "<<isRecording<<"strat_pause = "<<strat_pause;
+        if(isRecording||strat_pause)
+        {
+            qDebug()<<"可以结束";
+            stop_clicked();
+        }
         return 0;
     }
 }
@@ -322,6 +357,7 @@ void MainWindow::inputDevice_get(QString str)
     else
     {
         qDebug()<<"应用没有在录音！";
+        return;
     }
 }
 
@@ -716,7 +752,7 @@ void MainWindow::themeButton(QString themeColor)
     }
 
 }
-
+//计算时长
 QString MainWindow::playerTotalTime(QString filePath)
 {
     QFile file(filePath);
@@ -726,20 +762,18 @@ QString MainWindow::playerTotalTime(QString filePath)
     QString timeStr;
     if (file.open(QIODevice::ReadOnly))
     {
-
         if(fileinfo.suffix().contains("mp3"))
         {
             fileSize = file.size();
             qDebug()<<file.size()<<"后缀:mp3";
-            time = fileSize/16000;//时间长度=文件大小/比特率
+            time = fileSize/16000;//时间长度=文件大小/每秒字节数
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
-
         }
         else if(fileinfo.suffix().contains("m4a"))
         {
             fileSize = file.size();
-            time = fileSize/16000;//时间长度=文件大小/比特率
+            time = fileSize/16000;//时间长度=文件大小/每秒字节数
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
             qDebug()<<"文件大小:"<<fileSize<<"时长:"<<timeStr;
@@ -747,14 +781,13 @@ QString MainWindow::playerTotalTime(QString filePath)
         else if(fileinfo.suffix().contains("wav"))
         {
             fileSize = file.size();
-            time = fileSize/96000;//时间长度=文件大小/比特率
+            time = fileSize/96000;//时间长度=文件大小/每秒字节数
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
         }
         file.close();
         return timeStr;
     }
-
 }
 
 //初步配置文件
@@ -781,8 +814,6 @@ void MainWindow::initThemeGsetting()
         });
         themeStyle(themeData->get("style-name").toString());
 //    }
-
-
 
 }
 
@@ -857,20 +888,29 @@ void MainWindow::checkSingle(QStringList path)//检查单例模式
     {
         str = path[1];
     }
+
     QStringList homePath = QStandardPaths::standardLocations(QStandardPaths::HomeLocation);
     //兼容VNC的单例模式
-    int fd = open(QString(homePath.at(0) + "/.config/kylin-recorder%1.lock").arg(getenv("DISPLAY")).toUtf8().data(),
-                  O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    QString lockPath = homePath.at(0) + "/.config/kylin-recorder-lock";
+    int fd = open(lockPath.toUtf8().data(), O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     if (fd < 0) {
         exit(1);
     }
     if (lockf(fd, F_TLOCK, 0)) {
+
+         QDBusInterface interface( "org.ukui.kylin_recorder", "/org/ukui/kylin_recorder","org.ukui.kylin_recorder",
+                                   QDBusConnection::sessionBus());
+         if(path.size() == 2)
+             interface.call( "command_Control", str);
+
         qDebug()<<"Can't lock single file, kylin-recorder is already running!";
         exit(0);
+
     }
     isFirstObject = true;//我是首个对象
     argName << str;
-    qDebug()<<"argName"<<argName;
+    qDebug()<<"argName:"<<argName<<"str:"<<str<<"path:"<<path;
+
 }
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
@@ -912,42 +952,44 @@ void MainWindow::play_pause_clicked()
     static QTime pauseTime;
     if(strat_pause)
     {
-       emit playRecord();
-       menumodule -> menuButton->setEnabled(false);
-       isRecording = true;//开始时正在录音的标记值为true,其为true时禁止Item的悬浮特效
-       cut = QTime::currentTime();//记录开始时的时间
-       int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
-       limitTimer->start(1000);
-       baseTime = baseTime.addSecs(t);
-       pTimer->start(100);
-       mini.baseTime = mini.baseTime.addSecs(t);
-       mini.pTimer->start(100);
-       mini.start_pause = false;
-       strat_pause = false;
-       if(themeData->get("style-name").toString() == "ukui-dark"||themeData->get("style-name").toString() == "ukui-black")
-       {
-           mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-dark.svg);}"
-                                              "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
-                                              "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
-           play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/pause-dark.svg);}"
-                       "QToolButton:hover{image: url(:/svg/svg/pause-hover.svg);}"
-                       "QToolButton:pressed{image: url(:/svg/svg/pause-click.svg);}");
-       }
-       else
-       {
-           //点击完之后要修改悬停样式。
-           mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-light.svg);}"
-                                              "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
-                                              "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
-           play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/pause-light.svg);}"
-                       "QToolButton:hover{image: url(:/svg/svg/pause-hover.svg);}"
-                       "QToolButton:pressed{image: url(:/svg/svg/pause-click.svg);}");
-       }
-
+        emit playRecord();
+        set.radioButton_6->setEnabled(false);
+        set.radioButton_7->setEnabled(false);
+        set.radioButton_8->setEnabled(false);
+//        menumodule -> menuButton->setEnabled(false);
+        isRecording = true;//开始时正在录音的标记值为true,其为true时禁止Item的悬浮特效
+        cut = QTime::currentTime();//记录开始时的时间
+        int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
+        limitTimer->start(1000);
+        baseTime = baseTime.addSecs(t);
+        pTimer->start(100);
+        mini.baseTime = mini.baseTime.addSecs(t);
+        mini.pTimer->start(100);
+        mini.start_pause = false;
+        strat_pause = false;
+        if(themeData->get("style-name").toString() == "ukui-dark"||themeData->get("style-name").toString() == "ukui-black")
+        {
+            mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-dark.svg);}"
+                                               "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
+                                               "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
+            play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/pause-dark.svg);}"
+                        "QToolButton:hover{image: url(:/svg/svg/pause-hover.svg);}"
+                        "QToolButton:pressed{image: url(:/svg/svg/pause-click.svg);}");
+        }
+        else
+        {
+            //点击完之后要修改悬停样式。
+            mini.start_pauseBtn->setStyleSheet("QToolButton{border-radius:12px;image:url(:/svg/svg/mini-suspend-light.svg);}"
+                                               "QToolButton:hover{image:url(:/svg/svg/mini-suspend-hover.svg);}"
+                                               "QToolButton:pressed{image:url(:/svg/svg/mini-suspend-click.svg);}");
+            play_pauseButton->setStyleSheet("QToolButton{image: url(:/svg/svg/pause-light.svg);}"
+                        "QToolButton:hover{image: url(:/svg/svg/pause-hover.svg);}"
+                        "QToolButton:pressed{image: url(:/svg/svg/pause-click.svg);}");
+        }
     }
     else
     {
-        qDebug()<<"pause";
+        qDebug()<<"pause录音";
         emit pauseRecord();
         isRecording = false;//暂停时正在录音的标记值为false,其为false时Item的悬浮特效可以被开启
         limitTimer->stop();
@@ -981,6 +1023,7 @@ void MainWindow::play_pause_clicked()
 
 }
 
+
 void MainWindow::recordPaint(int value)
 {
     maxNum.prepend(value/300);//将元素插入到Vector的开始
@@ -994,7 +1037,10 @@ void MainWindow::stop_clicked()//停止按钮
     if(stop)
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
-        menumodule->menuButton->setEnabled(true);
+        set.radioButton_6->setEnabled(true);
+        set.radioButton_7->setEnabled(true);
+        set.radioButton_8->setEnabled(true);
+//        menumodule->menuButton->setEnabled(true);
         limitTimer->stop();//停止记录录音时间
         pTimer->stop();//计时停止
         mini.pTimer->stop();
@@ -1105,7 +1151,7 @@ void MainWindow::mainWindow_page2()
                                   "QToolButton:hover{image: url(:/svg/svg/finish-hover.svg);}"
                                   "QToolButton:pressed{image: url(:/svg/svg/finish-click.svg);}");
     }
-    stop=true;//stop按钮默认是true代表停止中
+
 
     stopButton->setIconSize(QSize(56,56));//重置图标大小
     showTimelb->setText("00:00:00");
@@ -1170,6 +1216,7 @@ void MainWindow::switchPage()
 //    }
     if(!isplaying)//判断是否有音频在播放，若无音频播放则可以录音
     {
+        stop=true;//stop按钮默认是true代表停止中
         isRecording = true;//正在录音时此标记为true，此为true时悬浮特效被禁止,这一行一定要在前面
         m_pStackedWidget->setCurrentIndex(1);
         mini.recordStackedWidget->setCurrentIndex(1);//切换至录音按钮
@@ -1181,19 +1228,10 @@ void MainWindow::switchPage()
         baseTime = baseTime.currentTime();
         mini.baseTime = mini.baseTime.currentTime();
         mini.pTimer->start(100);
-
-//        int nCount = m_pStackedWidget->count();
-//        int nIndex = m_pStackedWidget->currentIndex();
-//        // 获取下一个需要显示的页面索引
-//        nIndex++;
-//        // 当需要显示的页面索引大于等于总页面时，切换至首页
-//        if (nIndex >= nCount)
-//            nIndex = 0;
-//        mini.recordStackedWidget->setCurrentIndex(nIndex);//切换至录音按钮
-//        m_pStackedWidget->setCurrentIndex(nIndex);
-
-
-        menumodule->menuButton->setEnabled(false);
+        set.radioButton_6->setEnabled(false);
+        set.radioButton_7->setEnabled(false);
+        set.radioButton_8->setEnabled(false);
+//        menumodule->menuButton->setEnabled(false);
     }
     else
     {
@@ -1299,8 +1337,6 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     }
     return QObject::eventFilter(obj,event);
 }
-
-
 
 void MainWindow::wheelEvent(QWheelEvent *wheel)
 {
