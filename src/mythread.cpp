@@ -664,17 +664,17 @@ void MyThread::onChangeCurrentRecordList(QString filePath)
     writePathCollected(newFilePath);
 }
 
+void MyThread::pauseRecord()//暂停录制
+{
+    audioInputFile->stop();
+    audioInputSound->stop();
+}
+
 void MyThread::playRecord()//开始录制
 {
     audioInputFile->start(file);
     inputDevSound = audioInputSound->start();
     connect(inputDevSound, SIGNAL(readyRead()),this,SLOT(OnReadMore()));//点击开始三角按钮时录制
-}
-
-void MyThread::pauseRecord()//暂停录制
-{
-    audioInputFile->stop();
-    audioInputSound->stop();
 }
 
 void MyThread::InitMonitor()

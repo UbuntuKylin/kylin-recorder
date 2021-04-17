@@ -122,7 +122,7 @@ void MainWindow::initMainWindow()
 
     mainWid ->setFixedSize(WIDTH,HEIGHT);
     mainWid ->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
-    mainWid ->setWindowTitle(tr("kylin-recorder"));
+    mainWid ->setWindowTitle(tr("Recorder"));
     //屏幕中间老方法
     //    this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
     //显示在活动屏幕中间新方法
@@ -149,7 +149,7 @@ void MainWindow::initMainWindow()
     appPicture->setFixedSize(24,24);
     appPicture->setIconSize(QSize(24,24));//重置图标大小
     lb=new QLabel(this);
-    lb->setText(tr("kylin-recorder"));//？字体待修改
+    lb->setText(tr("Recorder"));//？字体待修改
     lb->setStyleSheet("font-size:14px;");//修改字体显示
     lb->setFixedHeight(24);
 
@@ -255,7 +255,7 @@ void MainWindow::setTwoPageWindow()
     playList = new QMediaPlaylist;//播放列表
     tipWindow = new TipWindow();
 
-    setWindowTitle(tr("kylin-recorder"));
+    setWindowTitle(tr("Recorder"));
     //主界面右侧listWidget
     fileListlb=new QLabel(this);
     fileListlb->setText(tr("File List"));
