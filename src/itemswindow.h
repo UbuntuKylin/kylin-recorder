@@ -173,6 +173,8 @@ private:
 
 private:
 
+    static void _processStart(const QString &cmd , QStringList arguments = QStringList());
+    static void deleteImage(const QString &savepath);
     void initRectangleWave();//停止录音后再生成110个矩形框,防止多次初始化造成cpu占用率过高
     void deleteWaves();
 

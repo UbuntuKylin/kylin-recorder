@@ -312,6 +312,7 @@ void ItemsWindow::positionChange(qint64 position)
         QTime totalTime(0,(MainWindow::mutual->playerCompoment->duration()/60000) % 60,
                        (MainWindow::mutual->playerCompoment->duration() / 1000) % 60);
 //        qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
+//        qDebug()<<"总进度："<<MainWindow::mutual->playerCompoment->duration();
 
     }
 
@@ -337,6 +338,7 @@ void ItemsWindow::stateChanged(enum QMediaPlayer::State)
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
         setPosition(0);
         emit playingSignal(false);//播放结束才可以点击录音
+        splitLinestackWid->setCurrentIndex(0);//切换至分割线
     }
 
 }
@@ -357,6 +359,7 @@ bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点�
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if (mouseEvent->button() == Qt::LeftButton) //判断左键
             {
+               qDebug()<<"maximum"<<playSlider->maximum()<<"minimum"<<playSlider->minimum()<<"mouseEvent->x()"<<mouseEvent->x()<<"playSlider->width()"<<playSlider->width()<<"playSlider->sliderPosition()"<<playSlider->sliderPosition();
                int dur = playSlider->maximum() - playSlider->minimum();
                int pos = playSlider->minimum() + dur * ((double)mouseEvent->x() / playSlider->width());
                if(pos != playSlider->sliderPosition())
@@ -405,7 +408,7 @@ void ItemsWindow::hover_ChangeState(QEvent *event)
         stackLayout->setCurrentIndex(1);//切换至录音按钮stackLayout
         if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
         {
-            qDebug()<<"当前:"<<MainWindow::mutual->tempPath<<" "<<this->recordFileName->text();
+//            qDebug()<<"当前:"<<MainWindow::mutual->tempPath<<" "<<this->recordFileName->text();
             if(MainWindow::mutual->tempPath.contains(this->recordFileName->text()))
             {
                 splitLinestackWid->setCurrentIndex(1);//切换至进度条
@@ -434,7 +437,7 @@ void ItemsWindow::hover_ChangeState(QEvent *event)
             recordFileNameChangeColor->setStyleSheet("font-size:14px;color:black;");
         }
         stackLayout->setCurrentIndex(0);//切换至录音按钮stackLayout
-        splitLinestackWid->setCurrentIndex(0);//切换至分割线
+//        splitLinestackWid->setCurrentIndex(0);//切换至分割线
     }
 }
 
@@ -583,7 +586,6 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
     MyThread *myth = new MyThread();
     QLabel *label = itemsWid->findChild<QLabel *>(recordFileName->objectName());
     myth->readPathCollected();//先读取配置文件中的所有路径集
-
     QStringList listRecordPath = myth->readPathCollected().split(",");
     int m = myth->readNumList()-1;
     for(int i=1;i<=m;i++)
@@ -600,7 +602,6 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
                     qDebug()<<"不是原路径的音频文件时"<<MainWindow::mutual->tempPath<<" "<<audioFilePath;
                     MainWindow::mutual->tempPath = audioFilePath;
                     MainWindow::mutual->playerCompoment->stop();
-
                     judgeState(QMediaPlayer::StoppedState,audioFilePath);
                 }
                 else
@@ -608,8 +609,6 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
                     qDebug()<<"是原路径的音频文件时";
                     judgeState(MainWindow::mutual->playerCompoment->state(),audioFilePath);
                 }
-
-
             }
             else
             {
@@ -624,7 +623,6 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
         }
     }
     myth->deleteLater();
-
 }
 
 void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
@@ -670,7 +668,6 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
         stopReplayer();//先暂停再播放
         qDebug()<<"你点击的路径"<<path;
         MainWindow::mutual->playerCompoment->play();
-        qDebug()<<"Test？？？？？？？？？？？";
         qDebug()<<"存在播放"<<this->recordFileName->text();
         play_pause = true;
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
@@ -814,8 +811,10 @@ void ItemsWindow::delFile()
                     MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-x);//删除操作
                     qDebug()<<"**********路径存在，删除第"<<i<<"个"<<str;
                     MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
-                    QString Home_path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-                                        strResult1 = executeLinuxCmd("mv " + str + ' '+Home_path+"/.local/share/Trash/files");
+//                    QString Home_path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+//                                        strResult1 = executeLinuxCmd("mv " + str + ' '+Home_path+"/.local/share/Trash/files");
+
+                    deleteImage(str);//移入回收站
                     QFile::remove(str);//从本地删除
                 }
                 else
@@ -831,7 +830,7 @@ void ItemsWindow::delFile()
                 int y = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
                 MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-y);//删除list列表的item操作
                 MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
-
+                updateGSettingSignal(str);//不存在时，删除则要更新一下配置文件
                 continue ;
             }
 
@@ -841,6 +840,21 @@ void ItemsWindow::delFile()
     listFileNumUpdate(MainWindow::mutual->list->count());
     myth->deleteLater();
     return ;
+}
+
+void ItemsWindow::deleteImage(const QString &savepath)
+{
+    _processStart("gio",QStringList() << "trash" << savepath);
+}
+
+void ItemsWindow::_processStart(const QString &cmd, QStringList arguments)
+{
+    QString cmdTmp = cmd;
+    for(QString &x : arguments){
+        cmdTmp += " ";
+        cmdTmp += x;
+    }
+    system(cmdTmp.toLocal8Bit().data());
 }
 
 QString ItemsWindow::executeLinuxCmd(QString strCmd)
