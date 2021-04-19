@@ -80,7 +80,7 @@ void MiniWindow::initMiniWindow()
 
 
 //    setWindowFlags(Qt::FramelessWindowHint);
-    miniWid -> setWindowTitle(tr("kylin-recorder"));
+    miniWid -> setWindowTitle(tr("Recorder"));
     miniWid -> setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
     //this->setStyleSheet("border-radius:6px;");//mini窗体圆角6px
     pTimer = new QTimer;//第二个页面的控件初始化

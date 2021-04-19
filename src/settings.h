@@ -54,6 +54,9 @@ public:
     QLabel *label_5;
 
     QRadioButton *radioButton_6;
+    QRadioButton *radioButton_7;
+    QRadioButton *radioButton_8;
+
     QLabel *label_8;
 
 
@@ -94,9 +97,9 @@ private:
     QRadioButton *radioButton_5;
     QLabel *label_7;
 
-    QRadioButton *radioButton_7;
+
     QLabel *label_9;
-    QRadioButton *radioButton_8;
+
     QLabel *label_10;
     QLabel *label_11;
 public slots:
