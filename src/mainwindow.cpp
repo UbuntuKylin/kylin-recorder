@@ -300,8 +300,21 @@ int MainWindow::command_Control(QString cmd1)
     //990需求命令行控制
     if(isFirstObject&&!QFileInfo::exists(cmd1))//首个实例不接受文件以外的参数
     {
+        if(cmd1 == "-c"||cmd1 =="-close")
+        {
+            qDebug()<<"-c"<<cmd1;
+            this->close();
+            exit(0);
+        }
         qDebug()<<"首个实例不接受文件以外的参数"<<cmd1;
         isFirstObject = false;//可以接收其他命令
+        return 0;
+    }
+    if(cmd1=="")//无参数，单例触发
+    {
+        //kwin接口唤醒
+        KWindowSystem::forceActiveWindow(mainWid->winId());
+        qDebug()<<"窗口置顶";
         return 0;
     }
     if(cmd1=="-s"||cmd1=="-start")//开始录音
@@ -333,7 +346,7 @@ int MainWindow::command_Control(QString cmd1)
         }
         return 0;
     }
-    if(cmd1=="-f"||cmd1=="finish")//结束录音
+    if(cmd1=="-f"||cmd1=="-finish")//结束录音
     {
         qDebug()<<"isRecording = "<<isRecording<<"strat_pause = "<<strat_pause;
         if(isRecording||strat_pause)
@@ -341,6 +354,14 @@ int MainWindow::command_Control(QString cmd1)
             qDebug()<<"可以结束";
             stop_clicked();
         }
+        return 0;
+    }
+    if(cmd1=="-c"||cmd1=="-close")//结束录音
+    {
+        thread->quit();
+        thread->wait();
+        mainWid->close();
+        mini.miniWid->close();
         return 0;
     }
 }
@@ -765,7 +786,7 @@ QString MainWindow::playerTotalTime(QString filePath)
         if(fileinfo.suffix().contains("mp3"))
         {
             fileSize = file.size();
-            qDebug()<<file.size()<<"后缀:mp3";
+            qDebug()<<file.size()<<"后缀:mp3余数"<<fileSize%16000;
             time = fileSize/16000;//时间长度=文件大小/每秒字节数
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
@@ -900,6 +921,8 @@ void MainWindow::checkSingle(QStringList path)//检查单例模式
 
          QDBusInterface interface( "org.ukui.kylin_recorder", "/org/ukui/kylin_recorder","org.ukui.kylin_recorder",
                                    QDBusConnection::sessionBus());
+         if(path.size() == 1)
+             interface.call( "command_Control", str);
          if(path.size() == 2)
              interface.call( "command_Control", str);
 
@@ -1105,7 +1128,7 @@ void MainWindow::updateDisplay()
 void MainWindow::limitRecordingTime()
 {
     qDebug()<<"查看计数:"<<timeTag;
-    if(timeTag >= 15)//超过15分钟自动保存
+    if(timeTag >= 60)//超过15分钟自动保存
     {
        stop_clicked();
     }

@@ -22,7 +22,7 @@
 #define KYLINRECORDER "org.kylin-recorder-data.settings"
 #define FITTHEMEWINDOW "org.ukui.style"
 #include <QGSettings>
-
+#include <KWindowSystem>
 #include <QWidget>
 #include <QApplication>
 #include <QMainWindow>

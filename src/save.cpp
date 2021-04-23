@@ -135,7 +135,7 @@ void Save::savefile()
                           tr("Select a file storage directory"),
                               QDir::currentPath(),
                               "Mp3(*.mp3)");
-        myth->selectMp3();
+//        myth->selectMp3();
 
 
     }
@@ -146,7 +146,7 @@ void Save::savefile()
                           tr("Select a file storage directory"),
                               QDir::currentPath(),
                               "Wav(*.wav)");
-        myth->selectWav();
+//        myth->selectWav();
     }
     else
     {
