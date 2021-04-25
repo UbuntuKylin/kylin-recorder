@@ -23,6 +23,7 @@
 #include <QStandardPaths>
 #include <fcntl.h>
 #include <syslog.h>
+#include <ukui-log4qt.h>
 
 #define DOUBLE 2
 #define MAX_FILE_SIZE 1024
@@ -101,7 +102,9 @@ void messageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
 
 int main(int argc, char *argv[])
 {
-    qInstallMessageHandler(messageOutput);//日志输出功能,穿版本之前务必解开
+//    qInstallMessageHandler(messageOutput);//日志输出功能,穿版本之前务必解开
+    initUkuiLog4qt("kylin-recorder");
+    printf("Program start ...\n");
     /*
      * 添加4K 屏幕支持。
      */

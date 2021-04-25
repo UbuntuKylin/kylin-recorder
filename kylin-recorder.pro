@@ -17,6 +17,12 @@ TARGET = kylin-recorder
 TEMPLATE = app
 LIBS += -lmp3lame
 
+# 生成qm文件
+message($$system(./translations/generate_translations_qm.sh))
+# translations
+#TRANSLATIONS += $$PWD/translations/kylin-recorder_zh_CN.ts
+QM_FILES_INSTALL_PATH = /usr/share/kylin-recorder/translations/
+CONFIG += lrelease
 # 适配窗口管理器圆角阴影
 LIBS +=-lpthread
 LIBS +=-lX11
@@ -36,8 +42,15 @@ appdesktop.path = /usr/share/applications/
 icons.files = svg/recording_128.svg
 icons.path = /usr/share/pixmaps/
 
-schemes.files = data/org.kylin-recorder-data.gschema.xml
+# gsettings
+schemes.files += \
+    $$PWD/data/org.kylin-recorder-data.gschema.xml \
+    $$PWD/data/org.ukui.log4qt.kylin-recorder.gschema.xml
+#schemes.files = data/org.kylin-recorder-data.gschema.xml
 schemes.path = /usr/share/glib-2.0/schemas/
+
+LIBS += -L/usr/lib/libukui-log4qt.so.1.0.0 -lukui-log4qt
+
 
 INSTALLS += target desktop appdesktop icons  schemes qm_files
 
@@ -94,6 +107,7 @@ RESOURCES += \
 
 DISTFILES += \
     data/org.kylin-recorder-data.gschema.xml \
+    data/org.ukui.log4qt.kylin-recorder.gschema.xml \
     mypng.rc \
     translations/kylin-recorder_zh_CN.qm \
     translations/kylin-recorder_zh_CN.ts \

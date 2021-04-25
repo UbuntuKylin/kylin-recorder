@@ -38,7 +38,7 @@ struct WAVFILEHEADER
     char DATANAME[4];   //数据块
 };
 
-MyThread::MyThread(QWidget *parent) : QMainWindow(parent)
+MyThread::MyThread(QWidget *parent) : QWidget(parent)
 {
 
     qDebug()<<"子线程MyThread::startThreadSlot QThread::currentThreadId()=="<<QThread::currentThreadId();
@@ -303,7 +303,8 @@ void MyThread::saveAs(QString oldFileName)//右键另存为可以选择存储音
     fileDialog->setNameFilter(fileType);
     QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
     qDebug()<<defaultPath;
-    QString newFileName = QFileDialog::getSaveFileName(this,
+    //QFileDialog指定父窗口,使系统弹窗在中间MainWindow::mutual->mainWid
+    QString newFileName = QFileDialog::getSaveFileName(MainWindow::mutual->mainWid,
                                                      tr("Select a file storage directory"),
                                                      defaultPath+"/RecordFile.mp3",
                                                      fileType);
@@ -311,10 +312,8 @@ void MyThread::saveAs(QString oldFileName)//右键另存为可以选择存储音
     QMessageBox::StandardButton ret = mBox->standardButton(mBox->clickedButton());
     if(ret == QMessageBox::Ok && newFileName ==""||newFileName.contains(" ")||newFileName.contains("?")||newFileName.contains("'")||newFileName.contains("\"")||newFileName.contains("\\"))
     {
-
-        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Do not enter illegal file name!"), QMessageBox::Ok );//不要输入非法文件名！
-        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
-        WrrMsg->exec();
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),tr("Do not enter illegal file name"),QMessageBox::Ok);
+        qDebug()<<"进来了!!";
         return ;
     }
     if(oldFileName != newFileName)
@@ -397,10 +396,12 @@ void MyThread::stop_btnPressed()//停止录音
         //弹存储为的框
 //        saveas.show();//2020.11.12禁用此功能
 
+        //QFileDialog指定父窗口,使系统弹窗在中间MainWindow::mutual->mainWid
         if(recordData->get("type").toInt()==1)
         {
+
             fileName = QFileDialog::getSaveFileName(
-                              this,
+                              MainWindow::mutual->mainWid,
                               tr("Select a file storage directory"),
                                   QDir::currentPath(),
                                   "Mp3(*.mp3)");
@@ -410,7 +411,7 @@ void MyThread::stop_btnPressed()//停止录音
         else if(recordData->get("type").toInt()==2)
         {
             fileName = QFileDialog::getSaveFileName(
-                              this,
+                              MainWindow::mutual->mainWid,
                               tr("Select a file storage directory"),
                                   QDir::currentPath(),
                                   "M4a(*.m4a)");
@@ -419,7 +420,7 @@ void MyThread::stop_btnPressed()//停止录音
         else if(recordData->get("type").toInt()==3)
         {
             fileName = QFileDialog::getSaveFileName(
-                              this,
+                              MainWindow::mutual->mainWid,
                               tr("Select a file storage directory"),
                                   QDir::currentPath(),
                                   "Wav(*.wav)");
@@ -941,9 +942,7 @@ void MyThread::selectMp3()
 
     if(QMessageBox::Ok && fileName.length() == 0||fileName.contains(" ")||fileName.contains("?")||fileName.contains("'")||fileName.contains("\"")||fileName.contains("\\"))
     {
-        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Do not enter illegal file name!"), QMessageBox::Ok );//不要输入非法文件名！
-        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
-        WrrMsg->exec();
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),tr("Do not enter illegal file name"));
         return ;
     }
     QString filename = fileName.mid(fileName.lastIndexOf("/") +1);
@@ -999,9 +998,7 @@ void MyThread::selectM4a()
 {
     if(QMessageBox::Ok && fileName.length() == 0||fileName.contains(" ")||fileName.contains("?")||fileName.contains("'")||fileName.contains("\"")||fileName.contains("\\"))
     {
-        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Do not enter illegal file name!"), QMessageBox::Ok );//不要输入非法文件名！
-        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
-        WrrMsg->exec();
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),tr("Do not enter illegal file name"));
         return ;
     }
     QString filename = fileName.mid(fileName.lastIndexOf("/") +1);
@@ -1055,9 +1052,7 @@ void MyThread::selectWav()
 {
     if(QMessageBox::Ok && fileName.length() == 0||fileName.contains(" ")||fileName.contains("?")||fileName.contains("'")||fileName.contains("\"")||fileName.contains("\\"))
     {
-        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Do not enter illegal file name!"), QMessageBox::Ok );//不要输入非法文件名！
-        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
-        WrrMsg->exec();
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),tr("Do not enter illegal file name"));
         return ;
     }
     QString filename = fileName.mid(fileName.lastIndexOf("/") +1);

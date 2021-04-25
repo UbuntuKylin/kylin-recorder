@@ -73,12 +73,12 @@
 #include "menumodule.h"
 
 #define INIT_MAINWINDOW_RECTANGLE_COUNT 130//用于初始化矩形条个数
-class MainWindow : public QMainWindow
+class MainWindow : public QWidget
 {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.ukui.kylin_recorder")//调用DBus一定要加这一行
 public://放在public都是有原因的因为不同类之间中调用需要公用！！
-    MainWindow(QStringList str,QWidget *parent = 0);
+    MainWindow(QStringList str,QWidget *parent = nullptr);
     ~MainWindow();
     QMessageBox *WrrMsg;
     QGSettings  *defaultPathData= nullptr;

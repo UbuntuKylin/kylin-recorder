@@ -34,6 +34,7 @@
 #include <QAudioDeviceInfo>
 #include <QTimer>
 #include <QTime>
+#include <QDialog>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QAudio>
@@ -52,7 +53,7 @@
 
 #define BufferSize 35280
 #define MYTHREAD_RECTANGLE_COUNT 130//检测时矩形条个数实时更新
-class MyThread : public QMainWindow
+class MyThread : public QWidget
 {
     Q_OBJECT
 public:

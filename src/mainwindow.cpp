@@ -34,7 +34,7 @@
 
 MainWindow *MainWindow::mutual = nullptr;//初始化！！！
 MainWindow::MainWindow(QStringList str,QWidget *parent)
-    :QMainWindow(parent)
+    :QWidget(parent)
 {
     mutual = this;
     defaultPathData = new QGSettings(KYLINRECORDER);
