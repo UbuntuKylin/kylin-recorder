@@ -163,6 +163,8 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QToolButton *play_pauseButton;
 
     bool isFirstObject = false;//判断是否是唯一的对象
+
+    void processArgs(QStringList args);
 private:
 
     int timeTag = 0;

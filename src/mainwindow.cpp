@@ -44,6 +44,29 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
     checkSingle(str);//检查单例模式
     qDebug()<<"sssssssssssss"<<str;
 
+
+    initDbus();//初始化插拔信号和s3/s4的dbus
+    initMainWindow();//初始化主界面
+    setTwoPageWindow();//设置点击按钮切换的第二个页面
+
+//    this->setWindowFlags((Qt::FramelessWindowHint));//设置窗体无边框**加窗管协议后要将此注释调**
+    MainWindowLayout(); //主窗体布局方法
+    initThemeGsetting();//初始化主题配置文件
+    mainWindow_page2(); //必须加上初始化第二个主页面(此函数有两处需要被调用:构造函数+切换页面时)
+    updateGsetting_ListWidget();
+
+
+    qDebug()<<"主线程:"<<QThread::currentThread();
+    myThread->moveToThread(thread);
+    thread->start();
+    //qDebug()<<"子线程:";
+    //点击关闭时把线程关掉
+    connect(closeButton,&QToolButton::clicked,[=](){
+        thread->quit();
+          thread->wait();
+    });
+    //这个分支要放在下面,对于执行命令时有些还没来得及实例化所以要放在后面
+
     if(!argName.isEmpty())
     {
         qDebug()<<"argName1111111"<<argName;
@@ -57,26 +80,6 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
         }
     }
     isFirstObject = false;//可以接收外部命令
-    initDbus();//初始化插拔信号和s3/s4的dbus
-    initMainWindow();//初始化主界面
-    setTwoPageWindow();//设置点击按钮切换的第二个页面
-
-//    this->setWindowFlags((Qt::FramelessWindowHint));//设置窗体无边框**加窗管协议后要将此注释调**
-    MainWindowLayout(); //主窗体布局方法
-    initThemeGsetting();//初始化主题配置文件
-    mainWindow_page2(); //必须加上初始化第二个主页面(此函数有两处需要被调用:构造函数+切换页面时)
-    updateGsetting_ListWidget();
-
-    qDebug()<<"主线程:"<<QThread::currentThread();
-    myThread->moveToThread(thread);
-    thread->start();
-    //qDebug()<<"子线程:";
-    //点击关闭时把线程关掉
-    connect(closeButton,&QToolButton::clicked,[=](){
-        thread->quit();
-          thread->wait();
-    });
-    //这个分支要放在下面,对于执行命令时有些还没来得及实例化所以要放在后面
 
     mainWid->show();
 }
@@ -364,6 +367,10 @@ int MainWindow::command_Control(QString cmd1)
         mini.miniWid->close();
         return 0;
     }
+    QStringList qStringListPath;
+    qStringListPath << cmd1;
+    processArgs(qStringListPath);
+    return 0;//重要:int类型的函数一定要加返回值
 }
 
 //对于台式机，可以收到耳机插拔的DBus信号
@@ -434,11 +441,8 @@ void MainWindow::closeWindow()
     if (isRecording == true)
     {
 //        myThread->stop_saveDefault();
-        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                 ,tr("Please stop recording before closing!"),QMessageBox::Yes );
-        WrrMsg->move(mainWid->geometry().center() - WrrMsg->rect().center());
-        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-        WrrMsg->exec();
+        QMessageBox::warning(mainWid,tr("Warning"),
+                             tr("Please stop recording before closing!"));
         return ;
 
     }else
@@ -1258,11 +1262,9 @@ void MainWindow::switchPage()
     }
     else
     {
+        QMessageBox::warning(mainWid,tr("Warning"),
+                             tr("There is audio playing, please stop after recording!"));
 
-        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                 ,tr("There is audio playing, please stop after recording!"),QMessageBox::Yes );
-        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-        WrrMsg->exec();
         return ;
     }
 
@@ -1371,6 +1373,50 @@ void MainWindow::wheelEvent(QWheelEvent *wheel)
 //    {
 //        qDebug()<<"下";
 //    }
+}
+
+void MainWindow::processArgs(QStringList args)
+{
+    qDebug()<<"选择的音频路径为:"<<args;
+    qDebug()<<"Items有:"<<this->findChildren<ItemsWindow*>()
+           <<"共有"<<this->findChildren<ItemsWindow*>().count()<<"个";
+    if(!args.isEmpty())
+    {
+        QString selectStr = args.at(0);//选择串
+        QString tempStr ;//临时比对串
+        int i = 0;
+        for(i = 0;i < this->findChildren<ItemsWindow*>().count();i++)
+        {
+            tempStr = this->findChildren<ItemsWindow*>().at(i)->recordFileName->text();
+            if(selectStr.contains(tempStr))
+            {
+                qDebug()<<"1111选择的Item是:"<<tempStr<<"  "<<i;
+                if(tempPath!=selectStr)
+                {
+                    qDebug()<<"不是原路径的音频文件时";
+                    tempPath = selectStr;
+                    playerCompoment->stop();
+                    this->findChildren<ItemsWindow*>().at(i)->judgeState(playerCompoment->state(),selectStr);
+                    break;
+                }
+                else
+                {
+                    qDebug()<<"原路径的音频文件时";
+                    this->findChildren<ItemsWindow*>().at(i)->judgeState(playerCompoment->state(),selectStr);
+                    break;
+                }
+
+            }
+
+        }
+        if(i>=this->findChildren<ItemsWindow*>().count())
+        {
+            qDebug()<<"非录音列表文件，无法打开";
+            QMessageBox::warning(mainWid,tr("Warning"),
+                                 tr("The file is not in the recording list,cannot be opened"));
+            return;
+        }
+    }
 }
 
 

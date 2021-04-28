@@ -312,7 +312,8 @@ void MyThread::saveAs(QString oldFileName)//右键另存为可以选择存储音
     QMessageBox::StandardButton ret = mBox->standardButton(mBox->clickedButton());
     if(ret == QMessageBox::Ok && newFileName ==""||newFileName.contains(" ")||newFileName.contains("?")||newFileName.contains("'")||newFileName.contains("\"")||newFileName.contains("\\"))
     {
-        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),tr("Do not enter illegal file name"),QMessageBox::Ok);
+        QMessageBox::warning(MainWindow::mutual->mainWid,
+                             tr("Warning"),tr("Do not enter illegal file name"),QMessageBox::Ok);
         qDebug()<<"进来了!!";
         return ;
     }
@@ -950,10 +951,8 @@ void MyThread::selectMp3()
     QString first_s = filename.at(0);
     if(first_s == s)
     {
-
-        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Please do not name the file with . at the beginning!"), QMessageBox::Ok );//请不要以.开头为文件命名！
-        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
-        WrrMsg->exec();
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
+                             tr("Please do not name the file with . at the beginning!"));
         return;
     }
     else
@@ -1006,9 +1005,8 @@ void MyThread::selectM4a()
     QString first_s = filename.at(0);
     if(first_s == s)
     {
-        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Please do not name the file with . at the beginning!"), QMessageBox::Ok );//请不要以.开头为文件命名！
-        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
-        WrrMsg->exec();
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
+                             tr("Please do not name the file with . at the beginning!"));
         return;
     }
     else
@@ -1060,9 +1058,8 @@ void MyThread::selectWav()
     QString first_s = filename.at(0);
     if(first_s == s)
     {
-        WrrMsg = new QMessageBox(QMessageBox::Warning, tr("Warning"), tr("Please do not name the file with . at the beginning!"), QMessageBox::Ok );//请不要以.开头为文件命名！
-        WrrMsg->button(QMessageBox::Ok)->setText(tr("OK"));
-        WrrMsg->exec();
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
+                             tr("Please do not name the file with . at the beginning!"));
         return;
     }
     else

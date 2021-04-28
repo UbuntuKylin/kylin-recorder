@@ -17,11 +17,6 @@ TARGET = kylin-recorder
 TEMPLATE = app
 LIBS += -lmp3lame
 
-# 生成qm文件
-message($$system(./translations/generate_translations_qm.sh))
-# translations
-#TRANSLATIONS += $$PWD/translations/kylin-recorder_zh_CN.ts
-QM_FILES_INSTALL_PATH = /usr/share/kylin-recorder/translations/
 CONFIG += lrelease
 # 适配窗口管理器圆角阴影
 LIBS +=-lpthread

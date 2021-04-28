@@ -411,7 +411,7 @@ void ItemsWindow::hover_ChangeState(QEvent *event)
 //            qDebug()<<"当前:"<<MainWindow::mutual->tempPath<<" "<<this->recordFileName->text();
             if(MainWindow::mutual->tempPath.contains(this->recordFileName->text()))
             {
-                splitLinestackWid->setCurrentIndex(1);//切换至进度条
+//                splitLinestackWid->setCurrentIndex(1);//切换至进度条
             }
 
         }
@@ -480,10 +480,8 @@ void ItemsWindow::actionSaveasSlot()
             }
             else
             {
-                WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                         ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
-                WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-                WrrMsg->exec();
+                QMessageBox::warning(mainWid,tr("Warning"),
+                                     tr("The file path does not exist or has been deleted!"));
                 my->deleteLater();
                 return ;
             }
@@ -512,12 +510,9 @@ void ItemsWindow::actionOpenFolderSlot()
                }
                else
                {
-                   WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                            ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
-                   WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-                   WrrMsg->exec();
+                   QMessageBox::warning(mainWid,tr("Warning"),
+                                        tr("The file path does not exist or has been deleted!"));
                    my->deleteLater();
-   //                MainWindow::mutual->list->takeItem(i-1);
                    return ;
                }
            }
@@ -597,26 +592,28 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
             if(fi.exists())
             {
                 qDebug()<<MainWindow::mutual->tempPath<<"和"<<audioFilePath;
+
                 if(MainWindow::mutual->tempPath != audioFilePath)//不是原路径的音频文件时
                 {
                     qDebug()<<"不是原路径的音频文件时"<<MainWindow::mutual->tempPath<<" "<<audioFilePath;
                     MainWindow::mutual->tempPath = audioFilePath;
                     MainWindow::mutual->playerCompoment->stop();
-                    judgeState(QMediaPlayer::StoppedState,audioFilePath);
+                    judgeState(MainWindow::mutual->playerCompoment->state(),audioFilePath);
+
                 }
                 else
                 {
                     qDebug()<<"是原路径的音频文件时";
+//                    MainWindow::mutual->playerCompoment->pause();
                     judgeState(MainWindow::mutual->playerCompoment->state(),audioFilePath);
                 }
             }
             else
             {
                 emit playingSignal(false);
-                WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                         ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
-                WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-                WrrMsg->exec();
+
+                QMessageBox::warning(mainWid,tr("Warning"),
+                                     tr("The file path does not exist or has been deleted!"));
                 myth->deleteLater();
                 return ;
             }
@@ -630,8 +627,7 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
     qDebug()<<"播放状态"<<MainWindow::mutual->playerCompoment->state();
     if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
     {
-        qDebug()<<"有正在播放的音频2";
-
+        qDebug()<<"有正在播放的音频222222222222222";
         MainWindow::mutual->playerCompoment->pause();
         qDebug()<<"存在暂停"<<this->recordFileName->text();
         play_pause=false;
@@ -671,6 +667,7 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
         qDebug()<<"存在播放"<<this->recordFileName->text();
         play_pause = true;
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
+        qDebug()<<"***********************";
     }
 }
 
@@ -757,10 +754,8 @@ void ItemsWindow::delFile()
     int m = myth->readNumList();//因为配置文件初始为1
     if(m<0)
     {
-        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                 ,tr("The current number of list files is 0."),QMessageBox::Yes );
-        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-        WrrMsg->exec();
+        QMessageBox::warning(mainWid,tr("Warning"),
+                             tr("The current number of list files is 0."));
         myth->deleteLater();
         return ;
     }
@@ -781,10 +776,8 @@ void ItemsWindow::delFile()
                 {
                     if(MainWindow::mutual->playerCompoment->state()==QMediaPlayer::PlayingState)
                     {
-                        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                                 ,tr("Playing, please stop and delete!"),QMessageBox::Yes );
-                        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-                        WrrMsg->exec();
+                        QMessageBox::warning(mainWid,tr("Warning"),
+                                             tr("Playing, please stop and delete!"));
                         myth->deleteLater();
                         return ;
                     }
@@ -985,10 +978,8 @@ int ItemsWindow::createCutWave()
             }
             else
             {
-                WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                         ,tr("The file path does not exist or has been deleted!"),QMessageBox::Yes );
-                WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-                WrrMsg->exec();
+                QMessageBox::warning(mainWid,tr("Warning"),
+                                     tr("The file path does not exist or has been deleted!"));
                 myth->deleteLater();
                 return -1;
             }

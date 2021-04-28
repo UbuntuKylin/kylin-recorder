@@ -133,6 +133,7 @@ public:
     ClipButton *leftBtn;//左箭头按钮
     ClipButton *rightBtn;//右箭头按钮
 
+     void judgeState(enum QMediaPlayer::State,QString path);//判断播放状态
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     //bool isplay=false;
@@ -192,7 +193,7 @@ private:
 
     void clipperFun();
 
-    void judgeState(enum QMediaPlayer::State,QString path);//判断播放状态
+
     void listFileNumUpdate(int num);
 
     void hover_ChangeState(QEvent *event);
