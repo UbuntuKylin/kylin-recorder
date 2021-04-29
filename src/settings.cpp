@@ -127,7 +127,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     label_9 = new QLabel("mp3");
     label_9->setStyleSheet("font-size:14px;");
     radioButton_7 = new QRadioButton();
-    label_10 = new QLabel("m4a  ");
+    label_10 = new QLabel("m4a");
     label_10->setStyleSheet("font-size:14px;");
     radioButton_8 = new QRadioButton(this);
     label_11 = new QLabel("wav");
@@ -176,8 +176,8 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     pg->addWidget(radioButton_7,4,4,1,1);//M4a格式
     pg->addWidget(label_10,4,5,1,1);
     label_10->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-    pg->addWidget(radioButton_8,4,6,1,1);//wav,后期改为4611
-    pg->addWidget(label_11,4,7,1,1);//后期改为4711
+    pg->addWidget(radioButton_8,4,7,1,1);//wav,后期改为4611
+    pg->addWidget(label_11,4,8,1,1);//后期改为4711
     label_11->setAlignment(Qt::AlignLeft|Qt::AlignTop);
     Wid->setLayout(pg);
 
