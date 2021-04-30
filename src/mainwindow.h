@@ -22,7 +22,7 @@
 #define KYLINRECORDER "org.kylin-recorder-data.settings"
 #define FITTHEMEWINDOW "org.ukui.style"
 #include <QGSettings>
-
+#include <KWindowSystem>
 #include <QWidget>
 #include <QApplication>
 #include <QMainWindow>
@@ -73,12 +73,12 @@
 #include "menumodule.h"
 
 #define INIT_MAINWINDOW_RECTANGLE_COUNT 130//用于初始化矩形条个数
-class MainWindow : public QMainWindow
+class MainWindow : public QWidget
 {
     Q_OBJECT
     Q_CLASSINFO("D-Bus Interface", "org.ukui.kylin_recorder")//调用DBus一定要加这一行
 public://放在public都是有原因的因为不同类之间中调用需要公用！！
-    MainWindow(QStringList str,QWidget *parent = 0);
+    MainWindow(QStringList str,QWidget *parent = nullptr);
     ~MainWindow();
     QMessageBox *WrrMsg;
     QGSettings  *defaultPathData= nullptr;
@@ -163,6 +163,8 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QToolButton *play_pauseButton;
 
     bool isFirstObject = false;//判断是否是唯一的对象
+
+    void processArgs(QStringList args);
 private:
 
     int timeTag = 0;

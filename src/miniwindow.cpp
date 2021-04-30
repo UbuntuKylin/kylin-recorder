@@ -286,10 +286,8 @@ void MiniWindow::switchPage()//换页
     }
     else
     {
-        WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning")
-                                 ,tr("There is audio playing, please stop after recording!"),QMessageBox::Yes );
-        WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-        WrrMsg->exec();
+        QMessageBox::warning(miniWid,tr("Warning"),
+                             tr("There is audio playing, please stop after recording!"));
         return ;
     }
 

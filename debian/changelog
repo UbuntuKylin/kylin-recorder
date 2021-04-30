@@ -1,3 +1,22 @@
+kylin-recorder (1.2.23kord~rc21) v101; urgency=medium
+
+  * 修复bug50077：插上耳机使用麒麟录音进行音频录制，拔掉耳机后，自动结束录制并保存录音
+  * 修复bug50060：插上耳机使用麒麟录音进行音频录制，拔掉耳机后，自动结束录制并保存录音
+  * 修复bug48763：更改录音音频的文件名称后，该音频文件从麒麟录音列表中消失
+  * 修复bug47386：设置弹窗文件格式没有整齐排列
+  * 需求号：无
+  * 其他改动说明：对于窗口置顶的方法进行优化使得代码简洁一些
+
+ -- baijincheng <baijincheng@kylinos.cn>  Fri, 23 Apr 2021 10:27:00 +0800
+
+kylin-recorder (1.2.23kord~rc20) v101; urgency=medium
+
+  * 修复bug49256：录音 - 打开窗体未置顶显示
+  * 需求号：无
+  * 其他改动说明：无
+
+ -- zoujunnan <zoujunnan@kylinos.cn>  Tue, 17 Apr 2021 12:05:00 +0800
+
 kylin-recorder (1.2.23kord~rc19) v101; urgency=medium
 
   * 修改界面名字为录音

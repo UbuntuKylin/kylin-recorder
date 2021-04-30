@@ -15,7 +15,8 @@ Build-Depends: debhelper,
 			   libgsettings-qt-dev,
 			   libqt5x11extras5-dev,
                libkf5windowsystem-dev,
-			   pkgconf
+			   pkgconf,
+			   libukui-log4qt-dev
 Standards-Version: 4.4.1
 Homepage: <insert the upstream URL, if relevant>
 #Vcs-Browser: https://salsa.debian.org/debian/kylin-recorder
@@ -24,9 +25,11 @@ Homepage: <insert the upstream URL, if relevant>
 Package: kylin-recorder
 Architecture: any
 Depends: libburner-media3-1,
+         gstreamer1.0-libav,
          gstreamer1.0-plugins-good,
          gstreamer1.0-plugins-bad,
          gstreamer1.0-pulseaudio,
+         libukui-log4qt-dev,
          ${shlibs:Depends}, 
 		 ${misc:Depends}
 Description: Recorder tool for UKUI
