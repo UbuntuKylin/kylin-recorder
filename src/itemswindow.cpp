@@ -306,13 +306,16 @@ void ItemsWindow::positionChange(qint64 position)
 {
     if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
     {
-        playSlider->setValue(static_cast<int>(position));
-        QTime currentTime(0, static_cast<int>(position) / 60000, static_cast<int>((position % 60000) / 1000.0));
+        playSlider->setValue(static_cast<int64_t>(position));
+        QTime currentTime(static_cast<int64_t>(position) / (60*60*1000) ,
+                          static_cast<int64_t>(position) % (60*60*1000) / 60000,
+                          static_cast<int64_t>((position % (60*1000)) / 1000.0));
         QString current_timeStr = currentTime.toString("hh:mm:ss");
-        QTime totalTime(0,(MainWindow::mutual->playerCompoment->duration()/60000) % 60,
-                       (MainWindow::mutual->playerCompoment->duration() / 1000) % 60);
-//        qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
-//        qDebug()<<"总进度："<<MainWindow::mutual->playerCompoment->duration();
+        QTime totalTime(static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()) / (60*60*1000),
+                        static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration())% (60*60*1000) / 60000,
+                       static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()% (60*1000) / 1000.0));
+        qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
+        qDebug()<<"总进度："<<MainWindow::mutual->playerCompoment->duration();
 
     }
 
@@ -347,6 +350,7 @@ void ItemsWindow::setPosition(int position)
 {
     if (qAbs(MainWindow::mutual->playerCompoment->position() - position) > 99)
         MainWindow::mutual->playerCompoment->setPosition(position);
+    qDebug()<<"数值:"<<position;
 }
 bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点击
 {
@@ -361,7 +365,8 @@ bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点�
             {
                qDebug()<<"maximum"<<playSlider->maximum()<<"minimum"<<playSlider->minimum()<<"mouseEvent->x()"<<mouseEvent->x()<<"playSlider->width()"<<playSlider->width()<<"playSlider->sliderPosition()"<<playSlider->sliderPosition();
                int dur = playSlider->maximum() - playSlider->minimum();
-               int pos = playSlider->minimum() + dur * ((double)mouseEvent->x() / playSlider->width());
+               int pos = (double)playSlider->minimum() + (double)dur * ((double)mouseEvent->x() / (double)playSlider->width());
+               qDebug()<<"位置:"<<pos;
                if(pos != playSlider->sliderPosition())
                {
                    playSlider->setValue(pos);
@@ -480,7 +485,7 @@ void ItemsWindow::actionSaveasSlot()
             }
             else
             {
-                QMessageBox::warning(mainWid,tr("Warning"),
+                QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
                                      tr("The file path does not exist or has been deleted!"));
                 my->deleteLater();
                 return ;
@@ -510,7 +515,7 @@ void ItemsWindow::actionOpenFolderSlot()
                }
                else
                {
-                   QMessageBox::warning(mainWid,tr("Warning"),
+                   QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
                                         tr("The file path does not exist or has been deleted!"));
                    my->deleteLater();
                    return ;
@@ -612,7 +617,7 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
             {
                 emit playingSignal(false);
 
-                QMessageBox::warning(mainWid,tr("Warning"),
+                QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
                                      tr("The file path does not exist or has been deleted!"));
                 myth->deleteLater();
                 return ;
@@ -754,7 +759,7 @@ void ItemsWindow::delFile()
     int m = myth->readNumList();//因为配置文件初始为1
     if(m<0)
     {
-        QMessageBox::warning(mainWid,tr("Warning"),
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
                              tr("The current number of list files is 0."));
         myth->deleteLater();
         return ;
@@ -776,7 +781,7 @@ void ItemsWindow::delFile()
                 {
                     if(MainWindow::mutual->playerCompoment->state()==QMediaPlayer::PlayingState)
                     {
-                        QMessageBox::warning(mainWid,tr("Warning"),
+                        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
                                              tr("Playing, please stop and delete!"));
                         myth->deleteLater();
                         return ;
@@ -978,7 +983,7 @@ int ItemsWindow::createCutWave()
             }
             else
             {
-                QMessageBox::warning(mainWid,tr("Warning"),
+                QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
                                      tr("The file path does not exist or has been deleted!"));
                 myth->deleteLater();
                 return -1;
