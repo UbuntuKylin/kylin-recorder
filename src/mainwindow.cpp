@@ -107,6 +107,7 @@ void MainWindow::initDbus()
                                          QString("PrepareForSleep"), this,
                                          SLOT(onPrepareForSleep(bool)));
     //插拔耳机的信号
+    QDBusConnection::sessionBus().connect(QString(), QString( "/"), "org.ukui.media", "DbusSignalRecorder",this, SLOT(inputDevice_get(QString)));
     QDBusConnection::sessionBus().connect(QString(), QString( "/"), "org.ukui.media", "DbusSingleTest",this, SLOT(inputDevice_get(QString)));
 }
 
@@ -1132,7 +1133,7 @@ void MainWindow::updateDisplay()
 void MainWindow::limitRecordingTime()
 {
     qDebug()<<"查看计数:"<<timeTag;
-    if(timeTag >= 60)//超过15分钟自动保存
+    if(timeTag >= 59)//超过59分钟自动保存
     {
        stop_clicked();
     }
