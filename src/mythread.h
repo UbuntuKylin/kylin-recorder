@@ -49,7 +49,6 @@
 #include "mp3encoder.h"
 #include "itemswindow.h"
 #include "tipwindow.h"
-#include "ffutil.h"
 //==================
 
 #define BufferSize 35280
@@ -93,7 +92,6 @@ public:
     void stop_saveDefault();//关闭窗口时默认路径保存
 
     QString absolutionPath;//raw存放的绝对路径
-    QString outputFileName;//输出的文件名
 
         QTimer *tipTimer;//延时执行process
 

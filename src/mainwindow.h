@@ -71,7 +71,6 @@
 #include "miniwindow.h"
 #include "daemondbus.h"
 #include "menumodule.h"
-#include "ffutil.h"
 
 #define INIT_MAINWINDOW_RECTANGLE_COUNT 130//用于初始化矩形条个数
 class MainWindow : public QWidget

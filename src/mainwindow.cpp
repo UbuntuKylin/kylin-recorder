@@ -440,20 +440,20 @@ void MainWindow::handlingSlot(bool isOk)
 void MainWindow::closeWindow()
 {
 
-//    if (isRecording == true)
-//    {
-////        myThread->stop_saveDefault();
-//        QMessageBox::warning(mainWid,tr("Warning"),
-//                             tr("Please stop recording before closing!"));
-//        return ;
+    if (isRecording == true)
+    {
+//        myThread->stop_saveDefault();
+        QMessageBox::warning(mainWid,tr("Warning"),
+                             tr("Please stop recording before closing!"));
+        return ;
 
-//    }else
-//    {
+    }else
+    {
         thread->quit();
         thread->wait();
         mainWid->close();
         mini.miniWid->close();
-//    }
+    }
 
 }
 
@@ -783,11 +783,6 @@ void MainWindow::themeButton(QString themeColor)
 //计算时长
 QString MainWindow::playerTotalTime(QString filePath)
 {
-    FFUtil fu;
-    fu.open(filePath);
-    int t_duration = fu.getDuration();
-    qDebug()<<"时长:"<<t_duration;
-
     QFile file(filePath);
     QFileInfo fileinfo(filePath);
     qint64 fileSize;
@@ -799,20 +794,14 @@ QString MainWindow::playerTotalTime(QString filePath)
         {
             fileSize = file.size();
             qDebug()<<file.size()<<"后缀:mp3余数"<<fileSize%16000;
-//            time = fileSize/16000;//时间长度=文件大小/每秒字节数
-            time = t_duration;
-            if(t_duration>30000)
-                time = fileSize/64000;
+            time = fileSize/16000;//时间长度=文件大小/每秒字节数
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
         }
         else if(fileinfo.suffix().contains("m4a"))
         {
             fileSize = file.size();
-//            time = fileSize/16000;//时间长度=文件大小/每秒字节数
-            time = t_duration;
-            if(t_duration>30000)
-                time = fileSize/64000;
+            time = fileSize/16000;//时间长度=文件大小/每秒字节数
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
             qDebug()<<"文件大小:"<<fileSize<<"时长:"<<timeStr;
@@ -820,10 +809,7 @@ QString MainWindow::playerTotalTime(QString filePath)
         else if(fileinfo.suffix().contains("wav"))
         {
             fileSize = file.size();
-//            time = fileSize/64000;//时间长度=文件大小/每秒字节数
-            time = t_duration;
-            if(t_duration>30000)
-                time = fileSize/64000;
+            time = fileSize/96000;//时间长度=文件大小/每秒字节数
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
         }
