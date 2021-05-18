@@ -15,7 +15,8 @@ TRANSLATIONS    += ./translations/kylin-recorder_zh_CN.ts
 QT += multimedia multimediawidgets
 TARGET = kylin-recorder
 TEMPLATE = app
-LIBS += -lmp3lame
+#ffmpeg需要的东西都是
+LIBS += -lmp3lame -lavformat -lavdevice -lavcodec -lavutil -lswscale -lswresample
 
 CONFIG += lrelease
 # 适配窗口管理器圆角阴影
@@ -67,6 +68,7 @@ PKGCONFIG += gsettings-qt
 SOURCES += \
         src/clipbutton.cpp \
         src/daemondbus.cpp \
+        src/ffutil.cpp \
         src/itemswindow.cpp \
         src/lineedit.cpp \
         src/main.cpp \
@@ -84,6 +86,7 @@ SOURCES += \
 HEADERS += \
         src/clipbutton.h \
         src/daemondbus.h \
+        src/ffutil.h \
         src/itemswindow.h \
         src/lineedit.h \
         src/mainwindow.h \

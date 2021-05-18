@@ -58,7 +58,7 @@
 #include <QRegExp>
 #include <unistd.h>
 #include <fcntl.h>
-
+#include <signal.h>//信号处理
 //s3s4需要用DBus接口
 #include <QDBusConnection>
 #include <QDBusInterface>
@@ -71,6 +71,7 @@
 #include "miniwindow.h"
 #include "daemondbus.h"
 #include "menumodule.h"
+#include "ffutil.h"
 
 #define INIT_MAINWINDOW_RECTANGLE_COUNT 130//用于初始化矩形条个数
 class MainWindow : public QWidget
@@ -94,6 +95,8 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
 
     QString theme = "ukui-default";
     bool isMax = false;
+
+    bool Minimize = false;       //最大化和还原俩个状态
     QTime cut;
     int valueArray[INIT_MAINWINDOW_RECTANGLE_COUNT];
 
@@ -117,7 +120,7 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QStackedWidget *m_pStackedWidget;//堆叠布局
 
     QLabel *lb;
-    QToolButton *appPicture;//应用图标,标题左上角
+    QPushButton *appPicture;//应用图标,标题左上角
 
     QListWidget *list;
     QListWidgetItem *aItem;//列表的Item
@@ -165,6 +168,7 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     bool isFirstObject = false;//判断是否是唯一的对象
 
     void processArgs(QStringList args);
+    sighandler_t signal(int signum, sighandler_t handler);//信号处理
 private:
 
     int timeTag = 0;

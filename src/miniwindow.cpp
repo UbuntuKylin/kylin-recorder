@@ -81,7 +81,7 @@ void MiniWindow::initMiniWindow()
 
 //    setWindowFlags(Qt::FramelessWindowHint);
     miniWid -> setWindowTitle(tr("Recorder"));
-    miniWid -> setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+//    miniWid -> setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
     //this->setStyleSheet("border-radius:6px;");//mini窗体圆角6px
     pTimer = new QTimer;//第二个页面的控件初始化
     recordBtn=new QToolButton(this);//录制按钮
@@ -206,7 +206,8 @@ bool MiniWindow::eventFilter(QObject *obj, QEvent *event)
 void MiniWindow::normalShow()
 {
 
-    MainWindow::mutual->mainWid->showMaximized();
+    //一定要用showNormal()，不要用showMaximized(),防止点击最小化时，依次点击mini再点击复原导致原窗口尖角
+    MainWindow::mutual->mainWid->showNormal();
     miniWid->hide();
     
 }

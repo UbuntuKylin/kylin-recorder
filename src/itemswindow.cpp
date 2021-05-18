@@ -306,16 +306,30 @@ void ItemsWindow::positionChange(qint64 position)
 {
     if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
     {
-        playSlider->setValue(static_cast<int64_t>(position));
+
         QTime currentTime(static_cast<int64_t>(position) / (60*60*1000) ,
                           static_cast<int64_t>(position) % (60*60*1000) / 60000,
                           static_cast<int64_t>((position % (60*1000)) / 1000.0));
         QString current_timeStr = currentTime.toString("hh:mm:ss");
-        QTime totalTime(static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()) / (60*60*1000),
-                        static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration())% (60*60*1000) / 60000,
-                       static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()% (60*1000) / 1000.0));
-        qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
-        qDebug()<<"总进度："<<MainWindow::mutual->playerCompoment->duration();
+        if(static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()<4000000))
+        {
+            QTime totalTime(static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()) / (60*60*1000),
+                            static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration())% (60*60*1000) / 60000,
+                            static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()% (60*1000) / 1000.0));
+
+            qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
+        }
+        else
+        {
+            QTime totalTime(static_cast<int64_t>(durTime*890) / (60*60*1000),
+                            static_cast<int64_t>(durTime*890)% (60*60*1000) / 60000,
+                            static_cast<int64_t>(durTime*890 % (60*1000) / 1000.0));
+            qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
+        }
+
+            playSlider->setValue(static_cast<int64_t>(position));
+
+//        qDebug()<<"总进度："<<MainWindow::mutual->playerCompoment->duration();
 
     }
 
@@ -323,9 +337,20 @@ void ItemsWindow::positionChange(qint64 position)
 
 void ItemsWindow::durationChange(qint64 duration)   //更新播放进度
 {
-    playSlider->setRange(0,static_cast<int>(duration));
-    playSlider->setEnabled(duration>0);
-    playSlider->setPageStep(static_cast<int>(duration)/10);
+    qDebug()<<"duration:"<<static_cast<int>(duration);
+    if(static_cast<int>(duration)<4000000)
+    {
+        playSlider->setRange(0,static_cast<int>(duration));
+        playSlider->setEnabled(duration>0);
+        playSlider->setPageStep(static_cast<int>(duration)/10);
+    }
+    else
+    {
+        playSlider->setRange(0,durTime*890);
+        playSlider->setEnabled(durTime*890>0);
+        playSlider->setPageStep(static_cast<int>(durTime*890)/10);
+    }
+
 }
 
 void ItemsWindow::stateChanged(enum QMediaPlayer::State)
@@ -629,6 +654,15 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
 
 void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
 {
+    /*660-664必须放在judgeState里,因为涉及到选择录音打开时
+     * 会直接进这个函数进来后就要计算时间长度。而不是进点击播放的事件再计算
+     * */
+    FFUtil fu;
+    fu.open(path);
+    QFile file(path);
+    int t_duration = fu.getDuration();
+    durTime=t_duration>30000?(file.size()/64000):t_duration;
+    qDebug()<<"你点击的路径"<<audioFilePath<<"时长"<<durTime;
     qDebug()<<"播放状态"<<MainWindow::mutual->playerCompoment->state();
     if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
     {
@@ -723,20 +757,25 @@ void ItemsWindow::updateGSettingSlot(QString fileName)
 
             qDebug()<<str<<"MainWindow:文件或被删除！";
             QString subStr=","+str;//子串
-            QString subAmplitudeStr = listAmplitude.at(i-1);
+
             /*
              * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
              */
             QString oldStr=itemData->get("recorderpath").toString();
             int pos=oldStr.indexOf(subStr);
-            QString oldAmplitudeStr = itemData->get("amplitude").toString();
-            int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
             //qDebug()<<pos<<" "<<oldStr;
             //qDebug()<<oldStr.mid(pos,str.length()+1);
+            if(listRecordPath.count()<=listAmplitude.count())//只有文件路径集个数＜=振幅集合时才可以
+            {
+                QString subAmplitudeStr = listAmplitude.at(i-1);
+                QString oldAmplitudeStr = itemData->get("amplitude").toString();
+                int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
+                QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
+                itemData->set("amplitude",newAmplitudeStr);
+            }
             QString newStr = oldStr.remove(pos,str.length()+1);
             itemData->set("recorderpath",newStr);
-            QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
-            itemData->set("amplitude",newAmplitudeStr);
+
             itemData->set("num",itemData->get("num").toInt()-1);
 //            myThread->writeNumList(myThread->readNumList()-1);
             qDebug()<<itemData->get("recorderpath").toString();
@@ -787,20 +826,23 @@ void ItemsWindow::delFile()
                         return ;
                     }
                     QString subStr = ","+str;//子串
-                    QString subAmplitudeStr = listAmplitude.at(i-1);
                     /*
                      * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
                      */
                     QString oldStr = myth->recordData->get("recorderpath").toString();
                     int pos = oldStr.indexOf(subStr);
-                    QString oldAmplitudeStr = myth->recordData->get("amplitude").toString();
-                    int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
-                    //qDebug()<<pos<<" "<<oldStr;
+//                    qDebug()<<pos<<" "<<oldStr;
                     //qDebug()<<oldStr.mid(pos,str.length()+1);
                     QString newStr = oldStr.remove(pos,str.length()+1);
                     myth->writePathCollected(newStr);
-                    QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
-                    myth->recordData->set("amplitude",newAmplitudeStr);
+                    if(listRecordPath.count()<=listAmplitude.count())
+                    {
+                        QString subAmplitudeStr = listAmplitude.at(i-1);
+                        QString oldAmplitudeStr = myth->recordData->get("amplitude").toString();
+                        int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
+                        QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
+                        myth->recordData->set("amplitude",newAmplitudeStr);
+                    }
                     myth->writeNumList(myth->readNumList()-1);
                     //根据索引值删除listwidget列表的Item，要注意配置文件的更新以及本地文件的删除
                     qDebug()<<"输出删除之前的Item地址"<<this->parent()->findChildren<ItemsWindow*>();

@@ -47,17 +47,18 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     mainWid->setFixedSize(WIDTH,HEIGHT);
     setFocusPolicy(Qt::ClickFocus);//this->setFocusPolicy(Qt::NoFocus);//设置焦点类型
     setWindowTitle(tr("Settings"));
-    mainWid->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+//    mainWid->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
 //    QScreen *screen = QGuiApplication::primaryScreen();
 //    mainWid ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
     //显示在活动屏幕中间新方法
 
     //标题栏设置和布局
     QLabel *lb=new QLabel(this);
-    QLabel *piclb=new QLabel(this);//窗体左上角图片Label
-
-    piclb->setStyleSheet("QLabel{border-image: url(:/png/png/recording_32.png);}");
+    QPushButton *piclb=new QPushButton(this);//窗体左上角图片Label
+    piclb->setIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/png/png/recording_32.png")));
     piclb->setFixedSize(25,25);
+    piclb->setIconSize(QSize(25,25));//重置图标大小
+    piclb->setStyleSheet("QPushButton{border:0px;background:transparent;}");
     lb->setText(tr("Settings"));//
     lb->setStyleSheet("font-size:14px;");
 
@@ -165,8 +166,8 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     pg->addWidget(label_4,3,0,1,2);
     //        pg->addWidget(radioButton_3,3,2,1,1);
     //        pg->addWidget(label_5,3,3,1,1);
-    //        pg->addWidget(radioButton_4,3,4,1,1);//系统内部声音解封后改为3,4,1,1
-    //        pg->addWidget(label_6,3,5,1,1);//系统内部声音解封后改为3,5,1,1
+//            pg->addWidget(radioButton_4,3,4,1,1);//系统QAudioRecorder选择输入设备内部声音解封后改为3,4,1,1
+//            pg->addWidget(label_6,3,5,1,1);//系统内部声音解封后改为3,5,1,1
     pg->addWidget(radioButton_5,3,2,1,1);//解封后改为3611
     pg->addWidget(label_7,3,3,1,1);//解封后改为3711
     pg->addWidget(label_8,4,0,1,2);

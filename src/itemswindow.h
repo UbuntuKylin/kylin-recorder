@@ -106,7 +106,9 @@ public:
 //    QStackedLayout *clipperstackLayout;//剪裁堆叠布局
     QList<int> amplitudeNum;//存储振幅的大小的整型列表
     QLabel *timelengthlb;//测试label
-    QTime totalTime;
+    int durTime;//总时长
+    int progressTime = 0;//时间进度
+    QTimer *timer;
 //    void enterEvent(QEvent*);
 //    void leaveEvent(QEvent*);
     QMessageBox *WrrMsg;

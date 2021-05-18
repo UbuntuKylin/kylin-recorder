@@ -125,7 +125,7 @@ void MainWindow::initMainWindow()
     mainWid->installEventFilter(this);
 
     mainWid ->setFixedSize(WIDTH,HEIGHT);
-    mainWid ->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+//    mainWid ->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
     mainWid ->setWindowTitle(tr("Recorder"));
     //屏幕中间老方法
     //    this->move((QApplication::desktop()->width() -WIDTH)/2, (QApplication::desktop()->height() - HEIGHT)/2);
@@ -148,10 +148,11 @@ void MainWindow::initMainWindow()
     leftMainWidLayout = new QVBoxLayout();//主左布局
     rightMainWidLayout = new QVBoxLayout();//主右布局
 
-    appPicture=new QToolButton(this);//窗体左上角标题图片
+    appPicture=new QPushButton(this);//窗体左上角标题图片
     appPicture->setIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/png/png/recording_32.png")));
-    appPicture->setFixedSize(24,24);
-    appPicture->setIconSize(QSize(24,24));//重置图标大小
+    appPicture->setFixedSize(25,25);
+    appPicture->setIconSize(QSize(25,25));//重置图标大小
+    appPicture->setStyleSheet("QPushButton{border:0px;background:transparent;}");
     lb=new QLabel(this);
     lb->setText(tr("Recorder"));//？字体待修改
     lb->setStyleSheet("font-size:14px;");//修改字体显示
@@ -439,20 +440,20 @@ void MainWindow::handlingSlot(bool isOk)
 void MainWindow::closeWindow()
 {
 
-    if (isRecording == true)
-    {
-//        myThread->stop_saveDefault();
-        QMessageBox::warning(mainWid,tr("Warning"),
-                             tr("Please stop recording before closing!"));
-        return ;
+//    if (isRecording == true)
+//    {
+////        myThread->stop_saveDefault();
+//        QMessageBox::warning(mainWid,tr("Warning"),
+//                             tr("Please stop recording before closing!"));
+//        return ;
 
-    }else
-    {
+//    }else
+//    {
         thread->quit();
         thread->wait();
         mainWid->close();
         mini.miniWid->close();
-    }
+//    }
 
 }
 
@@ -568,6 +569,7 @@ void MainWindow::MainWindowLayout()
 void MainWindow::minShow()
 {
     mainWid->showMinimized();
+    mainWid->showNormal();//一定要加,防止点击最小化时，依次点击mini再点击复原导致原窗口不显示而还在任务栏
 }
 void MainWindow::maxShow()
 {
@@ -781,6 +783,11 @@ void MainWindow::themeButton(QString themeColor)
 //计算时长
 QString MainWindow::playerTotalTime(QString filePath)
 {
+    FFUtil fu;
+    fu.open(filePath);
+    int t_duration = fu.getDuration();
+    qDebug()<<"时长:"<<t_duration;
+
     QFile file(filePath);
     QFileInfo fileinfo(filePath);
     qint64 fileSize;
@@ -792,14 +799,20 @@ QString MainWindow::playerTotalTime(QString filePath)
         {
             fileSize = file.size();
             qDebug()<<file.size()<<"后缀:mp3余数"<<fileSize%16000;
-            time = fileSize/16000;//时间长度=文件大小/每秒字节数
+//            time = fileSize/16000;//时间长度=文件大小/每秒字节数
+            time = t_duration;
+            if(t_duration>30000)
+                time = fileSize/64000;
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
         }
         else if(fileinfo.suffix().contains("m4a"))
         {
             fileSize = file.size();
-            time = fileSize/16000;//时间长度=文件大小/每秒字节数
+//            time = fileSize/16000;//时间长度=文件大小/每秒字节数
+            time = t_duration;
+            if(t_duration>30000)
+                time = fileSize/64000;
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
             qDebug()<<"文件大小:"<<fileSize<<"时长:"<<timeStr;
@@ -807,7 +820,10 @@ QString MainWindow::playerTotalTime(QString filePath)
         else if(fileinfo.suffix().contains("wav"))
         {
             fileSize = file.size();
-            time = fileSize/96000;//时间长度=文件大小/每秒字节数
+//            time = fileSize/64000;//时间长度=文件大小/每秒字节数
+            time = t_duration;
+            if(t_duration>30000)
+                time = fileSize/64000;
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
         }
@@ -1378,6 +1394,10 @@ void MainWindow::wheelEvent(QWheelEvent *wheel)
 
 void MainWindow::processArgs(QStringList args)
 {
+    //kwin接口唤醒
+    qDebug()<<"窗口置顶";
+    KWindowSystem::forceActiveWindow(mainWid->winId());
+
     qDebug()<<"选择的音频路径为:"<<args;
     qDebug()<<"Items有:"<<this->findChildren<ItemsWindow*>()
            <<"共有"<<this->findChildren<ItemsWindow*>().count()<<"个";
