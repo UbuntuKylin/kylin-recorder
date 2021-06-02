@@ -199,6 +199,8 @@ private:
     void hover_ChangeState(QEvent *event);
     QPoint pressPoint;
 
+    void delUpdateGSetting(QString fileName);
+
 signals:
 
     void playingSignal(bool);//发送正在播放的信号，通知播放时不可以录音
@@ -206,10 +208,7 @@ signals:
     void updateGSettingSignal(QString fileName);
 public slots:
     void updateGSettingSlot(QString fileName);
-
 private slots:
-
-
 
     void itemPlay_PauseClicked();
     void positionChange(qint64 position);

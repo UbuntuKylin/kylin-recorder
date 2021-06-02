@@ -679,72 +679,25 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
 //更新配置文件,
 void ItemsWindow::updateGSettingSlot(QString fileName)
 {
-    int  m=itemData->get("num").toInt();
-    qDebug()<<"ssssssssssssss"<<m;
-    if(m == 1)
-    {
-        MainWindow::mutual->isFileNull(m-1);
-    }
-    //qDebug()<<m;
+    //进这里是因为文件不存在，但配置文件的路径还未被更新
+    qDebug()<<"不存在的文件路径是"<<fileName;
+    qDebug()<<"此时num数:"<<itemData->get("num").toInt();
     QStringList listRecordPath = itemData->get("recorderpath").toString().split(",");
     qDebug()<<listRecordPath;
-    QStringList listAmplitude = itemData->get("amplitude").toString().split(";");
-    for(int i=1;i<m;i++)
+    if(listRecordPath.contains(fileName))
     {
-        QString str="";
-        str = listRecordPath.at(i);
-        qDebug()<<listRecordPath.at(i);
-        QFileInfo fileinfo(str);
-        QString filesuffix = fileinfo.suffix();//判断文件后缀
-        QFileInfo fi(str);
-        if(fi.exists())
-        {
-//            //判断文件路径是否存在,且不重复
-//            if(fileinfo.isFile()&&(str!=fileName)&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
-//            {
-//                qDebug()<<str<<"!="<<fileName;
-//                //1.每当配置文件中有路径时就在list中更新一下,1必须在2、3前面先更新后删除
-////                MainWindow::mutual->slotListItemAdd(str,i);
-//                //2.先释放内存再删除列表的项,要成对出现
-//                this->deleteLater();
-//                //3.删除list列表的item操作
-//                MainWindow::mutual->list->takeItem(i-1);
-
-
-//            }
-//            else
-//            {
-//                qDebug()<<"文件存在!但是已经重复!!!!";
-
-//            }
-        }
-        else
-        {
-
-            qDebug()<<str<<"MainWindow:文件或被删除！";
-            QString subStr=","+str;//子串
-            QString subAmplitudeStr = listAmplitude.at(i-1);
-            /*
-             * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
-             */
-            QString oldStr=itemData->get("recorderpath").toString();
-            int pos=oldStr.indexOf(subStr);
-            QString oldAmplitudeStr = itemData->get("amplitude").toString();
-            int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
-            //qDebug()<<pos<<" "<<oldStr;
-            //qDebug()<<oldStr.mid(pos,str.length()+1);
-            QString newStr = oldStr.remove(pos,str.length()+1);
-            itemData->set("recorderpath",newStr);
-            QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
-            itemData->set("amplitude",newAmplitudeStr);
-            itemData->set("num",itemData->get("num").toInt()-1);
-//            myThread->writeNumList(myThread->readNumList()-1);
-            qDebug()<<itemData->get("recorderpath").toString();
-            qDebug()<<"路径不存在删除时:"<<this->parent()->findChildren<ItemsWindow*>();
-        }
-
+        qDebug()<<"第"<<listRecordPath.indexOf(fileName)<<"个文件"<<fileName<<"被删除！";
+        QString subStr = ","+fileName;//子串
+        QString oldStr=itemData->get("recorderpath").toString();
+        int pos=oldStr.indexOf(subStr);
+        qDebug()<<"被删除的路径在老串中的位置:"<<pos;
+        qDebug()<<"删除的子串"<<oldStr.mid(pos,fileName.length()+1);
+        QString newStr = oldStr.remove(pos,fileName.length()+1);
+        itemData->set("recorderpath",newStr);
+        itemData->set("num",itemData->get("num").toInt()-1);
+        qDebug()<<"删除后的配置文件中路径集:"<<itemData->get("recorderpath").toString();
+        qDebug()<<"删除后的个数:"<<itemData->get("num").toInt();
     }
-    qDebug()<<"输出剩余的Item地址"<<this->parent()->findChildren<ItemsWindow*>();
 }
 
 //删除本地音频文件
@@ -754,8 +707,7 @@ void ItemsWindow::delFile()
     QLabel *label = itemsWid->findChild<QLabel *>(recordFileName->objectName());
     myth->readPathCollected();//先读取配置文件中的所有路径集
     QStringList listRecordPath = myth->readPathCollected().split(",");
-    QStringList listAmplitude = myth->recordData->get("amplitude").toString().split(";");
-    qDebug()<<"路经集:"<<listRecordPath;
+    qDebug()<<"路经集:"<<listRecordPath<<listRecordPath.length();
     int m = myth->readNumList();//因为配置文件初始为1
     if(m<0)
     {
@@ -764,71 +716,49 @@ void ItemsWindow::delFile()
         myth->deleteLater();
         return ;
     }
+
     for(int i = 1; i<m; i++)
     {
         QString str = listRecordPath.at(i);
 
-        //QString strTemp = listAmplitude.at(i-1);
         if(str.contains(label->text()))
         {
 
             QFileInfo fi(str);
             if(fi.exists())
             {
-                QFileInfo fileinfo(str);
-                QString filesuffix = fileinfo.suffix();//判断文件后缀
-                if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
+                if(MainWindow::mutual->playerCompoment->state()==QMediaPlayer::PlayingState)
                 {
-                    if(MainWindow::mutual->playerCompoment->state()==QMediaPlayer::PlayingState)
-                    {
-                        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
-                                             tr("Playing, please stop and delete!"));
-                        myth->deleteLater();
-                        return ;
-                    }
-                    QString subStr = ","+str;//子串
-                    QString subAmplitudeStr = listAmplitude.at(i-1);
-                    /*
-                     * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
-                     */
-                    QString oldStr = myth->recordData->get("recorderpath").toString();
-                    int pos = oldStr.indexOf(subStr);
-                    QString oldAmplitudeStr = myth->recordData->get("amplitude").toString();
-                    int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
-                    //qDebug()<<pos<<" "<<oldStr;
-                    //qDebug()<<oldStr.mid(pos,str.length()+1);
-                    QString newStr = oldStr.remove(pos,str.length()+1);
-                    myth->writePathCollected(newStr);
-                    QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
-                    myth->recordData->set("amplitude",newAmplitudeStr);
-                    myth->writeNumList(myth->readNumList()-1);
-                    //根据索引值删除listwidget列表的Item，要注意配置文件的更新以及本地文件的删除
-                    qDebug()<<"输出删除之前的Item地址"<<this->parent()->findChildren<ItemsWindow*>();
-                    this->deleteLater();//先释放内存再删除列表的项,要成对出现
-                    int x = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
-                    MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-x);//删除操作
-                    qDebug()<<"**********路径存在，删除第"<<i<<"个"<<str;
-                    MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
-//                    QString Home_path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-//                                        strResult1 = executeLinuxCmd("mv " + str + ' '+Home_path+"/.local/share/Trash/files");
+                    QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
+                                         tr("Playing, please stop and delete!"));
+                    myth->deleteLater();
+                    return ;
+                }
+                delUpdateGSetting(str);
 
-                    deleteImage(str);//移入回收站
-                    QFile::remove(str);//从本地删除
-                }
-                else
-                {
-                    qDebug()<<"文件不存在!或已经被删除!";
-                }
+                //根据索引值删除listwidget列表的Item，要注意配置文件的更新以及本地文件的删除
+                qDebug()<<"输出删除之前的Item地址"<<this->parent()->findChildren<ItemsWindow*>();
+                this->deleteLater();//先释放内存再删除列表的项,要成对出现
+                int x = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
+                MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-x);//删除操作
+                qDebug()<<"**********路径存在，删除第"<<i<<"个"<<str;
+                MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
+                //                    QString Home_path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+                //                                        strResult1 = executeLinuxCmd("mv " + str + ' '+Home_path+"/.local/share/Trash/files");
+                deleteImage(str);//移入回收站
+                QFile::remove(str);//从本地删除
+
             }
             else
             {
-                qDebug()<<"第"<<i<<"个不存在,直接删除:"<<str;
+
                 //本地文件已经被删除时，删除按钮就直接删除listwidget的item项
                 this->deleteLater();//先释放内存再删除列表的项,要成对出现
                 int y = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
+                qDebug()<<"第"<<y<<"个不存在,直接删除:"<<str;
                 MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-y);//删除list列表的item操作
                 MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
-                updateGSettingSignal(str);//不存在时，删除则要更新一下配置文件
+                delUpdateGSetting(str);
                 continue ;
             }
 
@@ -838,6 +768,29 @@ void ItemsWindow::delFile()
     listFileNumUpdate(MainWindow::mutual->list->count());
     myth->deleteLater();
     return ;
+}
+
+void ItemsWindow::delUpdateGSetting(QString fileName)
+{
+    //进这里是因为文件不存在，但配置文件的路径还未被更新
+    qDebug()<<"不存在的文件路径是"<<fileName;
+    qDebug()<<"此时num数:"<<itemData->get("num").toInt();
+    QStringList listRecordPath = itemData->get("recorderpath").toString().split(",");
+    qDebug()<<listRecordPath;
+    if(listRecordPath.contains(fileName))
+    {
+        qDebug()<<"第"<<listRecordPath.indexOf(fileName)<<"个文件"<<fileName<<"被删除！";
+        QString subStr = ","+fileName;//子串
+        QString oldStr=itemData->get("recorderpath").toString();
+        int pos=oldStr.indexOf(subStr);
+        qDebug()<<"被删除的路径在老串中的位置:"<<pos;
+        qDebug()<<"删除的子串"<<oldStr.mid(pos,fileName.length()+1);
+        QString newStr = oldStr.remove(pos,fileName.length()+1);
+        itemData->set("recorderpath",newStr);
+        itemData->set("num",itemData->get("num").toInt()-1);
+        qDebug()<<"删除后的配置文件中路径集:"<<itemData->get("recorderpath").toString();
+        qDebug()<<"删除后的个数:"<<itemData->get("num").toInt();
+    }
 }
 
 void ItemsWindow::deleteImage(const QString &savepath)

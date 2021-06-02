@@ -279,10 +279,10 @@ void MainWindow::setTwoPageWindow()
     list->setViewMode(QListView::ListMode);
 
     //开始时也要把数组都初始化为0，2020.11.12先隐藏此功能
-    for(int i=0;i<INIT_MAINWINDOW_RECTANGLE_COUNT;i++)
-    {
-        valueArray[i] = 0;
-    }
+//    for(int i=0;i<INIT_MAINWINDOW_RECTANGLE_COUNT;i++)
+//    {
+//        valueArray[i] = 0;
+//    }
     connect(this,    &MainWindow::startRecord, myThread, &MyThread::record_pressed);
 //    connect(this,  &MainWindow::recordingSignal,MainWindow::,&ItemsWindow::getRecordingSlot);//发送录音时的信号
     connect(myThread,&MyThread::recordPaint,       this, &MainWindow::recordPaint);//绘波形图
@@ -488,6 +488,7 @@ void MainWindow::isFileNull(int n)
     {
         zeroFile_Messagelb->setParent(listWid);
         zeroFile_Messagelb->show();
+        defaultPathData->set("samefilenum",1);//列表里无文件时归1
     }
     else
     {
@@ -849,14 +850,10 @@ void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,
 {
     qDebug() <<"初始化";
     int  m=myThread->readNumList();
-    if(m == 1)
-    {
-        isFileNull(m-1);
-    }
     //qDebug()<<m;
     QStringList listRecordPath = myThread->readPathCollected().split(",");
     qDebug()<<listRecordPath;
-    QStringList listAmplitude = defaultPathData->get("amplitude").toString().split(";");
+//    QStringList listAmplitude = defaultPathData->get("amplitude").toString().split(";");
     for(int i=1;i<m;i++)
     {
         QString str="";
@@ -878,25 +875,30 @@ void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,
         {
             qDebug()<<str<<"MainWindow:文件或被删除！";
             QString subStr=","+str;//子串
-            QString subAmplitudeStr = listAmplitude.at(i-1);
+//            QString subAmplitudeStr = listAmplitude.at(i-1);
             /*
              * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
              */
             QString oldStr=defaultPathData->get("recorderpath").toString();
             int pos=oldStr.indexOf(subStr);
-            QString oldAmplitudeStr = defaultPathData->get("amplitude").toString();
-            int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
+//            QString oldAmplitudeStr = defaultPathData->get("amplitude").toString();
+//            int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
             //qDebug()<<pos<<" "<<oldStr;
             //qDebug()<<oldStr.mid(pos,str.length()+1);
             QString newStr = oldStr.remove(pos,str.length()+1);
             myThread->writePathCollected(newStr);
-            QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
-            defaultPathData->set("amplitude",newAmplitudeStr);
+//            QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
+//            defaultPathData->set("amplitude",newAmplitudeStr);
 
             myThread->writeNumList(myThread->readNumList()-1);
             qDebug()<<myThread->readPathCollected();
         }
 
+    }
+    if(defaultPathData->get("recorderpath").toString()=="")
+    {
+        qDebug()<<"路径集为空:"<<defaultPathData->get("recorderpath").toString();
+        isFileNull(0);
     }
     isFirstRun = false;//所有文件都显示全才置为false;
 
@@ -1053,7 +1055,6 @@ void MainWindow::play_pause_clicked()
 
 }
 
-
 void MainWindow::recordPaint(int value)
 {
     maxNum.prepend(value/300);//将元素插入到Vector的开始
@@ -1064,6 +1065,11 @@ void MainWindow::recordPaint(int value)
 
 void MainWindow::stop_clicked()//停止按钮
 {
+    /*注:只能在stop_clicked()里加；
+     *修复录音结束时,再点击开始录制会出现上一次的尾部波形图;
+     * */
+    for (int i=0;i<rectangleCount;i++)//频率直方图
+    mywave.at(i)->setValue(0);
     if(stop)
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
@@ -1076,10 +1082,10 @@ void MainWindow::stop_clicked()//停止按钮
         mini.pTimer->stop();
         emit stopRecord();
         //停止之后把数组清0
-        for(int i = 0;i<INIT_MAINWINDOW_RECTANGLE_COUNT;i++)
-        {
-            valueArray[i] = 0;
-        }
+//        for(int i = 0;i<INIT_MAINWINDOW_RECTANGLE_COUNT;i++)
+//        {
+//            valueArray[i] = 0;
+//        }
         if(strat_pause)
         {
             strat_pause = false;
