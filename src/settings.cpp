@@ -28,8 +28,8 @@
 
 Settings::Settings(QWidget *parent) : QMainWindow(parent)
 {
-    int WIDTH=360;
-    int HEIGHT=300;
+    int WIDTH=420;
+    int HEIGHT=256;
     mainWid = new QWidget();
     mainWid->setWindowFlag(Qt::Tool);//此代码必须在此窗管协议前，否则此模态窗口背景不变灰
     // 添加窗管协议
@@ -47,18 +47,19 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     mainWid->setFixedSize(WIDTH,HEIGHT);
     setFocusPolicy(Qt::ClickFocus);//this->setFocusPolicy(Qt::NoFocus);//设置焦点类型
     setWindowTitle(tr("Settings"));
-    mainWid->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
+//    mainWid->setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
 //    QScreen *screen = QGuiApplication::primaryScreen();
 //    mainWid ->move((screen->geometry().width() - WIDTH) / 2,(screen->geometry().height() - HEIGHT) / 2);
     //显示在活动屏幕中间新方法
 
     //标题栏设置和布局
     QLabel *lb=new QLabel(this);
-    QLabel *piclb=new QLabel(this);//窗体左上角图片Label
-
-    piclb->setStyleSheet("QLabel{border-image: url(:/png/png/recording_32.png);}");
+    QPushButton *piclb=new QPushButton(this);//窗体左上角图片Label
+    piclb->setIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/png/png/recording_32.png")));
     piclb->setFixedSize(25,25);
-    lb->setText(tr("Settings"));//
+    piclb->setIconSize(QSize(25,25));//重置图标大小
+    piclb->setStyleSheet("QPushButton{border:0px;background:transparent;}");
+    lb->setText(tr("Settings"));
     lb->setStyleSheet("font-size:14px;");
 
 
@@ -70,7 +71,10 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     closeButton->setProperty("isWindowButton", 0x2);
     closeButton->setProperty("useIconHighlightEffect", 0x8);
     closeButton->setAutoRaise(true);
-    connect(closeButton,&QToolButton::clicked,mainWid,&Settings::close);
+
+    alterBtn = new QPushButton(this);
+    alterBtn->setFixedSize(65,36);
+    alterBtn->setText(tr("Alter"));
 
 
     titleWid = new QWidget();
@@ -79,140 +83,102 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     titleLayout->addWidget(lb);
     titleLayout->addWidget(closeButton);
     titleLayout->setContentsMargins(8,4,4,0);
-
     titleWid->setFixedHeight(35);
     titleWid->setLayout(titleLayout);
 
-    //网格布局设置界面主体内容
-    //        QGridLayout *layout = new QGridLayout();
-    //设置界面内容
-    label = new QLabel(tr("Storage"));
-    label->setStyleSheet("font-size:14px;");
-    radioButton = new QRadioButton(this);
-    //    radioButton->setCheckable(1);
-    //radioButton->setChecked(1);//默认选中状态
+    centerWid = new QWidget();
+    fileStoreWid = new QWidget();//文件存储wid
+    fileFormatWid = new QWidget();//文件格式wid
+    sourceWid = new QWidget();//录音来源wid
+    btnWid = new QWidget();//按钮wid
+    centerLayout = new QVBoxLayout();
+    fileStoreLayout = new QHBoxLayout();//文件存储Layout
+    fileFormatLayout = new QHBoxLayout();//文件格式Layout
+    sourceLayout = new QHBoxLayout();//录音来源Layout
+    btnLayout = new QHBoxLayout();//按钮Layout
 
-    connect(radioButton,&QRadioButton::clicked,this,&Settings::gotosave);
+    storelabel = new QLabel(tr("Storage:"));
+    storelabel->setFixedWidth(60);
+    storelabel->setStyleSheet("font-size:14px;");
+    defaultLocation = QStandardPaths::writableLocation(QStandardPaths::MusicLocation)+"/";
+    pathLabel = new MyLabel(this);
+    pathLabel->setStyleSheet("font-size:14px;");
 
-    label_2 = new QLabel(tr("Save as"));
-    label_2->setStyleSheet("font-size:14px;");
-    radioButton_2 = new QRadioButton(this);
-    //    connect(radioButton_2,&QRadioButton::clicked,this,&subMainWindow::userdirectory);
-    connect(radioButton_2,&QRadioButton::clicked,this,&Settings::closesave);
+    if(Data->get("path").toString()== ""){
+        qDebug()<<"初始配置文件为空自动填充默认路径";
+        pathLabel->setText(defaultLocation);
+        Data->set("path",defaultLocation);
+    }
+    else{
+        pathLabel->setText(Data->get("path").toString());
+    }
+    qDebug()<<"pathLabel->text()"<<pathLabel->fullText();
+    pathLabel->setAcceptDrops(false);//禁止拖拽入
+    pathLabel->setFixedSize(209,36);
+    fileStoreLayout->addWidget(storelabel);
+    fileStoreLayout->addWidget(pathLabel);
+    fileStoreLayout->addWidget(alterBtn);
+    fileStoreLayout->addStretch();
+    fileStoreWid->setLayout(fileStoreLayout);
 
-    label_3 = new QLabel(tr("Default storage："));
-    label_3->setStyleSheet("font-size:14px;");
-//    label_3->setFixedWidth(120);
-    lineEdit = new QLineEdit(this);
-    defaultLocation = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
-    lineEdit->setText(defaultLocation);
-    lineEdit->setStyleSheet("font-size:14px;");
-    lineEdit->setFocusPolicy(Qt::NoFocus);//设置不可编辑状态
-//    lineEdit->setStyleSheet("QLineEdit{border-radius:4px;border:1px solid rgba(0,0,0,0.25); background-color:transparent;}");
-    label_4 = new QLabel(tr("Source"));
-    label_4->setStyleSheet("font-size:14px;");
-    radioButton_3 = new QRadioButton(this);
-    label_5 = new QLabel(tr("All"));
-    label_5->setStyleSheet("font-size:14px;");
-    radioButton_4 = new QRadioButton();
-    label_6 = new QLabel(tr("Inside"));
-    label_6->setStyleSheet("font-size:14px;");
-    radioButton_5 = new QRadioButton(this);
-    label_7 = new QLabel(tr("Microphone"));
-    label_8 = new QLabel(tr("File format"));
-    label_7->setStyleSheet("font-size:14px;");
-    label_8->setStyleSheet("font-size:14px;");
+    formatLabel = new QLabel(tr("Format:"));
+    formatLabel->setFixedWidth(60);
+    formatLabel->setStyleSheet("font-size:14px;");
+    downList = new QComboBox(this);
 
-    radioButton_6 = new QRadioButton(this);
-    label_9 = new QLabel("mp3");
-    label_9->setStyleSheet("font-size:14px;");
-    radioButton_7 = new QRadioButton();
-    label_10 = new QLabel("m4a");
-    label_10->setStyleSheet("font-size:14px;");
-    radioButton_8 = new QRadioButton(this);
-    label_11 = new QLabel("wav");
-    label_11->setStyleSheet("font-size:14px;");
-    connect(radioButton_6,&QRadioButton::clicked,this,&Settings::saveTypeMp3);
-    connect(radioButton_7,&QRadioButton::clicked,this,&Settings::saveTypeM4a);
-    connect(radioButton_8,&QRadioButton::clicked,this,&Settings::saveTypeWav);
-    connect(radioButton_3,&QRadioButton::clicked,this,&Settings::allAudio);
-    connect(radioButton_4,&QRadioButton::clicked,this,&Settings::inside);
-    connect(radioButton_5,&QRadioButton::clicked,this,&Settings::microphone);
+    downList->setStyleSheet("font-size:14px;");
+    downList->setFixedSize(280,36);
+    downList->addItem(tr("mp3"));
+    downList->addItem(tr("m4a"));
+    downList->addItem(tr("wav"));
+    fileFormatLayout->addWidget(formatLabel);
+    fileFormatLayout->addWidget(downList,0,Qt::AlignLeft);
+    fileFormatLayout->addStretch();
+    fileFormatWid->setLayout(fileFormatLayout);
 
-    //按钮分组，网格布局
-    QButtonGroup *grp1=new QButtonGroup(this);
-    grp1->addButton(radioButton);
-    grp1->addButton(radioButton_2);
-    QButtonGroup *grp2=new QButtonGroup(this);
-    grp2->addButton(radioButton_3);
-    grp2->addButton(radioButton_4);//系统内部声音
-    grp2->addButton(radioButton_5);
-    QButtonGroup *grp3=new QButtonGroup(this);
-    grp3->addButton(radioButton_6);
-    grp3->addButton(radioButton_7);//m4a格式
-    grp3->addButton(radioButton_8);
+    sourceLabel = new QLabel(tr("Source:"));
+    sourceLabel->setFixedWidth(60);
+    sourceLabel->setStyleSheet("font-size:14px;");
+    micbox = new QCheckBox(tr("Mic"));
+    sourceLayout->addWidget(sourceLabel);
+    sourceLayout->addWidget(micbox);
+    sourceLayout->addStretch();
+    sourceWid->setLayout(sourceLayout);
 
-    //布局
+    centerLayout->addWidget(fileStoreWid);
+    centerLayout->addWidget(fileFormatWid);
+    centerLayout->addWidget(sourceWid);
+    centerLayout->setContentsMargins(24,16,24,24);
+    centerWid->setLayout(centerLayout);
 
-    Wid = new QWidget();
-    QGridLayout *pg=new QGridLayout();
-    pg->addWidget(label,0,0,1,1);
-    pg->addWidget(radioButton,0,2,1,1);
-    pg->addWidget(label_2,0,3,1,1);
-    pg->addWidget(radioButton_2,1,2,1,1);
-    pg->addWidget(label_3,1,3,1,3);
-    pg->addWidget(lineEdit,2,3,1,7);
-    pg->addWidget(label_4,3,0,1,2);
-    //        pg->addWidget(radioButton_3,3,2,1,1);
-    //        pg->addWidget(label_5,3,3,1,1);
-    //        pg->addWidget(radioButton_4,3,4,1,1);//系统内部声音解封后改为3,4,1,1
-    //        pg->addWidget(label_6,3,5,1,1);//系统内部声音解封后改为3,5,1,1
-    pg->addWidget(radioButton_5,3,2,1,1);//解封后改为3611
-    pg->addWidget(label_7,3,3,1,1);//解封后改为3711
-    pg->addWidget(label_8,4,0,1,2);
-    pg->addWidget(radioButton_6,4,2,1,1);//mp3
-    pg->addWidget(label_9,4,3,1,1);
-    label_9->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-    pg->addWidget(radioButton_7,4,4,1,1);//M4a格式
-    pg->addWidget(label_10,4,5,1,1);
-    label_10->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-    pg->addWidget(radioButton_8,4,7,1,1);//wav,后期改为4611
-    pg->addWidget(label_11,4,8,1,1);//后期改为4711
-    label_11->setAlignment(Qt::AlignLeft|Qt::AlignTop);
-    Wid->setLayout(pg);
+    connect(closeButton,&QToolButton::clicked,mainWid,&Settings::close);
+    connect(alterBtn,&QPushButton::clicked,this,&Settings::openFileDialog);
+//    connect(storeEdit,&LineEdit::clicked,this,&Settings::openFileDialog);
+//    connect(storeEdit,&LineEdit::textChanged,this,&Settings::inputEditJudge);
+//    connect(storeEdit,&LineEdit::textEdited,this,&Settings::editSlot);
+    connect(downList,SIGNAL(currentIndexChanged(int)),this,SLOT(saveType(int)));
+    connect(micbox,&QCheckBox::clicked,this,&Settings::micSource);
 
-    mainLayout= new QVBoxLayout();
+    mainLayout = new QVBoxLayout();
     mainLayout->addWidget(titleWid);
-    mainLayout->addWidget(Wid);
+    mainLayout->addWidget(centerWid,0,Qt::AlignHCenter);
     mainLayout->setSpacing(0);
     mainLayout->setMargin(1);
     mainWid->setLayout(mainLayout);
     mainWid->setAttribute(Qt::WA_ShowModal, true);//模态窗口
-//    this->setObjectName("mainWid");
-//    this->setStyleSheet("#mainWid{border-radius:6px;}" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
-
-//    this->setAttribute(Qt::WA_TranslucentBackground);//窗体透明
-//    this->setStyleSheet("border-radius:6px;" );//主窗体圆角(注意：窗体透明与主窗体圆角要搭配使用否则无效)
-    if(Data->get("savedefault").toInt()==1)
-    {
-        radioButton->setChecked(1);
-    }
-    else
-    {
-        radioButton_2->setChecked(1);//默认存储
-    }
 
     if(Data->get("source").toInt() == 1)
     {
-        radioButton_3->setChecked(1);//开始录制声源为全部
+        qDebug()<<"麦克风";
+        micbox->setChecked(true);
     }
     else if(Data->get("source").toInt() == 2)//内部
     {
-        radioButton_4->setChecked(1);
+        qDebug()<<"内部";
     }
     else if(Data->get("source").toInt() == 3)//麦克风
     {
-        radioButton_5->setChecked(1);
+        qDebug()<<"全部";
     }
     else
     {
@@ -221,16 +187,15 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
     if(Data->get("type").toInt() == 1)//开始录制格式为mp3
     {
-        radioButton_6->setChecked(1);
+        downList->setCurrentIndex(0);
     }
     else if(Data->get("type").toInt() == 2)//开始录制格式为m4a
     {
-        radioButton_7->setChecked(1);
+        downList->setCurrentIndex(1);
     }
     else if(Data->get("type").toInt() == 3)//开始录制格式为wav
     {
-
-        radioButton_8->setChecked(1);
+        downList->setCurrentIndex(2);
     }
 
 }
@@ -238,6 +203,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 // 实现键盘响应
 void Settings::keyPressEvent(QKeyEvent *event)
 {
+    qDebug()<<"键盘事件";
     // F1快捷键打开用户手册
     if (event->key() == Qt::Key_F1) {
         if (!mDaemonIpcDbus->daemonIsNotRunning()){
@@ -248,36 +214,118 @@ void Settings::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void Settings::gotosave()
+//打开文件目录
+void Settings::openFileDialog()
 {
-    Data->set("savedefault",1);
+//这个是选择保存文件名
+//    QString selectedFilter;
+//    QString fileType = "Mp3(*.mp3);;M4a(*.m4a);;Wav(*.wav)";
+//    fileName = QFileDialog::getSaveFileName(
+//                      mainWid,
+//                      tr("Select a file storage directory"),
+//                          QDir::currentPath(),
+//                          fileType,
+//                          &selectedFilter);
+    //选择文件目录
+    selectDirPath = QFileDialog::getExistingDirectory(
+                            mainWid,
+                            tr("Select a file storage directory"),
+                            "/");
+    qDebug()<<"文件路径"<<selectDirPath;
+    int value = inputEditJudge(selectDirPath);
+    if(value == 1 ){
+        pathLabel->setText(selectDirPath);
+    }else if (value == 0 ){
+        Data->set("path",defaultLocation);
+        pathLabel->setText(defaultLocation);
+    }else{
+        Data->set("path",Data->get("path").toString());
+        pathLabel->setText(Data->get("path").toString());
+    }
 
 }
-void Settings::closesave()
+
+//编辑label时判断
+int Settings::inputEditJudge(QString fileName)
 {
-    Data->set("savedefault",0);   
+    QString str = fileName;
+    //子串中至少包含"/home/用户名/"
+    QString subStr = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)+"/";
+    QString path = str.mid(0,str.lastIndexOf("/"));
+    QFileInfo fi(path);
+    qDebug()<<"满足条件的前提"<<subStr<<"输入的是:"<<str<<"最后一个/之前的路径:"<<path;
+    if(str != "")
+    {
+        if(!str.contains(subStr)||str.contains(".")||str.contains(";")||
+                str.contains("#")||str.contains("?")||str.contains(" ")||
+               str.contains("\"")||str.contains("'")||str.contains("\\"))
+        {
+            //主要是防止非法路径头:至少包含"/home/用户名/"
+            QMessageBox::warning(mainWid,tr("Warning"),tr("This storage path is illegal!"));
+            return 0;
+        }
+        else
+        {
+            if(fi.exists())
+            {
+                QString name = str.split("/").last();
+                int length = name.length();
+                qDebug()<<"长度:"<<length;
+                if(length<=20){
+                    Data->set("path",fileName);
+                    return 1;
+                }else{
+                    //超过20个字符就提示命名不能超过20个字符
+                    QMessageBox::warning(mainWid,tr("Warning"),tr("The file name cannot exceed 20 characters!"));
+                    return 0;
+                }
+
+            }
+            else
+            {
+                //主要是防止非法路径尾,比如：用户自己乱写的目录/home/bjc/音乐/h/h显然此路径不存在
+                QMessageBox::warning(mainWid,tr("Warning"),tr("This storage path is illegal!"));
+                return 0;
+            }
+
+        }
+
+    }
+    else//当点击关闭时storeEdit会为空
+    {
+        qDebug()<<"若为空则还是选择之前的路径";
+        return 2;
+    }
 }
-void Settings::saveTypeMp3()//mp3
+
+//要提示用户不可以在QLineEdit这里修改路径，只能去规定的弹窗中修改防止用户乱改!!!
+void Settings::editSlot()
 {
-    Data->set("type",1);
+    qDebug()<<"文本框编辑";
+//    storeEdit->setText(defaultLocation);
+//    QMessageBox::warning(mainWid,tr("Warning"),tr("You cannot edit here!"));
+    return ;
 }
-void Settings::saveTypeM4a()//m4a
+
+void Settings::saveType(int index)
 {
-    Data->set("type",2);
+    if(index == 0){
+        Data->set("type",1);//mp3
+        qDebug()<<"类型改为"<<Data->get("type").toInt();
+    }else if(index == 1){
+        Data->set("type",2);//m4a
+        qDebug()<<"类型改为"<<Data->get("type").toInt();
+    }else if(index == 2){
+        Data->set("type",3);//wav
+        qDebug()<<"类型改为"<<Data->get("type").toInt();
+    }else{
+
+    }
 }
-void Settings::saveTypeWav()//wav
+
+void Settings::micSource()//mic录音源
 {
-    Data->set("type",3);
-}
-void Settings::allAudio()//全部
-{
+    qDebug()<<"设置录音源为mic";
     Data->set("source",1);
 }
-void Settings::inside()//内部声音
-{
-    Data->set("source",2);
-}
-void Settings::microphone()//麦克风
-{
-    Data->set("source",3);
-}
+

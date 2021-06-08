@@ -46,10 +46,18 @@ MyThread::MyThread(QWidget *parent) : QWidget(parent)
     audioInputSound = nullptr;
     audioOutputSound = nullptr;
     inputDevSound = nullptr;
+    audioRecorder = new QAudioRecorder;
     recordData = new QGSettings(KYLINRECORDER);
 
     my_time=new QTimer;//延时检测
     tipTimer = new QTimer;//延时process,防止tip界面卡顿//不需要了
+    audioRecorder = new QAudioRecorder;
+    audioProbe = new QAudioProbe;
+    connect(audioProbe, SIGNAL(audioBufferProbed(QAudioBuffer)), this, SLOT(processBuffer(QAudioBuffer)));
+    audioProbe->setSource(audioRecorder);
+
+
+
 
     process = new QProcess;//调用外部程序如：ffmpeg进行音频文件转码
     connect(process,SIGNAL(started()),this,SLOT(uploadStarted()));
@@ -81,8 +89,8 @@ qint64 MyThread::toConvertWAV(QString catheFileName , QString filename)
     WavFileHeader.BytesPerSecond = 96000;//byterate(每秒字节数)=采样率(Hz)*采样位数(bit)*声道数/8
     WavFileHeader.ChannleNumber = 1;//音频通道数平声道
 
-    endFileName = isSameFileName(filename);//判断是否文件名重复
-    qDebug()<<"endFileName = "<<endFileName;
+//    endFileName = isSameFileName(filename);//判断是否文件名重复
+//    qDebug()<<"endFileName = "<<endFileName;
     QFile cacheFile(catheFileName);
     QFile wavFile(endFileName);
     if (!cacheFile.open(QIODevice::ReadWrite))
@@ -111,7 +119,7 @@ qint64 MyThread::toConvertWAV(QString catheFileName , QString filename)
 //pcm转换mp3
 qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
 {
-    endFileName = isSameFileName(mp3FileName);//判断是否文件名重复
+
     QFile cacheFile(catheFileName);
     QFile mp3File(endFileName);
     if (!cacheFile.open(QIODevice::ReadWrite))
@@ -138,7 +146,7 @@ qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
 
 qint64 MyThread::toConvertM4a(QString catheFileName , QString m4aFileName)
 {
-    endFileName = isSameFileName(m4aFileName);//判断是否文件名重复
+//    endFileName = isSameFileName(m4aFileName);//判断是否文件名重复
     QFile cacheFile(catheFileName);
     QFile m4aFile(endFileName);
     if (!cacheFile.open(QIODevice::ReadWrite))
@@ -194,6 +202,63 @@ void MyThread::audioConversionFinish(int isOk,QProcess::ExitStatus)
 
 }
 
+QString MyThread::pathSetting()
+{
+    QString outputName;//输出的文件路径名
+    QString pathStr = recordData->get("path").toString();
+    QTime t1;
+    t1=QTime::currentTime();
+    QString timeStr = t1.toString("hh:mm:ss");
+    QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
+    default_Location = setDefaultPath(defaultPath);//设置默认存储到录音的路径
+    QDateTime current_time = QDateTime::currentDateTime();
+    //显示时间，格式为：年-月-日 时：分：秒 周几,可自行定义QDateTime::currentDateTime().toString("yyyyMMddhhmmss")
+    QString StrCurrentTime = current_time.toString("yyyy.MM.dd");
+    fileName = StrCurrentTime;
+
+    if(recordData->get("path").toString() == ""||pathStr.split("/").last() == "")
+    {
+        qDebug()<<"配置文件中路径:"<<recordData->get("path").toString();
+        qDebug()<<"最后一个'/'后面的字符串是"<<pathStr.split("/").last();
+        if(recordData->get("type").toInt()==1)//mp3
+        {
+            outputName = default_Location+tr("/")+fileName+tr("-")+timeStr+tr(".mp3");
+            format=Mp3();
+        }
+        else if(recordData->get("type").toInt()==3)//wav
+        {
+            outputName = default_Location+tr("/")+fileName+tr("-")+timeStr+tr(".wav");
+            format=Wav();
+        }
+        else
+        {
+            outputName = default_Location+tr("/")+fileName+tr("-")+timeStr+tr(".m4a");
+            format=M4a();
+        }
+    }
+    else
+    {
+        QString tempStr = recordData->get("path").toString();
+        qDebug()<<"尾部'/'后有字符串的路径:"<<tempStr;
+        if(recordData->get("type").toInt()==1)//mp3
+        {
+            outputName = tempStr+tr("/")+fileName+tr("-")+timeStr+tr(".mp3");
+            format=Mp3();
+        }
+        else if(recordData->get("type").toInt()==3)//wav
+        {
+            outputName = tempStr+tr("/")+fileName+tr("-")+timeStr+tr(".wav");
+            format=Wav();
+        }
+        else
+        {
+            outputName = tempStr+tr("/")+fileName+tr("-")+timeStr+tr(".m4a");
+            format=M4a();
+        }
+    }
+    return outputName;
+}
+
 //按压录音按钮之后触发
 void MyThread::record_pressed()
 {
@@ -201,20 +266,7 @@ void MyThread::record_pressed()
     //开始前，count先从0开始
     count=0;
     my_time->start(150);//每隔xms检测一次，波形图缓慢刷新，这行代码一定在前面
-
-    if(recordData->get("type").toInt()==1)//mp3
-    {
-        format=Mp3();
-    }
-    else if(recordData->get("type").toInt()==3)//wav
-    {
-        format=Wav();
-    }
-    else
-    {
-        format=M4a();
-
-    }
+    outputFileName = pathSetting();//根据配置文件更新录音文件的路径
     audioInputFile = new QAudioInput(format, this);
     file =new QFile();
     QString str = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
@@ -227,28 +279,29 @@ void MyThread::record_pressed()
         qDebug()<<"打开失败";
         exit(1);
     }
-
+    endFileName = isSameFileName(outputFileName);//判断是否文件名重复
+    onChangeCurrentRecordList(endFileName);//更新路径配置文件
     InitMonitor();
-    //    QAudioDeviceInfo info = monitorVoiceSource(i);
-    //    for( QAudioDeviceInfo &deviceInfo: QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
-    //    {
-    //        if(deviceInfo.deviceName().contains("alsa_output"))
-    //        {
-    //            QAudioDeviceInfo inputDevice(deviceInfo);
-    //            mFormatSound = inputDevice.preferredFormat();
-    //            qDebug()<<"写入文件的输入设备:"<<deviceInfo.deviceName()<<mFormatSound;
-    //            break;
-    //        }
-    //    }
-
-
     qDebug()<<"录音开始";
     audioInputFile->start(file);
+    if(!audioRecorder->setOutputLocation(QUrl::fromLocalFile(endFileName))){
 
-
-
+        qDebug() << "文件保存有毒！退出！";
+        return ;
+    }
+    QStringList audioCodecsList = audioRecorder->supportedAudioCodecs();
+    QAudioEncoderSettings settings;
+    settings.setCodec(audioCodecsList[0]);
+    settings.setSampleRate(16000);  //采样率   XXXXXXX
+    settings.setQuality(QMultimedia::EncodingQuality(10));
+    settings.setEncodingMode(QMultimedia::ConstantBitRateEncoding);
+    audioRecorder->setEncodingSettings(settings, QVideoEncoderSettings());
+    audioRecorder->record();
 
 }
+
+
+
 //Mp3格式
 QAudioFormat MyThread::Mp3()
 {
@@ -262,6 +315,7 @@ QAudioFormat MyThread::Mp3()
     format.setCodec("audio/pcm");//编码器
     format.setByteOrder(QAudioFormat::LittleEndian);//低位优先
     format.setSampleType(QAudioFormat::SignedInt);//QAudioFormat::SignedInt
+
     return format;
 }
 //Wav格式
@@ -356,38 +410,7 @@ void MyThread::stop_btnPressed()//停止录音
     audioInputFile->stop();//音频文件写入停止
     audioInputSound->stop();//监听停止
     file->close();
-
-//        if(tmpArray1.length()<110)
-//        {
-//            QList<int> tmpArray3;
-//            int geshu = 110/tmpArray1.length();
-//            qDebug()<<tmpArray1.length()<<" "<<geshu;
-//            int tag=0;
-//            for(int i=0;i<110;i++)
-//            {
-//                int temp=i;
-//                if(temp%geshu!=0)
-//                {
-//                    tmpArray3.append(tmpArray1.at(tag));
-//                }
-//                else
-//                {
-//                    if(tag<geshu)
-//                    {
-//                        tag++;
-//                        tmpArray3.append(tmpArray1.at(tag));
-//                    }
-//                    //tmpArray3.append(0);
-//                }
-//            }
-//            tmpArray1=tmpArray3;
-//            updateAmplitudeList(tmpArray1);//更新振幅列表//2020.11.12暂时禁用
-//        }
-//        else
-//        {
-//            updateAmplitudeList(tmpArray1);//更新振幅列表//2020.11.12暂时禁用
-//        }
-
+    audioRecorder->stop();
     qDebug()<<"成功停止";
     int ad =recordData->get("savedefault").toInt();
     int type=recordData->get("type").toInt();
@@ -430,55 +453,40 @@ void MyThread::stop_btnPressed()//停止录音
     }
     else
     {
-        QTime t1;
-        t1=QTime::currentTime();
-        QString str = t1.toString("hh:mm:ss");
-        QString defaultPath = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
-        default_Location = setDefaultPath(defaultPath);//设置默认存储录音的路径
-        QDateTime current_time = QDateTime::currentDateTime();
-        //显示时间，格式为：年-月-日 时：分：秒 周几,可自行定义QDateTime::currentDateTime().toString("yyyyMMddhhmmss")
-        QString StrCurrentTime = current_time.toString("yyyy.MM.dd");
-        fileName=StrCurrentTime;
         if(type==1)//1代表MP3
         {
-            if( toConvertMp3( absolutionPath, (default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3")).toLocal8Bit().data())>0)
+            if( toConvertMp3( absolutionPath, (endFileName).toLocal8Bit().data())>0)
             {
                 //如下5行代码后期重构时务必放入一个函数里...2021.01.15(重复使用的功能需放入同一函数中)
-                //改变配置文件中的存储路径
-                endPathStr = default_Location+tr("/")+fileName+tr("-")+str+tr(".mp3");
-                onChangeCurrentRecordList(endPathStr);//更新路径配置文件
-                listItemAdd(endPathStr);
-                updateAmplitudeList(MainWindow::mutual->valueArray);//更新振幅列表//2020.11.12暂时禁用
-//                WrrMsg = new QMessageBox(QMessageBox::Question, tr("Save"), tr("Saved successfully：")+ default_Location+tr("/")+fileName+tr("-")+str, QMessageBox::Yes );
-//                WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-//                WrrMsg->exec();
+
+//                onChangeCurrentRecordList(outputFileName);//更新路径配置文件//2021/05/13暂时禁用
+//                listItemAdd(endFileName);
+                emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
+//                updateAmplitudeList(MainWindow::mutual->valueArray);//更新振幅列表//2020.11.12暂时禁用
             }
         }
         else if(type==2)//2代表M4a
         {
-            if( toConvertM4a( absolutionPath, (default_Location+tr("/")+fileName+tr("-")+str+tr(".m4a")).toLocal8Bit().data() ) > 0 )
+            if( toConvertM4a( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
             {
                 //改变配置文件中的存储路径
-                onChangeCurrentRecordList(default_Location+tr("/")+fileName+tr("-")+str+tr(".m4a"));
-                listItemAdd(default_Location+tr("/")+fileName+tr("-")+str+tr(".m4a"));
-                updateAmplitudeList(MainWindow::mutual->valueArray);//更新振幅列表//2020.11.12暂时禁用
-//                WrrMsg = new QMessageBox(QMessageBox::Question, tr("Save"), tr("Saved successfully：")+ default_Location+tr("/")+fileName+tr("-")+str, QMessageBox::Yes );
-//                WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-//                WrrMsg->exec();
+//                onChangeCurrentRecordList(outputFileName);
+//                listItemAdd(endFileName);
+                emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
+//                updateAmplitudeList(MainWindow::mutual->valueArray);//更新振幅列表//2020.11.12暂时禁用
+
             }
         }
         else if(type==3)//3代表Wav
         {
-            if( toConvertWAV( absolutionPath, (default_Location+tr("/")+fileName+tr("-")+str+tr(".wav")).toLocal8Bit().data() ) > 0 )
+            if( toConvertWAV( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
             {
                 //改变配置文件中的存储路径
-                onChangeCurrentRecordList(default_Location+tr("/")+fileName+tr("-")+str+tr(".wav"));
-                listItemAdd(default_Location+tr("/")+fileName+tr("-")+str+tr(".wav"));
-                updateAmplitudeList(MainWindow::mutual->valueArray);//更新振幅列表//2020.11.12暂时禁用
+//                onChangeCurrentRecordList(outputFileName);
+//                listItemAdd(endFileNlistItemAddame);
+                emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
+//                updateAmplitudeList(MainWindow::mutual->valueArray);//更新振幅列表//2020.11.12暂时禁用
 
-//                WrrMsg = new QMessageBox(QMessageBox::Question, tr("Save"), tr("Saved successfully：")+ default_Location+tr("/")+fileName+tr("-")+str, QMessageBox::Yes );
-//                WrrMsg->button(QMessageBox::Yes)->setText(tr("OK"));
-//                WrrMsg->exec();
             }
         }
         else
@@ -675,13 +683,17 @@ void MyThread::pauseRecord()//暂停录制
 {
     audioInputFile->stop();
     audioInputSound->stop();
+    audioRecorder->pause();
 }
 
 void MyThread::playRecord()//开始录制
 {
+
     audioInputFile->start(file);
-    inputDevSound = audioInputSound->start();
-    connect(inputDevSound, SIGNAL(readyRead()),this,SLOT(OnReadMore()));//点击开始三角按钮时录制
+//    inputDevSound = audioInputSound->start();
+    audioRecorder->record();
+//    connect(inputDevSound, SIGNAL(readyRead()),this,SLOT(OnReadMore()));//点击开始三角按钮时录制
+// connect(audioProbe, SIGNAL(audioBufferProbed(QAudioBuffer)), this, SLOT(processBuffer(QAudioBuffer)));
 }
 
 void MyThread::InitMonitor()
@@ -712,8 +724,8 @@ void MyThread::InitMonitor()
     int i=recordData->get("source").toInt();
     monitorVoiceSource(i);
 
-    connect(inputDevSound, SIGNAL(readyRead()),this,SLOT(OnReadMore()));
-
+//    connect(inputDevSound, SIGNAL(readyRead()),this,SLOT(OnReadMore()));
+//    connect(audioProbe, SIGNAL(audioBufferProbed(QAudioBuffer)), this, SLOT(processBuffer(QAudioBuffer)));
 }
 
 QAudioDeviceInfo MyThread::monitorVoiceSource(int i)
@@ -737,7 +749,7 @@ QAudioDeviceInfo MyThread::monitorVoiceSource(int i)
                 QAudioDeviceInfo inputDevice(deviceInfo);
                 mFormatSound = inputDevice.nearestFormat(mFormatSound);
                 audioInputSound = new QAudioInput(inputDevice, mFormatSound, this);
-                inputDevSound = audioInputSound->start();
+//                inputDevSound = audioInputSound->start();
                 qDebug()<<"当前内部输入设备:"<<inputDevice.deviceName()<<mFormatSound;//可以判断当前输入设备
                 return inputDevice;
             }
@@ -768,7 +780,7 @@ QAudioDeviceInfo MyThread::monitorVoiceSource(int i)
         QAudioDeviceInfo inputDevice(QAudioDeviceInfo::defaultInputDevice());
         mFormatSound = inputDevice.nearestFormat(mFormatSound);
         audioInputSound = new QAudioInput(inputDevice, mFormatSound, this);
-        inputDevSound = audioInputSound->start();
+//        inputDevSound = audioInputSound->start();
         qDebug()<<"当前外部输入设备:"<<inputDevice.deviceName()<<mFormatSound;//可以判断当前输入设备
         return inputDevice;
     }
@@ -812,16 +824,15 @@ void MyThread::OnReadMore()
         value = abs(useVolumeSample(outdata[i]));/*麦克风中的薄膜始终是在平衡位置附近value会检测到正负相间的震荡频率,加个绝对值*/
         MaxValue = MaxValue>=value ? MaxValue : value;
     }
-    MainWindow::mutual->valueArray[count] = MaxValue;//2020.11.12暂时禁用循环存值
-    count++;//2020.11.12暂时禁用循环存值
-
-    count=count%MYTHREAD_RECTANGLE_COUNT;//2020.11.12暂时禁用循环存值
+//    MainWindow::mutual->valueArray[count] = MaxValue;//2020.11.12暂时禁用循环存值
+//    count++;//2020.11.12暂时禁用循环存值
+//    count=count%MYTHREAD_RECTANGLE_COUNT;//2020.11.12暂时禁用循环存值
     emit recordPaint(MaxValue);//每检测到value就发送一次绘图信号
 }
 
-int MyThread::useVolumeSample(short sample)
+int MyThread::useVolumeSample(qreal sample)
 {
-    return qMax(qMin(((sample * soundVolume) / 100) ,30000),-30000);//求每次检测到的振幅组中最大值
+    return qMax(qMin(((sample * soundVolume) / 100) ,30000.0),-30000.0);//求每次检测到的振幅组中最大值
 }
 
 QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时，配置文件中路径为空
@@ -888,49 +899,24 @@ QString MyThread::listItemAdd(QString filePath)//注意当首次添加文件时�
 
 QString MyThread::isSameFileName(QString FileName)
 {
-    qDebug()<<FileName;
+    QString StrCurrentTime = QDateTime::currentDateTime().toString("yyyyMMddhhmmsszzz");
+    qDebug()<<"文件路径:"<<FileName<<"唯一性标识:"<<StrCurrentTime;
     QStringList keyList = recordData->keys();
     if (keyList.contains("recorderpath"))
     {
-        int  m=readNumList()-1;
-        //qDebug()<<m;
-        QStringList listRecordPath=readPathCollected().split(",");
-        //qDebug()<<listRecordPath;
-        QString tempFileName;
-        QString oldFileName;
-        QString str;
         int fileName_addNum;
-        for(int i=0;i<m;i++)
+        QStringList listRecordPath=readPathCollected().split(",");
+        qDebug()<<"路径集里此路径:"<<listRecordPath.contains(FileName)<<"索引"<<listRecordPath.indexOf(FileName);
+        if(listRecordPath.contains(FileName))
         {
-            str=listRecordPath.at(i+1);
-            //qDebug()<<str;
-            QFileInfo fileinfo(str);
-            QString filesuffix = fileinfo.suffix();//判断文件后缀
-
-//          qDebug()<<fileinfo.isFile();//判断是否为文件，是文件就存在了,因为在本地删除后，同步文件列表下才打开时那个文件也没了
-            //qDebug()<<filesuffix;
-//            fileName.split("/").last()
-            if(str.contains(FileName))
-            {
-                if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
-                {
-                    qDebug()<<"绝对路径名相同！文件名后加(i)";
-                    fileName_addNum = recordData->get("samefilenum").toInt();
-                    tempFileName = FileName.split("/").last();
-                    oldFileName = tempFileName.split(".").first();
-
-                    QString newFileName = oldFileName+"("+ QString::number(fileName_addNum) +")";
-                    qDebug()<<newFileName;
-                    int pos = str.indexOf(oldFileName);
-                    QString tempStr = str.remove(pos,oldFileName.length());
-                    QString newStr = tempStr.insert(pos,newFileName);
-                    qDebug()<<newStr;
-                    fileName_addNum++;
-                    recordData->set("samefilenum",fileName_addNum);
-                    return newStr;
-
-                }
-            }
+            fileName_addNum = recordData->get("samefilenum").toInt();
+            int position = FileName.lastIndexOf(".");//从后面开始查"."所在位置
+            qDebug()<<"从后面开始查.所在位置"<<position;
+            QString newFileName = FileName.insert(position,"["+ QString::number(fileName_addNum) +"]");
+            qDebug()<<"新文件名"<<newFileName;
+            fileName_addNum++;
+            recordData->set("samefilenum",fileName_addNum);
+            return newFileName;
         }
 
     }
@@ -1103,5 +1089,132 @@ void MyThread::selectWav()
 void MyThread::test()
 {
     qDebug()<<"MyThread::test";
+}
+
+void MyThread::processBuffer(const QAudioBuffer &buffer)
+{
+    if(!canMonitor) return;
+    canMonitor = false;
+
+    QVector<qreal> levels = getBufferLevels(buffer);
+        qDebug()<<"长度:"<<levels.count();
+    MaxValue = 0;
+    for (int i = 0; i < levels.count(); i++) {
+        qDebug()<<"振幅:"<<levels.at(i)*10000;
+        //把样本数据转换为整型
+        value = abs(useVolumeSample(levels.at(i)*10000));/*麦克风中的薄膜始终是在平衡位置附近value会检测到正负相间的震荡频率,加个绝对值*/
+        MaxValue = MaxValue>=value ? MaxValue : value;
+    }
+//    MainWindow::mutual->valueArray[count] = 0;//2020.11.12暂时禁用循环存值
+    count++;//2020.11.12暂时禁用循环存值
+    count=count%MYTHREAD_RECTANGLE_COUNT;//2020.11.12暂时禁用循环存值
+    emit recordPaint(MaxValue);//每检测到value就发送一次绘图信号
+
+}
+
+//获得buffer等级
+QVector<qreal> MyThread::getBufferLevels(const QAudioBuffer &buffer)
+{
+    QVector<qreal> values;
+
+    if (!buffer.format().isValid() || buffer.format().byteOrder() != QAudioFormat::LittleEndian)
+        return values;
+
+    if (buffer.format().codec() != "audio/pcm")
+        return values;
+
+    int channelCount = buffer.format().channelCount();
+    values.fill(0, channelCount);
+    qreal peak_value = getPeakValue(buffer.format());
+    if (qFuzzyCompare(peak_value, qreal(0)))
+        return values;
+
+    switch (buffer.format().sampleType()) {
+    case QAudioFormat::Unknown:
+    case QAudioFormat::UnSignedInt:
+        if (buffer.format().sampleSize() == 32)
+            values = getBufferLevels(buffer.constData<quint32>(), buffer.frameCount(), channelCount);
+        if (buffer.format().sampleSize() == 16)
+            values = getBufferLevels(buffer.constData<quint16>(), buffer.frameCount(), channelCount);
+        if (buffer.format().sampleSize() == 8)
+            values = getBufferLevels(buffer.constData<quint8>(), buffer.frameCount(), channelCount);
+        for (int i = 0; i < values.size(); ++i)
+            values[i] = qAbs(values.at(i) - peak_value / 2) / (peak_value / 2);
+        break;
+    case QAudioFormat::Float:
+        if (buffer.format().sampleSize() == 32) {
+            values = getBufferLevels(buffer.constData<float>(), buffer.frameCount(), channelCount);
+            for (int i = 0; i < values.size(); ++i)
+                values[i] /= peak_value;
+        }
+        break;
+    case QAudioFormat::SignedInt:
+        if (buffer.format().sampleSize() == 32)
+            values = getBufferLevels(buffer.constData<qint32>(), buffer.frameCount(), channelCount);
+        if (buffer.format().sampleSize() == 16)
+            values = getBufferLevels(buffer.constData<qint16>(), buffer.frameCount(), channelCount);
+        if (buffer.format().sampleSize() == 8)
+            values = getBufferLevels(buffer.constData<qint8>(), buffer.frameCount(), channelCount);
+        for (int i = 0; i < values.size(); ++i)
+            values[i] /= peak_value;
+        break;
+    }
+
+    return values;
+}
+
+// This function returns the maximum possible sample value for a given audio format
+qreal MyThread::getPeakValue(const QAudioFormat& format)
+{
+    // Note: Only the most common sample formats are supported
+    if (!format.isValid())
+        return qreal(0);
+
+    if (format.codec() != "audio/pcm")
+        return qreal(0);
+
+    switch (format.sampleType()) {
+    case QAudioFormat::Unknown:
+        break;
+    case QAudioFormat::Float:
+        if (format.sampleSize() != 32) // other sample formats are not supported
+            return qreal(0);
+        return qreal(1.00003);
+    case QAudioFormat::SignedInt:
+        if (format.sampleSize() == 32)
+            return qreal(INT_MAX);
+        if (format.sampleSize() == 16)
+            return qreal(SHRT_MAX);
+        if (format.sampleSize() == 8)
+            return qreal(CHAR_MAX);
+        break;
+    case QAudioFormat::UnSignedInt:
+        if (format.sampleSize() == 32)
+            return qreal(UINT_MAX);
+        if (format.sampleSize() == 16)
+            return qreal(USHRT_MAX);
+        if (format.sampleSize() == 8)
+            return qreal(UCHAR_MAX);
+        break;
+    }
+
+    return qreal(0);
+}
+
+template <class T>
+QVector<qreal> MyThread::getBufferLevels(const T *buffer, int frames, int channels)
+{
+    QVector<qreal> max_values;
+    max_values.fill(0, channels);
+
+    for (int i = 0; i < frames; ++i) {
+        for (int j = 0; j < channels; ++j) {
+            qreal value = qAbs(qreal(buffer[i * channels + j]));
+            if (value > max_values.at(j))
+                max_values.replace(j, value);
+        }
+    }
+
+    return max_values;
 }
 

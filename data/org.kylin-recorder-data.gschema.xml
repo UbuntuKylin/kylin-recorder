@@ -21,7 +21,7 @@
              <description>type</description>
          </key>
          <key name="source" type="i" >
-             <default>3</default>
+             <default>1</default>
              <summary>source</summary>
              <description>source</description>
          </key>
@@ -39,6 +39,11 @@
              <default>"auto"</default>
              <summary>thememode</summary>
              <description>thememode</description>
+         </key>
+         <key name="path" type="s" >
+             <default>""</default>
+             <summary>path</summary>
+             <description>path</description>
          </key>
 
      </schema>

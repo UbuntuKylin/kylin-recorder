@@ -201,18 +201,18 @@ void menuModule::initAbout(){
 }
 
 QHBoxLayout* menuModule::initTitleBar(){
-    QLabel* titleIcon = new QLabel();
+    QPushButton* titleIcon = new QPushButton();
     QLabel* titleText = new QLabel();
     titleBtnClose = new QToolButton;
-    titleIcon->setFixedSize(QSize(24,24));
+    titleIcon->setFixedSize(25,25);
+    titleIcon->setIconSize(QSize(25,25));
+    titleIcon->setIcon(QIcon::fromTheme("kylin-recorder"));
+    titleIcon->setStyleSheet("QPushButton{border:0px;background:transparent;}");
 #if DEBUG_MENUMODULE
     iconPath = ":/svg/svg/recording_128.svg";
     appShowingName = "kylin recorder";
 #endif
     //TODO：直接从主题调图标，不会QIcon转qpixmap所以暂时从本地拿
-    titleIcon->setPixmap(QPixmap::fromImage(QImage(iconPath)));
-
-    titleIcon->setScaledContents(true);
     titleBtnClose->setFixedSize(30,30);
     titleBtnClose->setIcon(QIcon::fromTheme("window-close-symbolic"));
     titleBtnClose->setProperty("isWindowButton",0x2);
@@ -238,11 +238,12 @@ QVBoxLayout* menuModule::initBody(){
 #if DEBUG_MENUMODULE
     appVersion = "2020.01.07";
 #endif
-    QLabel* bodyIcon = new QLabel();
+    QPushButton* bodyIcon = new QPushButton();
     bodyIcon->setFixedSize(96,96);
-    bodyIcon->setPixmap(QPixmap::fromImage(QImage(iconPath)));
-    bodyIcon->setStyleSheet("font-size:14px;");
-    bodyIcon->setScaledContents(true);
+    bodyIcon->setIconSize(QSize(96,96));
+    bodyIcon->setIcon(QIcon::fromTheme("kylin-recorder", QIcon(iconPath)));
+    bodyIcon->setStyleSheet("QPushButton{border:0px;background:transparent;}");
+
     QLabel* bodyAppName = new QLabel();
     bodyAppName->setFixedHeight(28);
     bodyAppName->setText(tr(appShowingName.toLocal8Bit()));
