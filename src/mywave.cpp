@@ -34,7 +34,7 @@ void myWave::initVariables()
     m_bReverse = false;
 
     m_updateTimer=new QTimer(this);
-    m_updateTimer->setInterval(PYS_TIMER_INTERVAL);
+    m_updateTimer->start();
     connect(m_updateTimer,SIGNAL(timeout()),this,SLOT(UpdateValue()));
     setMaximumWidth(PYS_WIDTH);
 }

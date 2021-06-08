@@ -23,7 +23,7 @@
 ItemsWindow::ItemsWindow(QWidget *parent) : QMainWindow(parent)
 {
     itemData = new QGSettings(KYLINRECORDER);
-//    darkData = new QGSettings(FITTHEMEWINDOW);
+    //    darkData = new QGSettings(FITTHEMEWINDOW);
 
     initItemWid();//初始化ItemWid
     setItemWid();//设置ItemWid的界面
@@ -306,16 +306,30 @@ void ItemsWindow::positionChange(qint64 position)
 {
     if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
     {
-        playSlider->setValue(static_cast<int64_t>(position));
+
         QTime currentTime(static_cast<int64_t>(position) / (60*60*1000) ,
                           static_cast<int64_t>(position) % (60*60*1000) / 60000,
                           static_cast<int64_t>((position % (60*1000)) / 1000.0));
         QString current_timeStr = currentTime.toString("hh:mm:ss");
-        QTime totalTime(static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()) / (60*60*1000),
-                        static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration())% (60*60*1000) / 60000,
-                       static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()% (60*1000) / 1000.0));
-        qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
-        qDebug()<<"总进度："<<MainWindow::mutual->playerCompoment->duration();
+        if(static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()<4000000))
+        {
+            QTime totalTime(static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()) / (60*60*1000),
+                            static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration())% (60*60*1000) / 60000,
+                            static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()% (60*1000) / 1000.0));
+
+            qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
+        }
+        else
+        {
+            QTime totalTime(static_cast<int64_t>(durTime*890) / (60*60*1000),
+                            static_cast<int64_t>(durTime*890)% (60*60*1000) / 60000,
+                            static_cast<int64_t>(durTime*890 % (60*1000) / 1000.0));
+            qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
+        }
+
+            playSlider->setValue(static_cast<int64_t>(position));
+
+//        qDebug()<<"总进度："<<MainWindow::mutual->playerCompoment->duration();
 
     }
 
@@ -323,9 +337,20 @@ void ItemsWindow::positionChange(qint64 position)
 
 void ItemsWindow::durationChange(qint64 duration)   //更新播放进度
 {
-    playSlider->setRange(0,static_cast<int>(duration));
-    playSlider->setEnabled(duration>0);
-    playSlider->setPageStep(static_cast<int>(duration)/10);
+    qDebug()<<"duration:"<<static_cast<int>(duration);
+    if(static_cast<int>(duration)<4000000)
+    {
+        playSlider->setRange(0,static_cast<int>(duration));
+        playSlider->setEnabled(duration>0);
+        playSlider->setPageStep(static_cast<int>(duration)/10);
+    }
+    else
+    {
+        playSlider->setRange(0,durTime*890);
+        playSlider->setEnabled(durTime*890>0);
+        playSlider->setPageStep(static_cast<int>(durTime*890)/10);
+    }
+
 }
 
 void ItemsWindow::stateChanged(enum QMediaPlayer::State)
@@ -629,6 +654,15 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
 
 void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
 {
+    /*660-664必须放在judgeState里,因为涉及到选择录音打开时
+     * 会直接进这个函数进来后就要计算时间长度。而不是进点击播放的事件再计算
+     * */
+    FFUtil fu;
+    fu.open(path);
+    QFile file(path);
+    int t_duration = fu.getDuration();
+    durTime=t_duration>30000?(file.size()/64000):t_duration;
+    qDebug()<<"你点击的路径"<<audioFilePath<<"时长"<<durTime;
     qDebug()<<"播放状态"<<MainWindow::mutual->playerCompoment->state();
     if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
     {
@@ -679,25 +713,77 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
 //更新配置文件,
 void ItemsWindow::updateGSettingSlot(QString fileName)
 {
-    //进这里是因为文件不存在，但配置文件的路径还未被更新
-    qDebug()<<"不存在的文件路径是"<<fileName;
-    qDebug()<<"此时num数:"<<itemData->get("num").toInt();
+    int  m=itemData->get("num").toInt();
+    qDebug()<<"ssssssssssssss"<<m;
+    if(m == 1)
+    {
+        MainWindow::mutual->isFileNull(m-1);
+    }
+    //qDebug()<<m;
     QStringList listRecordPath = itemData->get("recorderpath").toString().split(",");
     qDebug()<<listRecordPath;
-    if(listRecordPath.contains(fileName))
+    QStringList listAmplitude = itemData->get("amplitude").toString().split(";");
+    for(int i=1;i<m;i++)
     {
-        qDebug()<<"第"<<listRecordPath.indexOf(fileName)<<"个文件"<<fileName<<"被删除！";
-        QString subStr = ","+fileName;//子串
-        QString oldStr=itemData->get("recorderpath").toString();
-        int pos=oldStr.indexOf(subStr);
-        qDebug()<<"被删除的路径在老串中的位置:"<<pos;
-        qDebug()<<"删除的子串"<<oldStr.mid(pos,fileName.length()+1);
-        QString newStr = oldStr.remove(pos,fileName.length()+1);
-        itemData->set("recorderpath",newStr);
-        itemData->set("num",itemData->get("num").toInt()-1);
-        qDebug()<<"删除后的配置文件中路径集:"<<itemData->get("recorderpath").toString();
-        qDebug()<<"删除后的个数:"<<itemData->get("num").toInt();
+        QString str="";
+        str = listRecordPath.at(i);
+        qDebug()<<listRecordPath.at(i);
+        QFileInfo fileinfo(str);
+        QString filesuffix = fileinfo.suffix();//判断文件后缀
+        QFileInfo fi(str);
+        if(fi.exists())
+        {
+//            //判断文件路径是否存在,且不重复
+//            if(fileinfo.isFile()&&(str!=fileName)&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
+//            {
+//                qDebug()<<str<<"!="<<fileName;
+//                //1.每当配置文件中有路径时就在list中更新一下,1必须在2、3前面先更新后删除
+////                MainWindow::mutual->slotListItemAdd(str,i);
+//                //2.先释放内存再删除列表的项,要成对出现
+//                this->deleteLater();
+//                //3.删除list列表的item操作
+//                MainWindow::mutual->list->takeItem(i-1);
+
+
+//            }
+//            else
+//            {
+//                qDebug()<<"文件存在!但是已经重复!!!!";
+
+//            }
+        }
+        else
+        {
+
+            qDebug()<<str<<"MainWindow:文件或被删除！";
+            QString subStr=","+str;//子串
+
+            /*
+             * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
+             */
+            QString oldStr=itemData->get("recorderpath").toString();
+            int pos=oldStr.indexOf(subStr);
+            //qDebug()<<pos<<" "<<oldStr;
+            //qDebug()<<oldStr.mid(pos,str.length()+1);
+            if(listRecordPath.count()<=listAmplitude.count())//只有文件路径集个数＜=振幅集合时才可以
+            {
+                QString subAmplitudeStr = listAmplitude.at(i-1);
+                QString oldAmplitudeStr = itemData->get("amplitude").toString();
+                int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
+                QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
+                itemData->set("amplitude",newAmplitudeStr);
+            }
+            QString newStr = oldStr.remove(pos,str.length()+1);
+            itemData->set("recorderpath",newStr);
+
+            itemData->set("num",itemData->get("num").toInt()-1);
+//            myThread->writeNumList(myThread->readNumList()-1);
+            qDebug()<<itemData->get("recorderpath").toString();
+            qDebug()<<"路径不存在删除时:"<<this->parent()->findChildren<ItemsWindow*>();
+        }
+
     }
+    qDebug()<<"输出剩余的Item地址"<<this->parent()->findChildren<ItemsWindow*>();
 }
 
 //删除本地音频文件
@@ -743,8 +829,8 @@ void ItemsWindow::delFile()
                 MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-x);//删除操作
                 qDebug()<<"**********路径存在，删除第"<<i<<"个"<<str;
                 MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
-                //                    QString Home_path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-                //                                        strResult1 = executeLinuxCmd("mv " + str + ' '+Home_path+"/.local/share/Trash/files");
+//                QString Home_path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+//                strResult1 = executeLinuxCmd("mv " + str + ' '+Home_path+"/.local/share/Trash/files");
                 deleteImage(str);//移入回收站
                 QFile::remove(str);//从本地删除
 
@@ -800,12 +886,16 @@ void ItemsWindow::deleteImage(const QString &savepath)
 
 void ItemsWindow::_processStart(const QString &cmd, QStringList arguments)
 {
-    QString cmdTmp = cmd;
-    for(QString &x : arguments){
-        cmdTmp += " ";
-        cmdTmp += x;
-    }
-    system(cmdTmp.toLocal8Bit().data());
+    MainWindow::mutual->myThread->process->start(cmd,arguments);
+    MainWindow::mutual->myThread->process->waitForStarted();
+    MainWindow::mutual->myThread->process->waitForFinished();
+}
+
+void ItemsWindow::processLog()
+{
+    qDebug()<<"*******process error*******\n"
+           << QString::fromLocal8Bit(MainWindow::mutual->myThread->process->readAllStandardError())
+           <<"\n*******process error*******";
 }
 
 QString ItemsWindow::executeLinuxCmd(QString strCmd)

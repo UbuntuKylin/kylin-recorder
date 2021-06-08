@@ -42,6 +42,7 @@
 
 #include <QtMultimedia>//使用多媒体时要引用这个并且在pro中加QT += multimedia multimediawidgets
 #include <QAudioRecorder>
+#include <QAudioProbe>
 #include <QFile>
 #include <QIODevice>
 #include "settings.h"
@@ -49,6 +50,7 @@
 #include "mp3encoder.h"
 #include "itemswindow.h"
 #include "tipwindow.h"
+#include "ffutil.h"
 //==================
 
 #define BufferSize 35280
@@ -92,10 +94,12 @@ public:
     void stop_saveDefault();//关闭窗口时默认路径保存
 
     QString absolutionPath;//raw存放的绝对路径
+    QString outputFileName;//输出的文件名
 
         QTimer *tipTimer;//延时执行process
 
     QAudioRecorder *audioRecorder;
+    QAudioProbe *audioProbe;
 
 signals:
     void recordPaint(int);
@@ -146,13 +150,15 @@ private:
     int MaxValue;
     QIODevice *inputDevSound;
     QIODevice *outputDevSound;
-    int useVolumeSample(short iSample);
+    int useVolumeSample(qreal iSample);
     int NUM=0;
     QString listItemAdd(QString fileName);
 
     QAudioDeviceInfo monitorVoiceSource(int i);
 
     QString setDefaultPath(QString path);//设置默认存储路径解决中英文路径冲突问题
+
+    QString pathSetting();
 
 private slots:
     void InitMonitor();
@@ -176,6 +182,15 @@ public slots:
     void selectWav();//选择保存路径Wav
     void selectM4a();//选择保存路径M4a
     void audioConversionFinish(int isOk,QProcess::ExitStatus);
+
+    void processBuffer(const QAudioBuffer &buffer);
+
+private:
+
+    QVector<qreal> getBufferLevels(const QAudioBuffer &buffer);
+    qreal getPeakValue(const QAudioFormat& format);
+    template <class T>
+    QVector<qreal> getBufferLevels(const T *buffer, int frames, int channels);
 
 };
 

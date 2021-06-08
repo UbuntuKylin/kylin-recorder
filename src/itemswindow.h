@@ -106,7 +106,9 @@ public:
 //    QStackedLayout *clipperstackLayout;//剪裁堆叠布局
     QList<int> amplitudeNum;//存储振幅的大小的整型列表
     QLabel *timelengthlb;//测试label
-    QTime totalTime;
+    int durTime;//总时长
+    int progressTime = 0;//时间进度
+    QTimer *timer;
 //    void enterEvent(QEvent*);
 //    void leaveEvent(QEvent*);
     QMessageBox *WrrMsg;
@@ -176,6 +178,7 @@ private:
 
     static void _processStart(const QString &cmd , QStringList arguments = QStringList());
     static void deleteImage(const QString &savepath);
+    void processLog();//命令日志
     void initRectangleWave();//停止录音后再生成110个矩形框,防止多次初始化造成cpu占用率过高
     void deleteWaves();
 
@@ -200,6 +203,8 @@ private:
     QPoint pressPoint;
 
     void delUpdateGSetting(QString fileName);
+
+
 
 signals:
 

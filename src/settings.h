@@ -34,8 +34,13 @@
 #include <QSettings>
 #include <QGSettings>
 #include <QRect>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QPushButton>
 
 #include "daemondbus.h"
+#include "lineedit.h"
+#include "mylabel.h"
 
 class Settings : public QMainWindow
 {
@@ -44,21 +49,7 @@ public:
     explicit Settings(QWidget *parent = nullptr);
     QGSettings  *Data= nullptr;
     QGSettings  *darkData= nullptr;
-    //int save_default = 1;
-    QRadioButton *radioButton;
-    //    QLabel *label_2;
-    QRadioButton *radioButton_2;
     QString defaultLocation;
-
-    QRadioButton *radioButton_3;
-    QLabel *label_5;
-
-    QRadioButton *radioButton_6;
-    QRadioButton *radioButton_7;
-    QRadioButton *radioButton_8;
-
-    QLabel *label_8;
-
 
     QWidget *mainWid;
     QToolButton *closeButton;
@@ -78,39 +69,49 @@ private:
 
     QWidget *titleWid;
 
-    QWidget *Wid;
-
-    QLabel *label;
-    //    QRadioButton *radioButton;
-    QLabel *label_2;
-    //    QRadioButton *radioButton_2;
-    QLabel *label_3;
-    QLabel *label_3_0;
-    QLabel *label_3_1;
-    QLabel *label_3_2;
-    QLineEdit *lineEdit;
-    QLabel *label_4;
+    QWidget *centerWid;//中心wid4行
+    QWidget *fileStoreWid;//文件存储wid
+    QWidget *fileFormatWid;//文件格式wid
+    QWidget *sourceWid;//录音来源wid
+    QWidget *btnWid;//按钮wid
+    QVBoxLayout *centerLayout;
+    QHBoxLayout *fileStoreLayout;//文件存储Layout
+    QHBoxLayout *fileFormatLayout;//文件格式Layout
+    QHBoxLayout *sourceLayout;//录音来源Layout
+    QHBoxLayout *btnLayout;//按钮Layout
 
 
-    QRadioButton *radioButton_4;
-    QLabel *label_6;
-    QRadioButton *radioButton_5;
-    QLabel *label_7;
+    QLabel *storelabel;
+//    LineEdit *storeEdit;//文件存储//重写的Linedit因为QLineEdit没有点击事件
+    MyLabel *pathLabel;//路径标签
+    QPushButton *alterBtn;//更改btn
+    QLabel *formatLabel;//文件格式
+    QComboBox *downList;//下拉列表mp3、wav、m4a
+    QLabel *sourceLabel;//来源标签
+    QCheckBox *insidebox;//系统内部
+    QCheckBox *micbox;//麦克风
+    QPushButton *OKBtn;//确认按钮
 
+    QString fileName;
+    QString selectDirPath;
 
-    QLabel *label_9;
-
-    QLabel *label_10;
-    QLabel *label_11;
+    int inputEditJudge(QString filePath);//文本框编辑或编程使其改变时要判断非法字符
 public slots:
-    void closesave();
-    void gotosave();
-    void saveTypeMp3();
-    void saveTypeM4a();
-    void saveTypeWav();
-    void allAudio();
-    void inside();
-    void microphone();
+
+    void openFileDialog();//点击文本框时触发
+
+    void editSlot();//文本框编辑时触发
+    void saveType(int index);//选择时保存的类型
+    void micSource();//选中mic录音源
+
+//    void closesave();
+//    void gotosave();
+//    void saveTypeMp3();
+//    void saveTypeM4a();
+//    void saveTypeWav();
+//    void allAudio();
+//    void inside();
+//    void microphone();
 signals:
 
 };

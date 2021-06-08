@@ -106,7 +106,7 @@ void MainWindow::initDbus()
                                          QString("org.freedesktop.login1.Manager"),
                                          QString("PrepareForSleep"), this,
                                          SLOT(onPrepareForSleep(bool)));
-    //插拔耳机的信号
+    //插拔耳机的信号,考虑到音乐和影音在拔出时发此信号DbusSingleTest,对于录音要停止(两个都不可以注释,否则会出现卡死)
     QDBusConnection::sessionBus().connect(QString(), QString( "/"), "org.ukui.media", "DbusSignalRecorder",this, SLOT(inputDevice_get(QString)));
     QDBusConnection::sessionBus().connect(QString(), QString( "/"), "org.ukui.media", "DbusSingleTest",this, SLOT(inputDevice_get(QString)));
 }
@@ -196,6 +196,7 @@ void MainWindow::initMainWindow()
 
     //最大化按钮
     maxButton = new QToolButton(this);
+    maxButton->setFixedSize(30,30);
     maxButton->setToolTip(tr("Max"));
     maxButton->setProperty("isWindowButton", 0x1);
     maxButton->setProperty("useIconHighlightEffect", 0x2);
@@ -440,20 +441,20 @@ void MainWindow::handlingSlot(bool isOk)
 void MainWindow::closeWindow()
 {
 
-    if (isRecording == true)
-    {
-//        myThread->stop_saveDefault();
-        QMessageBox::warning(mainWid,tr("Warning"),
-                             tr("Please stop recording before closing!"));
-        return ;
+//    if (isRecording == true)
+//    {
+////        myThread->stop_saveDefault();
+//        QMessageBox::warning(mainWid,tr("Warning"),
+//                             tr("Please stop recording before closing!"));
+//        return ;
 
-    }else
-    {
+//    }else
+//    {
         thread->quit();
         thread->wait();
         mainWid->close();
         mini.miniWid->close();
-    }
+//    }
 
 }
 
@@ -682,10 +683,10 @@ void MainWindow::themeButton(QString themeColor)
 
         //最大化按钮
 //        maxButton->setIcon(QIcon(":/svg/svg/dark-window-maximize.svg"));
-        maxButton->setFixedSize(30,30);
-        maxButton->setStyleSheet("QToolButton{border-radius:4px;}"
-                                 "QToolButton:hover{background-color:#E5E5E5;opacity:0.15;}"
-                                 "QToolButton:pressed{background-color:#D9D9D9;opacity:0.20;}");
+//        maxButton->setFixedSize(30,30);
+//        maxButton->setStyleSheet("QToolButton{border-radius:4px;}"
+//                                 "QToolButton:hover{background-color:#E5E5E5;opacity:0.15;}"
+//                                 "QToolButton:pressed{background-color:#D9D9D9;opacity:0.20;}");
         //关闭按钮
         closeButton->setFixedSize(30,30);
         stopButton->setStyleSheet("QToolButton{image: url(:/svg/svg/finish-defalut-dark.svg);}"
@@ -750,10 +751,10 @@ void MainWindow::themeButton(QString themeColor)
 
         //最大化按钮
 //        maxButton->setIcon(QIcon(":/svg/svg/window-maximize.svg"));
-        maxButton->setFixedSize(30,30);
-        maxButton->setStyleSheet("QToolButton{border-radius:4px;}"
-                                 "QToolButton:hover{background-color:#E5E5E5;opacity:0.15;}"
-                                 "QToolButton:pressed{background-color:#D9D9D9;opacity:0.20;}");
+//        maxButton->setFixedSize(30,30);
+//        maxButton->setStyleSheet("QToolButton{border-radius:4px;}"
+//                                 "QToolButton:hover{background-color:#E5E5E5;opacity:0.15;}"
+//                                 "QToolButton:pressed{background-color:#D9D9D9;opacity:0.20;}");
 
 
         stopButton->setStyleSheet("QToolButton{image: url(:/svg/svg/finish-defalut-light.svg);}"
@@ -784,6 +785,11 @@ void MainWindow::themeButton(QString themeColor)
 //计算时长
 QString MainWindow::playerTotalTime(QString filePath)
 {
+    FFUtil fu;
+    fu.open(filePath);
+    int t_duration = fu.getDuration();
+    qDebug()<<"时长:"<<t_duration;
+
     QFile file(filePath);
     QFileInfo fileinfo(filePath);
     qint64 fileSize;
@@ -795,14 +801,20 @@ QString MainWindow::playerTotalTime(QString filePath)
         {
             fileSize = file.size();
             qDebug()<<file.size()<<"后缀:mp3余数"<<fileSize%16000;
-            time = fileSize/16000;//时间长度=文件大小/每秒字节数
+//            time = fileSize/16000;//时间长度=文件大小/每秒字节数
+            time = t_duration;
+            if(t_duration>30000)
+                time = fileSize/64000;
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
         }
         else if(fileinfo.suffix().contains("m4a"))
         {
             fileSize = file.size();
-            time = fileSize/16000;//时间长度=文件大小/每秒字节数
+//            time = fileSize/16000;//时间长度=文件大小/每秒字节数
+            time = t_duration;
+            if(t_duration>30000)
+                time = fileSize/64000;
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
             qDebug()<<"文件大小:"<<fileSize<<"时长:"<<timeStr;
@@ -810,7 +822,10 @@ QString MainWindow::playerTotalTime(QString filePath)
         else if(fileinfo.suffix().contains("wav"))
         {
             fileSize = file.size();
-            time = fileSize/96000;//时间长度=文件大小/每秒字节数
+//            time = fileSize/64000;//时间长度=文件大小/每秒字节数
+            time = t_duration;
+            if(t_duration>30000)
+                time = fileSize/64000;
             QTime totalTime(time/3600,(time%3600)/60,time%60);
             timeStr=totalTime.toString("hh:mm:ss");
         }
@@ -875,21 +890,15 @@ void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,
         {
             qDebug()<<str<<"MainWindow:文件或被删除！";
             QString subStr=","+str;//子串
-//            QString subAmplitudeStr = listAmplitude.at(i-1);
             /*
              * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
              */
             QString oldStr=defaultPathData->get("recorderpath").toString();
             int pos=oldStr.indexOf(subStr);
-//            QString oldAmplitudeStr = defaultPathData->get("amplitude").toString();
-//            int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
             //qDebug()<<pos<<" "<<oldStr;
             //qDebug()<<oldStr.mid(pos,str.length()+1);
             QString newStr = oldStr.remove(pos,str.length()+1);
             myThread->writePathCollected(newStr);
-//            QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
-//            defaultPathData->set("amplitude",newAmplitudeStr);
-
             myThread->writeNumList(myThread->readNumList()-1);
             qDebug()<<myThread->readPathCollected();
         }
@@ -985,9 +994,9 @@ void MainWindow::play_pause_clicked()
     if(strat_pause)
     {
         emit playRecord();
-        set.radioButton_6->setEnabled(false);
-        set.radioButton_7->setEnabled(false);
-        set.radioButton_8->setEnabled(false);
+//        set.radioButton_6->setEnabled(false);
+//        set.radioButton_7->setEnabled(false);
+//        set.radioButton_8->setEnabled(false);
 //        menumodule -> menuButton->setEnabled(false);
         isRecording = true;//开始时正在录音的标记值为true,其为true时禁止Item的悬浮特效
         cut = QTime::currentTime();//记录开始时的时间
@@ -1055,9 +1064,10 @@ void MainWindow::play_pause_clicked()
 
 }
 
+
 void MainWindow::recordPaint(int value)
 {
-    maxNum.prepend(value/300);//将元素插入到Vector的开始
+    maxNum.prepend(value/100);//将元素插入到Vector的开始
     maxNum = maxNum.mid(0,rectangleCount);
     for(int i = 0;i<rectangleCount;i++)
     mywave.at(i)->setValue(maxNum.at(i));
@@ -1073,19 +1083,11 @@ void MainWindow::stop_clicked()//停止按钮
     if(stop)
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
-        set.radioButton_6->setEnabled(true);
-        set.radioButton_7->setEnabled(true);
-        set.radioButton_8->setEnabled(true);
-//        menumodule->menuButton->setEnabled(true);
         limitTimer->stop();//停止记录录音时间
         pTimer->stop();//计时停止
         mini.pTimer->stop();
         emit stopRecord();
-        //停止之后把数组清0
-//        for(int i = 0;i<INIT_MAINWINDOW_RECTANGLE_COUNT;i++)
-//        {
-//            valueArray[i] = 0;
-//        }
+
         if(strat_pause)
         {
             strat_pause = false;
@@ -1235,21 +1237,7 @@ void MainWindow::getPlayingSlot(bool playingState)
 //与堆叠布局搭配使用效果更佳
 void MainWindow::switchPage()
 {
-//    for( QAudioDeviceInfo &deviceInfo: QAudioDeviceInfo::availableDevices(QAudio::AudioInput))
-//    {
-//        if(deviceInfo.deviceName().contains("auto_null"))
-//        {
-//            WrrMsg = new QMessageBox(QMessageBox::Warning,tr("Warning"),tr("No input device detected！"),QMessageBox::Yes );
-//            WrrMsg->button(QMessageBox::Yes)->setText("OK");
-//            WrrMsg->exec();
-//            return;
-//        }
-//        if(deviceInfo.deviceName().contains("alsa_input"))
-//        {
-//            qDebug()<<"录音设备是:"<<deviceInfo.deviceName();
-//            break;
-//        }
-//    }
+
     if(!isplaying)//判断是否有音频在播放，若无音频播放则可以录音
     {
         stop=true;//stop按钮默认是true代表停止中
@@ -1264,9 +1252,9 @@ void MainWindow::switchPage()
         baseTime = baseTime.currentTime();
         mini.baseTime = mini.baseTime.currentTime();
         mini.pTimer->start(100);
-        set.radioButton_6->setEnabled(false);
-        set.radioButton_7->setEnabled(false);
-        set.radioButton_8->setEnabled(false);
+//        set.radioButton_6->setEnabled(false);
+//        set.radioButton_7->setEnabled(false);
+//        set.radioButton_8->setEnabled(false);
 //        menumodule->menuButton->setEnabled(false);
     }
     else
@@ -1301,8 +1289,15 @@ void MainWindow::changeVoicePicture()
 
 void MainWindow::goset()
 {
+
     set.mainWid->show();
     set.mainWid->move(mainWid->geometry().center() - set.mainWid->rect().center());
+    if(isRecording||strat_pause)
+    {
+        qDebug()<<"可以结束";
+        stop_clicked();
+    }
+
 }
 
 void MainWindow::slotListItemAdd(QString fileName,int i)
