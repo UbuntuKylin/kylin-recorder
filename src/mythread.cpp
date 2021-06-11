@@ -109,7 +109,7 @@ qint64 MyThread::toConvertWAV(QString catheFileName , QString filename)
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
     code->fromUnicode(endFileName).data();
     QString cmd="ffmpeg -y -threads 2 -f s16le -ar 48k -ac 1 -i \""+catheFileName+"\" \""+endFileName+"\"";
-    process->start(cmd);
+//    process->start(cmd);//0609暂时去掉后期复原
 
     cacheFile.close();
     wavFile.close();
@@ -137,7 +137,7 @@ qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
     code->fromUnicode(endFileName).data();
     QString cmd="ffmpeg -y -threads 2 -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+endFileName+"\"";
-    process->start(cmd);
+//    process->start(cmd);//0609暂时去掉后期复原
     cacheFile.close();
     mp3File.close();
 
@@ -168,9 +168,8 @@ qint64 MyThread::toConvertM4a(QString catheFileName , QString m4aFileName)
     QString cmd="ffmpeg -y -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+endFileName+"\"";
     //qDebug()<<"******"<<catheFileName<<"*"<<cmd<<"******";
 
-    process->start(cmd);
-//    emit handling(true);
-//    process->waitForFinished();
+//    process->start(cmd);//0609暂时去掉后期复原
+
 
     cacheFile.close();
     m4aFile.close();
@@ -455,39 +454,30 @@ void MyThread::stop_btnPressed()//停止录音
     {
         if(type==1)//1代表MP3
         {
-            if( toConvertMp3( absolutionPath, (endFileName).toLocal8Bit().data())>0)
-            {
+//            if( toConvertMp3( absolutionPath, (endFileName).toLocal8Bit().data())>0)
+//            {
                 //如下5行代码后期重构时务必放入一个函数里...2021.01.15(重复使用的功能需放入同一函数中)
-
-//                onChangeCurrentRecordList(outputFileName);//更新路径配置文件//2021/05/13暂时禁用
-//                listItemAdd(endFileName);
+                qDebug()<<"*********************mp3";
                 emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
-//                updateAmplitudeList(MainWindow::mutual->valueArray);//更新振幅列表//2020.11.12暂时禁用
-            }
+//            }
         }
         else if(type==2)//2代表M4a
         {
-            if( toConvertM4a( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
-            {
+//            if( toConvertM4a( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
+//            {
                 //改变配置文件中的存储路径
-//                onChangeCurrentRecordList(outputFileName);
-//                listItemAdd(endFileName);
                 emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
-//                updateAmplitudeList(MainWindow::mutual->valueArray);//更新振幅列表//2020.11.12暂时禁用
 
-            }
+//            }
         }
         else if(type==3)//3代表Wav
         {
-            if( toConvertWAV( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
-            {
+//            if( toConvertWAV( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
+//            {
                 //改变配置文件中的存储路径
-//                onChangeCurrentRecordList(outputFileName);
-//                listItemAdd(endFileNlistItemAddame);
                 emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
-//                updateAmplitudeList(MainWindow::mutual->valueArray);//更新振幅列表//2020.11.12暂时禁用
 
-            }
+//            }
         }
         else
         {

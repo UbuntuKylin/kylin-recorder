@@ -118,37 +118,39 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     fileStoreLayout->addWidget(storelabel);
     fileStoreLayout->addWidget(pathLabel);
     fileStoreLayout->addWidget(alterBtn);
-    fileStoreLayout->addStretch();
     fileStoreWid->setLayout(fileStoreLayout);
 
     formatLabel = new QLabel(tr("Format:"));
     formatLabel->setFixedWidth(60);
     formatLabel->setStyleSheet("font-size:14px;");
-    downList = new QComboBox(this);
+    formatDownList = new QComboBox(this);
+    formatDownList->setStyleSheet("font-size:14px;");
+    formatDownList->setFixedSize(280,36);
 
-    downList->setStyleSheet("font-size:14px;");
-    downList->setFixedSize(280,36);
-    downList->addItem(tr("mp3"));
-    downList->addItem(tr("m4a"));
-    downList->addItem(tr("wav"));
+    formatDownList->addItem(tr("mp3"));
+    formatDownList->addItem(tr("m4a"));
+    formatDownList->addItem(tr("wav"));
     fileFormatLayout->addWidget(formatLabel);
-    fileFormatLayout->addWidget(downList,0,Qt::AlignLeft);
-    fileFormatLayout->addStretch();
+    fileFormatLayout->addWidget(formatDownList,0,Qt::AlignLeft);
     fileFormatWid->setLayout(fileFormatLayout);
 
     sourceLabel = new QLabel(tr("Source:"));
     sourceLabel->setFixedWidth(60);
     sourceLabel->setStyleSheet("font-size:14px;");
-    micbox = new QCheckBox(tr("Mic"));
+    sourceDownList = new QComboBox(this);
+    sourceDownList->setStyleSheet("font-size:14px;");
+    sourceDownList->setFixedSize(280,36);
+    sourceDownList->addItem(tr("Microphone"));
+//    sourceDownList->addItem(tr("System Inside"));
+
     sourceLayout->addWidget(sourceLabel);
-    sourceLayout->addWidget(micbox);
-    sourceLayout->addStretch();
+    sourceLayout->addWidget(sourceDownList,0,Qt::AlignLeft);
     sourceWid->setLayout(sourceLayout);
 
     centerLayout->addWidget(fileStoreWid);
     centerLayout->addWidget(fileFormatWid);
     centerLayout->addWidget(sourceWid);
-    centerLayout->setContentsMargins(24,16,24,24);
+    centerLayout->setContentsMargins(32,16,24,24);
     centerWid->setLayout(centerLayout);
 
     connect(closeButton,&QToolButton::clicked,mainWid,&Settings::close);
@@ -156,8 +158,8 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 //    connect(storeEdit,&LineEdit::clicked,this,&Settings::openFileDialog);
 //    connect(storeEdit,&LineEdit::textChanged,this,&Settings::inputEditJudge);
 //    connect(storeEdit,&LineEdit::textEdited,this,&Settings::editSlot);
-    connect(downList,SIGNAL(currentIndexChanged(int)),this,SLOT(saveType(int)));
-    connect(micbox,&QCheckBox::clicked,this,&Settings::micSource);
+    connect(formatDownList,SIGNAL(currentIndexChanged(int)),this,SLOT(saveType(int)));
+    connect(sourceDownList,SIGNAL(currentIndexChanged(int)),this,SLOT(recordSource(int)));
 
     mainLayout = new QVBoxLayout();
     mainLayout->addWidget(titleWid);
@@ -170,7 +172,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
     if(Data->get("source").toInt() == 1)
     {
         qDebug()<<"麦克风";
-        micbox->setChecked(true);
+        sourceDownList->setCurrentIndex(0);
     }
     else if(Data->get("source").toInt() == 2)//内部
     {
@@ -187,15 +189,15 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
     if(Data->get("type").toInt() == 1)//开始录制格式为mp3
     {
-        downList->setCurrentIndex(0);
+        formatDownList->setCurrentIndex(0);
     }
     else if(Data->get("type").toInt() == 2)//开始录制格式为m4a
     {
-        downList->setCurrentIndex(1);
+        formatDownList->setCurrentIndex(1);
     }
     else if(Data->get("type").toInt() == 3)//开始录制格式为wav
     {
-        downList->setCurrentIndex(2);
+        formatDownList->setCurrentIndex(2);
     }
 
 }
@@ -323,9 +325,16 @@ void Settings::saveType(int index)
     }
 }
 
-void Settings::micSource()//mic录音源
+void Settings::recordSource(int index)//mic录音源
 {
-    qDebug()<<"设置录音源为mic";
-    Data->set("source",1);
+    if(index ==0){
+        qDebug()<<"设置录音源为mic";
+        Data->set("source",1);
+    }else if(index ==1){
+        qDebug()<<"设置录音源为系统内部";
+    }else{
+
+    }
+
 }
 

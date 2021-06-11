@@ -70,6 +70,8 @@ public:
     QLabel *recordFileName;//录音文件名
     QLabel *listNumChangeColor;//录音序号颜色变化
     QLabel *recordFileNameChangeColor;//录音文件名颜色变化
+
+
     QWidget *stackWid;
     QWidget *firstWid;
     QWidget *threeButtonWid;//三个按钮的Wid

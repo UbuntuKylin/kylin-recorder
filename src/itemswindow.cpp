@@ -108,7 +108,8 @@ void ItemsWindow::setItemWid()//设置ItemWid的界面
     timelengthlb->setText("00:00:00");
     timelengthlb->setStyleSheet("font-size : 14px");
     itemPlay_PauseButton->setFixedSize(32,32);
-    itemPlay_PauseButton->setToolTip(tr("play/pause"));
+    itemPlay_PauseButton->setToolTip(tr("play"));
+//    itemPlay_PauseButton->setToolTip(tr("play/pause"));
 
     clipButton->setFixedSize(32,32);
     clipButton ->setToolTip(tr("clip"));
@@ -362,6 +363,7 @@ void ItemsWindow::stateChanged(enum QMediaPlayer::State)
         isPlayerEnd = 1;
         MainWindow::mutual->playerCompoment->setMedia(QUrl::fromLocalFile(audioFilePath));
         MainWindow::mutual->playerCompoment->stop();
+        itemPlay_PauseButton->setToolTip(tr("play"));
         play_pause=false;
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
         setPosition(0);
@@ -671,6 +673,7 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
         qDebug()<<"存在暂停"<<this->recordFileName->text();
         play_pause=false;
         emit playingSignal(false);//点击暂停之后才可以再点击录音
+        itemPlay_PauseButton->setToolTip(tr("play"));
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
 
     }
@@ -683,6 +686,7 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
             isOpen = true;
             emit playingSignal(true);
         }
+
         splitLinestackWid->setCurrentIndex(1);//点击播放时在显示那个进度条
         MainWindow::mutual->playerCompoment->setVolume(50);
         stopReplayer();//先暂停再播放
@@ -702,6 +706,7 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
         MainWindow::mutual->playerCompoment->setVolume(50);
         stopReplayer();//先暂停再播放
         qDebug()<<"你点击的路径"<<path;
+        itemPlay_PauseButton->setToolTip(tr("pause"));
         MainWindow::mutual->playerCompoment->play();
         qDebug()<<"存在播放"<<this->recordFileName->text();
         play_pause = true;

@@ -105,7 +105,7 @@ void messageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
 int main(int argc, char *argv[])
 {
 //    qInstallMessageHandler(messageOutput);//日志输出功能,穿版本之前务必解开
-    initUkuiLog4qt("kylin-recorder");//日志功能,穿版本之前务必解开
+//    initUkuiLog4qt("kylin-recorder");//日志功能,穿版本之前务必解开
     printf("Program start ...\n");
     /*
      * 添加4K 屏幕支持。
@@ -125,9 +125,9 @@ int main(int argc, char *argv[])
     #endif
     QApplication a(argc, argv);
     qApp->setProperty("notChangeSystemFontSize", true);//设置字体不跟随主题变化
-    a.setOrganizationName("kylin");
-    a.setApplicationName("kylin-recorder");
-    a.setApplicationVersion("1.2.23");
+//    a.setOrganizationName("kylin");
+//    a.setApplicationName("kylin-recorder");
+//    a.setApplicationVersion("1.2.23");
     //设置主题图标跟随变换
     a.setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
 
