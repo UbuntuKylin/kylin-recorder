@@ -690,6 +690,7 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
         splitLinestackWid->setCurrentIndex(1);//点击播放时在显示那个进度条
         MainWindow::mutual->playerCompoment->setVolume(50);
         stopReplayer();//先暂停再播放
+        itemPlay_PauseButton->setToolTip(tr("pause"));
         MainWindow::mutual->playerCompoment->play();
         qDebug()<<"存在播放"<<this->recordFileName->text();
         play_pause = true;

@@ -82,6 +82,15 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
     isFirstObject = false;//可以接收外部命令
 
     mainWid->show();
+    QAudioDeviceInfo inputDevice(QAudioDeviceInfo::defaultInputDevice());
+    if(inputDevice.deviceName().contains("monitor")||
+       inputDevice.deviceName().contains("multichannel-input")){
+        QMessageBox::warning(mainWid,
+                             tr("Warning"),tr("No input device detected!"),QMessageBox::Ok);
+        recordButton->setEnabled(false);
+    }else{
+        recordButton->setEnabled(true);
+    }
 }
 
 void MainWindow::initDbus()
@@ -217,15 +226,7 @@ void MainWindow::initMainWindow()
     recordButton->setFixedSize(128,128);
     recordButton->setIconSize(QSize(128,128));//重置图标大小
 
-    QAudioDeviceInfo inputDevice(QAudioDeviceInfo::defaultInputDevice());
-    if(inputDevice.deviceName().contains("monitor")||
-       inputDevice.deviceName().contains("multichannel-input")){
-        QMessageBox::warning(mainWid,
-                             tr("Warning"),tr("No input device detected!"),QMessageBox::Ok);
-        recordButton->setEnabled(false);
-    }else{
-        recordButton->setEnabled(true);
-    }
+
 
     connect(miniButton,   &QToolButton::clicked, this, &MainWindow::miniShow);//mini窗口
     connect(minButton,    &QToolButton::clicked, this, &MainWindow::minShow);//最小化窗口
@@ -1021,7 +1022,7 @@ void MainWindow::play_pause_clicked()
         isRecording = true;//开始时正在录音的标记值为true,其为true时禁止Item的悬浮特效
         cut = QTime::currentTime();//记录开始时的时间
         int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
-//        limitTimer->start(1000);//0609暂时去掉限制时长
+        limitTimer->start(1000);//0609暂时去掉限制时长
         baseTime = baseTime.addSecs(t);
         pTimer->start(100);
         mini.baseTime = mini.baseTime.addSecs(t);
@@ -1054,7 +1055,7 @@ void MainWindow::play_pause_clicked()
         emit pauseRecord();
         play_pauseButton->setToolTip(tr("start"));
         isRecording = false;//暂停时正在录音的标记值为false,其为false时Item的悬浮特效可以被开启
-//        limitTimer->stop();//0609暂时去掉限制时长
+        limitTimer->stop();//0609暂时去掉限制时长
         pTimer->stop();
         mini.pTimer->stop();
         //mini.pTimer->stop();
@@ -1104,7 +1105,7 @@ void MainWindow::stop_clicked()//停止按钮
     if(stop)
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
-//        limitTimer->stop();//0609暂时去掉限制时长
+        limitTimer->stop();//0609暂时去掉限制时长
         pTimer->stop();//计时停止
         mini.pTimer->stop();
         emit stopRecord();
@@ -1165,10 +1166,11 @@ void MainWindow::limitRecordingTime()
 {
     qDebug()<<"查看计数:"<<timeTag;
     //0609暂时去掉限制时长的问题目前仅限sp1
-//    if(timeTag >= 59)//超过59分钟自动保存
-//    {
-//       stop_clicked();
-//    }
+    if(timeTag >= 30)//超过30分钟自动保存
+    {
+       stop_clicked();
+    }
+
 }
 
 void MainWindow::mainWindow_page2()
@@ -1270,7 +1272,7 @@ void MainWindow::switchPage()
         play_pauseButton->setToolTip(tr("pause"));
         mainWindow_page2();//必须加
         //刚开始点击按钮时才可以开启定时器
-//        limitTimer->start(1000);//0609暂时去掉限制时长
+        limitTimer->start(1000);//0609暂时去掉限制时长
         pTimer->start(100);
         baseTime = baseTime.currentTime();
         mini.baseTime = mini.baseTime.currentTime();

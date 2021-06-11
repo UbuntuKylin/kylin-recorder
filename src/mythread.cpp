@@ -60,6 +60,7 @@ MyThread::MyThread(QWidget *parent) : QWidget(parent)
 
 
     process = new QProcess;//调用外部程序如：ffmpeg进行音频文件转码
+
     connect(process,SIGNAL(started()),this,SLOT(uploadStarted()));
 //    connect(process, SIGNAL(finished(int)), this, SLOT(audioConversionFinish(int)), Qt::UniqueConnection);
     connect(process,SIGNAL(finished(int, QProcess::ExitStatus)),this,SLOT(audioConversionFinish(int, QProcess::ExitStatus)));
@@ -109,7 +110,7 @@ qint64 MyThread::toConvertWAV(QString catheFileName , QString filename)
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
     code->fromUnicode(endFileName).data();
     QString cmd="ffmpeg -y -threads 2 -f s16le -ar 48k -ac 1 -i \""+catheFileName+"\" \""+endFileName+"\"";
-//    process->start(cmd);//0609暂时去掉后期复原
+    process->start(cmd);//0609暂时去掉后期复原
 
     cacheFile.close();
     wavFile.close();
@@ -137,7 +138,7 @@ qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
     code->fromUnicode(endFileName).data();
     QString cmd="ffmpeg -y -threads 2 -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+endFileName+"\"";
-//    process->start(cmd);//0609暂时去掉后期复原
+    process->start(cmd);//0609暂时去掉后期复原
     cacheFile.close();
     mp3File.close();
 
@@ -168,7 +169,7 @@ qint64 MyThread::toConvertM4a(QString catheFileName , QString m4aFileName)
     QString cmd="ffmpeg -y -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+endFileName+"\"";
     //qDebug()<<"******"<<catheFileName<<"*"<<cmd<<"******";
 
-//    process->start(cmd);//0609暂时去掉后期复原
+    process->start(cmd);//0609暂时去掉后期复原
 
 
     cacheFile.close();
@@ -191,6 +192,7 @@ void MyThread::audioConversionFinish(int isOk,QProcess::ExitStatus)
         isSuccess=isOk;
 //        MainWindow::mutual->WrrMsg->hide();
         MainWindow::mutual->tipWindow->hide();
+
     }
     else
     {
@@ -198,6 +200,7 @@ void MyThread::audioConversionFinish(int isOk,QProcess::ExitStatus)
         isSuccess=isOk;
         MainWindow::mutual->tipWindow->hide();
     }
+
 
 }
 
@@ -454,30 +457,30 @@ void MyThread::stop_btnPressed()//停止录音
     {
         if(type==1)//1代表MP3
         {
-//            if( toConvertMp3( absolutionPath, (endFileName).toLocal8Bit().data())>0)
-//            {
+            if( toConvertMp3( absolutionPath, (endFileName).toLocal8Bit().data())>0)
+            {
                 //如下5行代码后期重构时务必放入一个函数里...2021.01.15(重复使用的功能需放入同一函数中)
                 qDebug()<<"*********************mp3";
                 emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
-//            }
+            }
         }
         else if(type==2)//2代表M4a
         {
-//            if( toConvertM4a( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
-//            {
+            if( toConvertM4a( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
+            {
                 //改变配置文件中的存储路径
                 emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
 
-//            }
+            }
         }
         else if(type==3)//3代表Wav
         {
-//            if( toConvertWAV( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
-//            {
+            if( toConvertWAV( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
+            {
                 //改变配置文件中的存储路径
                 emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
 
-//            }
+            }
         }
         else
         {
