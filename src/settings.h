@@ -86,10 +86,9 @@ private:
     MyLabel *pathLabel;//路径标签
     QPushButton *alterBtn;//更改btn
     QLabel *formatLabel;//文件格式
-    QComboBox *downList;//下拉列表mp3、wav、m4a
+    QComboBox *formatDownList;//格式下拉列表mp3、wav、m4a
     QLabel *sourceLabel;//来源标签
-    QCheckBox *insidebox;//系统内部
-    QCheckBox *micbox;//麦克风
+    QComboBox *sourceDownList;//录音来源下拉列表mp3、wav、m4a
     QPushButton *OKBtn;//确认按钮
 
     QString fileName;
@@ -102,7 +101,7 @@ public slots:
 
     void editSlot();//文本框编辑时触发
     void saveType(int index);//选择时保存的类型
-    void micSource();//选中mic录音源
+    void recordSource(int index);//选中mic录音源
 
 //    void closesave();
 //    void gotosave();

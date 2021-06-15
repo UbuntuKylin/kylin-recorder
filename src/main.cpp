@@ -125,9 +125,9 @@ int main(int argc, char *argv[])
     #endif
     QApplication a(argc, argv);
     qApp->setProperty("notChangeSystemFontSize", true);//设置字体不跟随主题变化
-    a.setOrganizationName("kylin");
-    a.setApplicationName("kylin-recorder");
-    a.setApplicationVersion("1.2.23");
+//    a.setOrganizationName("kylin");
+//    a.setApplicationName("kylin-recorder");
+//    a.setApplicationVersion("1.2.23");
     //设置主题图标跟随变换
     a.setWindowIcon(QIcon::fromTheme("kylin-recorder", QIcon(":/svg/svg/recording_128.svg")));
 

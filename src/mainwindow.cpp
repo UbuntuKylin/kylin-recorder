@@ -82,6 +82,15 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
     isFirstObject = false;//可以接收外部命令
 
     mainWid->show();
+    QAudioDeviceInfo inputDevice(QAudioDeviceInfo::defaultInputDevice());
+    if(inputDevice.deviceName().contains("monitor")||
+       inputDevice.deviceName().contains("multichannel-input")){
+        QMessageBox::warning(mainWid,
+                             tr("Warning"),tr("No input device detected!"),QMessageBox::Ok);
+        recordButton->setEnabled(false);
+    }else{
+        recordButton->setEnabled(true);
+    }
 }
 
 void MainWindow::initDbus()
@@ -217,6 +226,7 @@ void MainWindow::initMainWindow()
     recordButton->setFixedSize(128,128);
     recordButton->setIconSize(QSize(128,128));//重置图标大小
 
+
     connect(miniButton,   &QToolButton::clicked, this, &MainWindow::miniShow);//mini窗口
     connect(minButton,    &QToolButton::clicked, this, &MainWindow::minShow);//最小化窗口
     connect(maxButton,    &QToolButton::clicked, this, &MainWindow::maxShow);//最大化窗口
@@ -245,7 +255,7 @@ void MainWindow::setTwoPageWindow()
     stopButton = new QToolButton(this);
     stopButton->setToolTip(tr("stop"));
     play_pauseButton = new QToolButton(this);
-    play_pauseButton->setToolTip(tr("pause/start"));
+//    play_pauseButton->setToolTip(tr("pause/start"));
 
     ui_2Wid = new QWidget();//第二个页面wid
     showTimelbWid = new QWidget();//时间wid
@@ -380,6 +390,14 @@ int MainWindow::command_Control(QString cmd1)
 void MainWindow::inputDevice_get(QString str)
 {
     qDebug()<<"插拔";
+    QAudioDeviceInfo inputDevice(QAudioDeviceInfo::defaultInputDevice());
+    if(inputDevice.deviceName().contains("monitor")||
+       inputDevice.deviceName().contains("multichannel-input")){
+        stop_clicked();//此处解决台式机，在录音时暂停，之后拔出耳机卡死。
+        recordButton->setEnabled(false);
+    }else{
+        recordButton->setEnabled(true);
+    }
     if(isRecording)
     {
         //录音时，插拔要停止录音,并生成文件
@@ -387,6 +405,7 @@ void MainWindow::inputDevice_get(QString str)
     }
     else
     {
+        //针对笔记本来说，暂停时的录音对于插拔并不会使其结束录音。
         qDebug()<<"应用没有在录音！";
         return;
     }
@@ -994,6 +1013,7 @@ void MainWindow::play_pause_clicked()
     if(strat_pause)
     {
         emit playRecord();
+        play_pauseButton->setToolTip(tr("pause"));
 //        set.radioButton_6->setEnabled(false);
 //        set.radioButton_7->setEnabled(false);
 //        set.radioButton_8->setEnabled(false);
@@ -1001,7 +1021,7 @@ void MainWindow::play_pause_clicked()
         isRecording = true;//开始时正在录音的标记值为true,其为true时禁止Item的悬浮特效
         cut = QTime::currentTime();//记录开始时的时间
         int t = pauseTime.secsTo(cut);//点击暂停时时间与点击恢复计时的时间差值
-        limitTimer->start(1000);
+//        limitTimer->start(1000);//0609暂时去掉限制时长
         baseTime = baseTime.addSecs(t);
         pTimer->start(100);
         mini.baseTime = mini.baseTime.addSecs(t);
@@ -1032,8 +1052,9 @@ void MainWindow::play_pause_clicked()
     {
         qDebug()<<"pause录音";
         emit pauseRecord();
+        play_pauseButton->setToolTip(tr("start"));
         isRecording = false;//暂停时正在录音的标记值为false,其为false时Item的悬浮特效可以被开启
-        limitTimer->stop();
+//        limitTimer->stop();//0609暂时去掉限制时长
         pTimer->stop();
         mini.pTimer->stop();
         //mini.pTimer->stop();
@@ -1079,11 +1100,15 @@ void MainWindow::stop_clicked()//停止按钮
      *修复录音结束时,再点击开始录制会出现上一次的尾部波形图;
      * */
     for (int i=0;i<rectangleCount;i++)//频率直方图
-    mywave.at(i)->setValue(0);
+    {
+        if(mywave.at(i)!=nullptr){
+            mywave.at(i)->setValue(0);
+        }
+    }
     if(stop)
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
-        limitTimer->stop();//停止记录录音时间
+//        limitTimer->stop();//0609暂时去掉限制时长
         pTimer->stop();//计时停止
         mini.pTimer->stop();
         emit stopRecord();
@@ -1143,10 +1168,11 @@ void MainWindow::updateDisplay()
 void MainWindow::limitRecordingTime()
 {
     qDebug()<<"查看计数:"<<timeTag;
-    if(timeTag >= 59)//超过59分钟自动保存
-    {
-       stop_clicked();
-    }
+    //0609暂时去掉限制时长的问题目前仅限sp1
+//    if(timeTag >= 59)//超过59分钟自动保存
+//    {
+//       stop_clicked();
+//    }
 }
 
 void MainWindow::mainWindow_page2()
@@ -1245,9 +1271,10 @@ void MainWindow::switchPage()
         m_pStackedWidget->setCurrentIndex(1);
         mini.recordStackedWidget->setCurrentIndex(1);//切换至录音按钮
         emit startRecord();
+        play_pauseButton->setToolTip(tr("pause"));
         mainWindow_page2();//必须加
         //刚开始点击按钮时才可以开启定时器
-        limitTimer->start(1000);//开始记录录音时长
+//        limitTimer->start(1000);//0609暂时去掉限制时长
         pTimer->start(100);
         baseTime = baseTime.currentTime();
         mini.baseTime = mini.baseTime.currentTime();
