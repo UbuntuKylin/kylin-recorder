@@ -109,6 +109,7 @@ signals:
     void handling(bool isOk);
 
 private:
+    bool isRecordStart = false;
     int beishu=1;//倍数
     int quzhi=0;//取值
     int xianzhi=0;//限制为110个
@@ -122,26 +123,26 @@ private:
     QAudioFormat M4a();
 
 
-    QFile *file;
-    QAudioInput * audioInputFile;//1将音频输入文件
-    QAudioOutput* audioOutputFile;//1
-    short *outdata;
+    QFile *file=nullptr;
+    QAudioInput * audioInputFile =nullptr;//1将音频输入文件
+    QAudioOutput* audioOutputFile = nullptr;//1
+    short *outdata=nullptr;
 
 
 
     qint64 len;
     QAudioFormat mFormatSound;
-    QAudioInput *audioInputSound;		// 负责监听声音
-    QAudioOutput *audioOutputSound;
+    QAudioInput *audioInputSound=nullptr;		// 负责监听声音
+    QAudioOutput *audioOutputSound=nullptr;
 
 
     //mp3
 
-    QAudioInput *ainput;
-    QIODevice *dev;
-    Mp3Encoder *encoder;
+    QAudioInput *ainput=nullptr;
+    QIODevice *dev=nullptr;
+    Mp3Encoder *encoder=nullptr;
     char *mp3_data;
-    QFile *fl;
+    QFile *fl=nullptr;
 
     QTimer *my_time;
     bool canMonitor=true;//

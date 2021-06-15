@@ -105,7 +105,7 @@ void messageOutput(QtMsgType type, const QMessageLogContext &context, const QStr
 int main(int argc, char *argv[])
 {
 //    qInstallMessageHandler(messageOutput);//日志输出功能,穿版本之前务必解开
-//    initUkuiLog4qt("kylin-recorder");//日志功能,穿版本之前务必解开
+    initUkuiLog4qt("kylin-recorder");//日志功能,穿版本之前务必解开
     printf("Program start ...\n");
     /*
      * 添加4K 屏幕支持。

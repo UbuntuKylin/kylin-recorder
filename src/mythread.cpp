@@ -110,7 +110,7 @@ qint64 MyThread::toConvertWAV(QString catheFileName , QString filename)
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
     code->fromUnicode(endFileName).data();
     QString cmd="ffmpeg -y -threads 2 -f s16le -ar 48k -ac 1 -i \""+catheFileName+"\" \""+endFileName+"\"";
-    process->start(cmd);//0609暂时去掉后期复原
+//    process->start(cmd);//0609暂时去掉后期复原
 
     cacheFile.close();
     wavFile.close();
@@ -138,7 +138,7 @@ qint64 MyThread::toConvertMp3(QString catheFileName , QString mp3FileName)
     QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
     code->fromUnicode(endFileName).data();
     QString cmd="ffmpeg -y -threads 2 -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+endFileName+"\"";
-    process->start(cmd);//0609暂时去掉后期复原
+//    process->start(cmd);//0609暂时去掉后期复原
     cacheFile.close();
     mp3File.close();
 
@@ -169,7 +169,7 @@ qint64 MyThread::toConvertM4a(QString catheFileName , QString m4aFileName)
     QString cmd="ffmpeg -y -f s16le -ar 48k -ac 2 -i \""+catheFileName+"\" \""+endFileName+"\"";
     //qDebug()<<"******"<<catheFileName<<"*"<<cmd<<"******";
 
-    process->start(cmd);//0609暂时去掉后期复原
+//    process->start(cmd);//0609暂时去掉后期复原
 
 
     cacheFile.close();
@@ -265,6 +265,13 @@ QString MyThread::pathSetting()
 void MyThread::record_pressed()
 {
     qDebug()<<"开始录音:";
+    /*
+     * 只要按压按钮了就说明要录音开始isRecordStart = true
+     * 决定此值的只有停止按钮才可以使其置为isRecordStart = false
+     * 暂停不影响此值变化
+    */
+    isRecordStart = true;
+
     //开始前，count先从0开始
     count=0;
     my_time->start(150);//每隔xms检测一次，波形图缓慢刷新，这行代码一定在前面
@@ -409,85 +416,93 @@ void MyThread::saveAs(QString oldFileName)//右键另存为可以选择存储音
 
 void MyThread::stop_btnPressed()//停止录音
 {   
-    audioInputFile->stop();//音频文件写入停止
-    audioInputSound->stop();//监听停止
-    file->close();
-    audioRecorder->stop();
+    if(audioInputFile != nullptr)
+        audioInputFile->stop();//音频文件写入停止
+    if(audioInputSound != nullptr)
+        audioInputSound->stop();//监听停止
+    if(file!=nullptr)
+        file->close();
+    if(audioRecorder!=nullptr)
+        audioRecorder->stop();
     qDebug()<<"成功停止";
     int ad =recordData->get("savedefault").toInt();
     int type=recordData->get("type").toInt();
     QString endPathStr;
-    if(ad==1)
-    {
-        //弹存储为的框
-//        saveas.show();//2020.11.12禁用此功能
+    if(isRecordStart == true){
+        isRecordStart = false;
+        if(ad==1)
+        {
+            //弹存储为的框
+    //        saveas.show();//2020.11.12禁用此功能
 
-        //QFileDialog指定父窗口,使系统弹窗在中间MainWindow::mutual->mainWid
-        if(recordData->get("type").toInt()==1)
-        {
-
-            fileName = QFileDialog::getSaveFileName(
-                              MainWindow::mutual->mainWid,
-                              tr("Select a file storage directory"),
-                                  QDir::currentPath(),
-                                  "Mp3(*.mp3)");
-            qDebug()<<"获取"<<fileName;
-            selectMp3();
-        }
-        else if(recordData->get("type").toInt()==2)
-        {
-            fileName = QFileDialog::getSaveFileName(
-                              MainWindow::mutual->mainWid,
-                              tr("Select a file storage directory"),
-                                  QDir::currentPath(),
-                                  "M4a(*.m4a)");
-            selectM4a();
-        }
-        else if(recordData->get("type").toInt()==3)
-        {
-            fileName = QFileDialog::getSaveFileName(
-                              MainWindow::mutual->mainWid,
-                              tr("Select a file storage directory"),
-                                  QDir::currentPath(),
-                                  "Wav(*.wav)");
-            selectWav();
-        }
-    }
-    else
-    {
-        if(type==1)//1代表MP3
-        {
-            if( toConvertMp3( absolutionPath, (endFileName).toLocal8Bit().data())>0)
+            //QFileDialog指定父窗口,使系统弹窗在中间MainWindow::mutual->mainWid
+            if(recordData->get("type").toInt()==1)
             {
-                //如下5行代码后期重构时务必放入一个函数里...2021.01.15(重复使用的功能需放入同一函数中)
-                qDebug()<<"*********************mp3";
-                emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
+
+                fileName = QFileDialog::getSaveFileName(
+                                  MainWindow::mutual->mainWid,
+                                  tr("Select a file storage directory"),
+                                      QDir::currentPath(),
+                                      "Mp3(*.mp3)");
+                qDebug()<<"获取"<<fileName;
+                selectMp3();
             }
-        }
-        else if(type==2)//2代表M4a
-        {
-            if( toConvertM4a( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
+            else if(recordData->get("type").toInt()==2)
             {
-                //改变配置文件中的存储路径
-                emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
-
+                fileName = QFileDialog::getSaveFileName(
+                                  MainWindow::mutual->mainWid,
+                                  tr("Select a file storage directory"),
+                                      QDir::currentPath(),
+                                      "M4a(*.m4a)");
+                selectM4a();
             }
-        }
-        else if(type==3)//3代表Wav
-        {
-            if( toConvertWAV( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
+            else if(recordData->get("type").toInt()==3)
             {
-                //改变配置文件中的存储路径
-                emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
-
+                fileName = QFileDialog::getSaveFileName(
+                                  MainWindow::mutual->mainWid,
+                                  tr("Select a file storage directory"),
+                                      QDir::currentPath(),
+                                      "Wav(*.wav)");
+                selectWav();
             }
         }
         else
         {
+            if(type==1)//1代表MP3
+            {
+    //            if( toConvertMp3( absolutionPath, (endFileName).toLocal8Bit().data())>0)
+    //            {
+                    //如下5行代码后期重构时务必放入一个函数里...2021.01.15(重复使用的功能需放入同一函数中)
+                    qDebug()<<"*********************mp3";
+                    emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
+    //            }
+            }
+            else if(type==2)//2代表M4a
+            {
+    //            if( toConvertM4a( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
+    //            {
+                    //改变配置文件中的存储路径
+                    emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
+
+    //            }
+            }
+            else if(type==3)//3代表Wav
+            {
+    //            if( toConvertWAV( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
+    //            {
+                    //改变配置文件中的存储路径
+                    emit listItemAddSignal(endFileName,MainWindow::mutual->list->count()+1);
+
+    //            }
+            }
+            else
+            {
+
+            }
+            QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
+            code->fromUnicode(fileName).data();
 
         }
-        QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
-        code->fromUnicode(fileName).data();
 
     }
     delete audioInputFile;
@@ -1156,10 +1171,10 @@ QVector<qreal> MyThread::getBufferLevels(const QAudioBuffer &buffer)
     return values;
 }
 
-// This function returns the maximum possible sample value for a given audio format
+//此函数用于返回给定音频格式的最大可能采样值
 qreal MyThread::getPeakValue(const QAudioFormat& format)
 {
-    // Note: Only the most common sample formats are supported
+    //注意：只支持最常见的样本格式
     if (!format.isValid())
         return qreal(0);
 
@@ -1170,7 +1185,7 @@ qreal MyThread::getPeakValue(const QAudioFormat& format)
     case QAudioFormat::Unknown:
         break;
     case QAudioFormat::Float:
-        if (format.sampleSize() != 32) // other sample formats are not supported
+        if (format.sampleSize() != 32) // 其他样本格式不支持
             return qreal(0);
         return qreal(1.00003);
     case QAudioFormat::SignedInt:

@@ -1,11 +1,20 @@
-kylin-recorder (1.2.23kord~rc28) v101; urgency=medium
+kylin-recorder (1.2.23kord~rc29) v101; urgency=medium
 
   * BUG号：无
   * 任务号：无
-  * 其他改动说明：增加一些提示框
-  * 影响域：回归测试条件：1.包名：kylin-recorder    2.版本：>=1.2.23kord~rc28
+  * 其他改动说明：增加一些tooltips提示框
+  * 影响域：回归测试条件：1.包名：kylin-recorder    2.版本：>=1.2.23kord~rc29
 
- -- baijincheng <baijincheng@kylinos.cn>  Fri, 11 Jun 2021 10:37:00 +0800
+ -- baijincheng <baijincheng@kylinos.cn>  Fri, 11 Jun 2021 17:20:00 +0800
+
+kylin-recorder (1.2.23kord~rc28) v101; urgency=medium
+
+  * BUG：61314
+  * 任务号：无
+  * 其他改动说明：无
+  * 影响域：启动麒麟录音后插拔麦克风;回归测试条件：1.包名：kylin-recorder    2.版本：>=1.2.23kord~rc28
+
+ -- Xin Li <lixin@kylinos.cn>  Fri, 11 Jun 2021 20:03:53 +0800
 
 kylin-recorder (1.2.23kord~rc27) v101; urgency=medium
 
