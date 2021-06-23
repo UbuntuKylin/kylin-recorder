@@ -20,11 +20,11 @@
 #include "mainwindow.h"
 #include "clipbutton.h"
 
+#include "tools.h"
 ItemsWindow::ItemsWindow(QWidget *parent) : QMainWindow(parent)
 {
     itemData = new QGSettings(KYLINRECORDER);
     //    darkData = new QGSettings(FITTHEMEWINDOW);
-
     initItemWid();//初始化ItemWid
     setItemWid();//设置ItemWid的界面
     initClipper();//初始化Clipper
@@ -32,18 +32,16 @@ ItemsWindow::ItemsWindow(QWidget *parent) : QMainWindow(parent)
     initThemeGsetting();//初始化主题的配置文件
     setAttribute(Qt::WA_TranslucentBackground);
 
-    connect(this,&ItemsWindow::updateGSettingSignal,this,&ItemsWindow::updateGSettingSlot);
-
 }
 
 void ItemsWindow::initItemWid()//初始化主界面
 {
     line = new QFrame();//分割线
-
+    processDEL = new QProcess;
     playSlider = new QSlider(this);//播放滑动条
     playSlider->installEventFilter(this);//给playSlider安装事件过滤器
-    listNum = new QLabel(this);//录音标号标签
-    listNumChangeColor = new QLabel(this);//颜色
+    Record_Time = new QLabel(this);//录音标号标签
+    RecordTimeChangeColor = new QLabel(this);//颜色
     recordFileName = new QLabel(this);//含有时间的文件名标签
     recordFileNameChangeColor = new QLabel(this);//颜色
     testlb = new QLabel(this);//占位
@@ -99,8 +97,8 @@ void ItemsWindow::setItemWid()//设置ItemWid的界面
                               "QSlider::add-page:horizontal{background-color:#EDEDED;}"
                               "QSlider::sub-page:horizontal{background-color:#3790FA;}");
 
-    listNum->setObjectName("listNum");
-    listNum->setStyleSheet("font-size:14px;");//录音序号
+    Record_Time->setObjectName("Record_Time");
+    Record_Time->setStyleSheet("font-size:14px;");//录音序号
 
     recordFileName->setObjectName("dateTimelb");//设置对象名
     recordFileName->setStyleSheet("font-size:14px;");//录音文件名
@@ -120,8 +118,8 @@ void ItemsWindow::setItemWid()//设置ItemWid的界面
     line->setFixedHeight(1);
     line->setStyleSheet("background-color:#EDEDED;");
 
-    fileName_dateTimeLayout->addWidget(listNum);
     fileName_dateTimeLayout->addWidget(recordFileName);
+    fileName_dateTimeLayout->addWidget(Record_Time);
     fileName_dateTimeLayout->setSpacing(0);
     fileName_dateTimeWid->setLayout(fileName_dateTimeLayout);
 
@@ -211,13 +209,7 @@ void ItemsWindow::setClipper()//设置剪裁界面
     clipperWid->setLayout(clipperLayout);
 
     clipperstackWid -> addWidget(itemsWid);
-    clipperstackWid -> addWidget(clipperWid);
-
-//    QList<AppUpdateWid*> list = this->findChilden<AppUpdateWid*>();
-//    for(AppUpdateWid* tmp:list)
-//    {
-//        qDebug<<"111";
-//    }
+//    clipperstackWid -> addWidget(clipperWid);//0619暂时注释
 
 }
 ItemsWindow::~ItemsWindow()
@@ -239,7 +231,7 @@ void ItemsWindow::themeStyle(QString themeColor)
 {
     if(themeColor == "ukui-dark"||themeColor=="ukui-black")
     {
-        listNum->setStyleSheet("font-size:14px;color:white;");
+        Record_Time->setStyleSheet("font-size:14px;color:white;");
         recordFileName->setStyleSheet("font-size:14px;color:white;");
         clipButton->setStyleSheet("QToolButton{image: url(:/svg/svg/dark_clip.svg);}"
                                   "QToolButton:hover{image: url(:/svg/svg/jianji_select.svg);}");
@@ -271,7 +263,7 @@ void ItemsWindow::themeStyle(QString themeColor)
     }
     else
     {
-        listNum->setStyleSheet("font-size:14px;color:black;");
+        Record_Time->setStyleSheet("font-size:14px;color:black;");
         recordFileName->setStyleSheet("font-size:14px;color:black;");
         clipButton->setStyleSheet("QToolButton{image: url(:/svg/svg/bianji.svg);}"
                                   "QToolButton:hover{image: url(:/svg/svg/jianji_select.svg);}");
@@ -327,11 +319,7 @@ void ItemsWindow::positionChange(qint64 position)
                             static_cast<int64_t>(durTime*890 % (60*1000) / 1000.0));
             qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
         }
-
-            playSlider->setValue(static_cast<int64_t>(position));
-
-//        qDebug()<<"总进度："<<MainWindow::mutual->playerCompoment->duration();
-
+        playSlider->setValue(static_cast<int64_t>(position));
     }
 
 }
@@ -356,12 +344,12 @@ void ItemsWindow::durationChange(qint64 duration)   //更新播放进度
 
 void ItemsWindow::stateChanged(enum QMediaPlayer::State)
 {
-
+    qDebug()<<"此时状态"<<MainWindow::mutual->playerCompoment->state();
     if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::StoppedState)
     {
-        qDebug()<<"列表播放结束 停止" <<audioFilePath;
+        qDebug()<<"列表播放结束 停止" <<MainWindow::mutual->tempPath;
         isPlayerEnd = 1;
-        MainWindow::mutual->playerCompoment->setMedia(QUrl::fromLocalFile(audioFilePath));
+        MainWindow::mutual->playerCompoment->setMedia(QUrl::fromLocalFile(MainWindow::mutual->tempPath));
         MainWindow::mutual->playerCompoment->stop();
         itemPlay_PauseButton->setToolTip(tr("play"));
         play_pause=false;
@@ -428,12 +416,12 @@ bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点�
 
 void ItemsWindow::hover_ChangeState(QEvent *event)
 {
-    listNumChangeColor = itemsWid->findChild<QLabel *>(listNum->objectName());
+    RecordTimeChangeColor = itemsWid->findChild<QLabel *>(Record_Time->objectName());
     recordFileNameChangeColor = itemsWid->findChild<QLabel *>(recordFileName->objectName());
     if(event->type() == QEvent::HoverEnter||event->type() == QEvent::HoverMove)//显示浮窗
     {
         //qDebug()<<"进入";
-        listNumChangeColor->setStyleSheet("font-size:14px;color:#3790FA;");
+        RecordTimeChangeColor->setStyleSheet("font-size:14px;color:#3790FA;");
         recordFileNameChangeColor->setStyleSheet("font-size:14px;color:#3790FA;");
         int nIndex = stackLayout->currentIndex();
         nIndex++;
@@ -460,12 +448,12 @@ void ItemsWindow::hover_ChangeState(QEvent *event)
         //此处为鼠标悬停离开某item时,字体颜色变化要注意和主题对应黑主题白字白主题黑字
         if(MainWindow::mutual->themeData->get("style-name").toString() == "ukui-dark"||MainWindow::mutual->themeData->get("style-name").toString() == "ukui-black")
         {
-            listNumChangeColor->setStyleSheet("font-size:14px;color:white;");
+            RecordTimeChangeColor->setStyleSheet("font-size:14px;color:white;");
             recordFileNameChangeColor->setStyleSheet("font-size:14px;color:white;");
         }
         else
         {
-            listNumChangeColor->setStyleSheet("font-size:14px;color:black;");
+            RecordTimeChangeColor->setStyleSheet("font-size:14px;color:black;");
             recordFileNameChangeColor->setStyleSheet("font-size:14px;color:black;");
         }
         stackLayout->setCurrentIndex(0);//切换至录音按钮stackLayout
@@ -494,62 +482,39 @@ void ItemsWindow::rightClickedMenuRequest()//右击弹出Menu菜单
     actionOpenFolder->deleteLater();
 }
 
+//右键另存为其他路径
 void ItemsWindow::actionSaveasSlot()
 {
+
+    QString oldFilePath = this->filePath;
     MyThread *my = new MyThread;//要用MyThread类的系统弹出框，由于ItemsWindowd的弹出框样式变了
-    QLabel *label = itemsWid->findChild<QLabel *>(recordFileName->objectName());
-    QStringList listRecordPath = my->readPathCollected().split(",");//先读取配置文件中的所有路径
-    int m = my->readNumList()-1;
-    for(int i=1;i<=m;i++)
+    if(Tools::fileExists(oldFilePath))
     {
-        QString str=listRecordPath.at(i);
-        if(str.contains(label->text()))
-        {
-            QFileInfo fi(str);
-            if(fi.exists())
-            {
-                my->saveAs(str);
-            }
-            else
-            {
-                QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
-                                     tr("The file path does not exist or has been deleted!"));
-                my->deleteLater();
-                return ;
-            }
-        }
+        my->saveAs(oldFilePath);
+    }
+    else
+    {
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
+                             tr("The file path does not exist or has been deleted!"));
     }
     my->deleteLater();
 }
 
+//右键打开文件位置并选中
 void ItemsWindow::actionOpenFolderSlot()
 {
-    qDebug()<<"打开文件路径!";
-    MyThread *my = new MyThread;//要用MyThread类的系统弹出框，由于ItemsWindowd的弹出框样式变了
-       QLabel *label = itemsWid->findChild<QLabel *>(recordFileName->objectName());
-       QStringList listRecordPath = my->readPathCollected().split(",");//先读取配置文件中的所有路径
-       int m = my->readNumList()-1;
-       for(int i=1;i<=m;i++)
-       {
-           QString str=listRecordPath.at(i);
-           if(str.contains(label->text()))
-           {
-               QFileInfo fi(str);
-               if(fi.exists())
-               {
-                   QString path = str.mid(0,str.lastIndexOf("/"));
-                   QDesktopServices::openUrl(QUrl::fromLocalFile(path));//打开本地文件，openUrl的QUrl::TolerantMode不能打开含有中文的路径
-               }
-               else
-               {
-                   QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
-                                        tr("The file path does not exist or has been deleted!"));
-                   my->deleteLater();
-                   return ;
-               }
-           }
-       }
-       my->deleteLater();
+    QString openedPath = this->filePath;
+    MyThread *my = new MyThread;
+    if(Tools::fileExists(openedPath))
+    {
+        my->OpenFolderProcess(openedPath);
+    }
+    else
+    {
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
+                             tr("The file path does not exist or has been deleted!"));
+    }
+    my->deleteLater();
 }
 
 void ItemsWindow::slidePress() //滑动条鼠标按下
@@ -610,59 +575,48 @@ void ItemsWindow::getRecordingSlot(bool recordingState)
 
 void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
 {  
-    MyThread *myth = new MyThread();
-    QLabel *label = itemsWid->findChild<QLabel *>(recordFileName->objectName());
-    myth->readPathCollected();//先读取配置文件中的所有路径集
-    QStringList listRecordPath = myth->readPathCollected().split(",");
-    int m = myth->readNumList()-1;
-    for(int i=1;i<=m;i++)
+    int fileCount = Tools::getRecordingFileinfos().count();//获取不同目录下的所有文件个数
+    qDebug()<<"选择的是："<<this->filePath;
+    qDebug()<<"文件总个数:"<<fileCount;
+    QString isPlayedPath = this->filePath;
+    if(Tools::fileExists(isPlayedPath))
     {
-        audioFilePath = listRecordPath.at(i);
-        if(audioFilePath.contains(label->text()))
+        if(MainWindow::mutual->tempPath != isPlayedPath)//不是原路径的音频文件时
         {
-            QFileInfo fi(audioFilePath);
-            if(fi.exists())
-            {
-                qDebug()<<MainWindow::mutual->tempPath<<"和"<<audioFilePath;
-
-                if(MainWindow::mutual->tempPath != audioFilePath)//不是原路径的音频文件时
-                {
-                    qDebug()<<"不是原路径的音频文件时"<<MainWindow::mutual->tempPath<<" "<<audioFilePath;
-                    MainWindow::mutual->tempPath = audioFilePath;
-                    MainWindow::mutual->playerCompoment->stop();
-                    judgeState(MainWindow::mutual->playerCompoment->state(),audioFilePath);
-
-                }
-                else
-                {
-                    qDebug()<<"是原路径的音频文件时";
-//                    MainWindow::mutual->playerCompoment->pause();
-                    judgeState(MainWindow::mutual->playerCompoment->state(),audioFilePath);
-                }
-            }
-            else
-            {
-                emit playingSignal(false);
-
-                QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
-                                     tr("The file path does not exist or has been deleted!"));
-                myth->deleteLater();
-                return ;
-            }
+            qDebug()<<"不是原路径的音频文件时"<<MainWindow::mutual->tempPath<<" "<<isPlayedPath;
+            MainWindow::mutual->tempPath = isPlayedPath;
+            MainWindow::mutual->playerCompoment->stop();
+            judgeState(MainWindow::mutual->playerCompoment->state(),isPlayedPath);
+            return ;
+        }
+        else
+        {
+            qDebug()<<"是原路径的音频文件时";
+            //MainWindow::mutual->playerCompoment->pause();
+            judgeState(MainWindow::mutual->playerCompoment->state(),isPlayedPath);
+            return ;
         }
     }
-    myth->deleteLater();
+    else
+    {
+        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
+                             tr("The file path does not exist or has been deleted!"));
+    }
+    emit playingSignal(false);
+
+    return ;
+
 }
 
 void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
 {
-    /*660-664必须放在judgeState里,因为涉及到选择录音打开时
-     * 会直接进这个函数进来后就要计算时间长度。而不是进点击播放的事件再计算
+    /* FFUtil fu这一行-durTime这一行必须放在judgeState里,因为涉及到文件选择录音打开时
+     * 会直接进这个函数进来后就要计算时间长度。而不是点击播放按钮再计算
      * */
     FFUtil fu;
     fu.open(path);
     QFile file(path);
-    int t_duration = fu.getDuration();
+    int t_duration = fu.getDuration(path);
     durTime=t_duration>30000?(file.size()/64000):t_duration;
     qDebug()<<"你点击的路径"<<audioFilePath<<"时长"<<durTime;
     qDebug()<<"播放状态"<<MainWindow::mutual->playerCompoment->state();
@@ -716,152 +670,47 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
     }
 }
 
-//更新配置文件,
-void ItemsWindow::updateGSettingSlot(QString fileName)
-{
-    int  m=itemData->get("num").toInt();
-    qDebug()<<"ssssssssssssss"<<m;
-    if(m == 1)
-    {
-        MainWindow::mutual->isFileNull(m-1);
-    }
-    //qDebug()<<m;
-    QStringList listRecordPath = itemData->get("recorderpath").toString().split(",");
-    qDebug()<<listRecordPath;
-    QStringList listAmplitude = itemData->get("amplitude").toString().split(";");
-    for(int i=1;i<m;i++)
-    {
-        QString str="";
-        str = listRecordPath.at(i);
-        qDebug()<<listRecordPath.at(i);
-        QFileInfo fileinfo(str);
-        QString filesuffix = fileinfo.suffix();//判断文件后缀
-        QFileInfo fi(str);
-        if(fi.exists())
-        {
-//            //判断文件路径是否存在,且不重复
-//            if(fileinfo.isFile()&&(str!=fileName)&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
-//            {
-//                qDebug()<<str<<"!="<<fileName;
-//                //1.每当配置文件中有路径时就在list中更新一下,1必须在2、3前面先更新后删除
-////                MainWindow::mutual->slotListItemAdd(str,i);
-//                //2.先释放内存再删除列表的项,要成对出现
-//                this->deleteLater();
-//                //3.删除list列表的item操作
-//                MainWindow::mutual->list->takeItem(i-1);
-
-
-//            }
-//            else
-//            {
-//                qDebug()<<"文件存在!但是已经重复!!!!";
-
-//            }
-        }
-        else
-        {
-
-            qDebug()<<str<<"MainWindow:文件或被删除！";
-            QString subStr=","+str;//子串
-
-            /*
-             * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
-             */
-            QString oldStr=itemData->get("recorderpath").toString();
-            int pos=oldStr.indexOf(subStr);
-            //qDebug()<<pos<<" "<<oldStr;
-            //qDebug()<<oldStr.mid(pos,str.length()+1);
-            if(listRecordPath.count()<=listAmplitude.count())//只有文件路径集个数＜=振幅集合时才可以
-            {
-                QString subAmplitudeStr = listAmplitude.at(i-1);
-                QString oldAmplitudeStr = itemData->get("amplitude").toString();
-                int posAmplitude = oldAmplitudeStr.indexOf(subAmplitudeStr);
-                QString newAmplitudeStr = oldAmplitudeStr.remove(posAmplitude,subAmplitudeStr.length()+1);
-                itemData->set("amplitude",newAmplitudeStr);
-            }
-            QString newStr = oldStr.remove(pos,str.length()+1);
-            itemData->set("recorderpath",newStr);
-
-            itemData->set("num",itemData->get("num").toInt()-1);
-//            myThread->writeNumList(myThread->readNumList()-1);
-            qDebug()<<itemData->get("recorderpath").toString();
-            qDebug()<<"路径不存在删除时:"<<this->parent()->findChildren<ItemsWindow*>();
-        }
-
-    }
-    qDebug()<<"输出剩余的Item地址"<<this->parent()->findChildren<ItemsWindow*>();
-}
-
-//删除本地音频文件
+//删除音频文件至回收站
 void ItemsWindow::delFile()
 {
-    MyThread *myth = new MyThread();//构造函数实例化后构造函数被调用。recordPathData在MyThread的构造里面
-    QLabel *label = itemsWid->findChild<QLabel *>(recordFileName->objectName());
-    myth->readPathCollected();//先读取配置文件中的所有路径集
-    QStringList listRecordPath = myth->readPathCollected().split(",");
-    qDebug()<<"路经集:"<<listRecordPath<<listRecordPath.length();
-    int m = myth->readNumList();//因为配置文件初始为1
-    if(m<0)
+    int fileCount = Tools::getRecordingFileinfos().count();//获取不同目录下的所有文件个数
+    QString delFilePath = this->filePath;
+    qDebug()<<"删除的是："<<delFilePath;//前提是鼠标悬浮有焦点之后才可以锁定此itemswindow的属性
+    qDebug()<<"文件个数："<<fileCount;
+    if(Tools::fileExists(delFilePath))
     {
-        QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
-                             tr("The current number of list files is 0."));
-        myth->deleteLater();
+        if(MainWindow::mutual->playerCompoment->state()==QMediaPlayer::PlayingState)
+        {
+            QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
+                                 tr("Playing, please stop and delete!"));
+            return ;
+        }
+        qDebug()<<"输出删除之前的Item地址"<<this->parent()->findChildren<ItemsWindow*>();
+        int x = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
+        this->deleteLater();//删除时,必须要加上因为一个item就是一个类
+        MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-x);//删除操作
+        qDebug()<<"**********路径存在，删除"<<delFilePath;
+        MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
+        deleteImage(delFilePath);//移入回收站
+
+        return ;
+
+    }
+    else
+    {
+
+        int y = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
+        this->deleteLater();//删除时,必须要加上因为一个item就是一个类
+        qDebug()<<"第"<<y<<"个不存在,直接删除:";
+        MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-y);//删除list列表的item操作
+        MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
+        listFileNumUpdate(MainWindow::mutual->list->count());
+
         return ;
     }
-
-    for(int i = 1; i<m; i++)
-    {
-        QString str = listRecordPath.at(i);
-
-        if(str.contains(label->text()))
-        {
-
-            QFileInfo fi(str);
-            if(fi.exists())
-            {
-                if(MainWindow::mutual->playerCompoment->state()==QMediaPlayer::PlayingState)
-                {
-                    QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
-                                         tr("Playing, please stop and delete!"));
-                    myth->deleteLater();
-                    return ;
-                }
-                delUpdateGSetting(str);
-
-                //根据索引值删除listwidget列表的Item，要注意配置文件的更新以及本地文件的删除
-                qDebug()<<"输出删除之前的Item地址"<<this->parent()->findChildren<ItemsWindow*>();
-                this->deleteLater();//先释放内存再删除列表的项,要成对出现
-                int x = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
-                MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-x);//删除操作
-                qDebug()<<"**********路径存在，删除第"<<i<<"个"<<str;
-                MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
-//                QString Home_path = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-//                strResult1 = executeLinuxCmd("mv " + str + ' '+Home_path+"/.local/share/Trash/files");
-                deleteImage(str);//移入回收站
-                QFile::remove(str);//从本地删除
-
-            }
-            else
-            {
-
-                //本地文件已经被删除时，删除按钮就直接删除listwidget的item项
-                this->deleteLater();//先释放内存再删除列表的项,要成对出现
-                int y = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
-                qDebug()<<"第"<<y<<"个不存在,直接删除:"<<str;
-                MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-y);//删除list列表的item操作
-                MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
-                delUpdateGSetting(str);
-                continue ;
-            }
-
-        }
-
-    }
-    listFileNumUpdate(MainWindow::mutual->list->count());
-    myth->deleteLater();
-    return ;
 }
 
+//2021.06.21更新配置文件的接口,暂时不用
 void ItemsWindow::delUpdateGSetting(QString fileName)
 {
     //进这里是因为文件不存在，但配置文件的路径还未被更新
@@ -885,25 +734,26 @@ void ItemsWindow::delUpdateGSetting(QString fileName)
     }
 }
 
-void ItemsWindow::deleteImage(const QString &savepath)
+void ItemsWindow::deleteImage(QString savepath)
 {
     _processStart("gio",QStringList() << "trash" << savepath);
 }
 
-void ItemsWindow::_processStart(const QString &cmd, QStringList arguments)
+void ItemsWindow::_processStart(QString cmd, QStringList arguments)
 {
-    MainWindow::mutual->myThread->process->start(cmd,arguments);
-    MainWindow::mutual->myThread->process->waitForStarted();
-    MainWindow::mutual->myThread->process->waitForFinished();
+    processDEL->start(cmd,arguments);
+    processDEL->waitForStarted();
+    processDEL->waitForFinished();
 }
 
 void ItemsWindow::processLog()
 {
     qDebug()<<"*******process error*******\n"
-           << QString::fromLocal8Bit(MainWindow::mutual->myThread->process->readAllStandardError())
+           << QString::fromLocal8Bit(processDEL->readAllStandardError())
            <<"\n*******process error*******";
 }
 
+//2021.06.21暂时不用
 QString ItemsWindow::executeLinuxCmd(QString strCmd)
 {
     QProcess p;
@@ -1289,5 +1139,3 @@ void ItemsWindow::deleteWaves()
     mywave.clear();//后清除
     qDebug()<<"释放内存";
 }
-
-

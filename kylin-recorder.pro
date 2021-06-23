@@ -82,6 +82,7 @@ SOURCES += \
         src/save.cpp \
         src/settings.cpp \
         src/tipwindow.cpp \
+        src/tools.cpp \
         src/xatom-helper.cpp
 
 HEADERS += \
@@ -100,6 +101,7 @@ HEADERS += \
         src/save.h \
         src/settings.h \
         src/tipwindow.h \
+        src/tools.h \
         src/xatom-helper.h
 
 RESOURCES += \

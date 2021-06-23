@@ -60,16 +60,20 @@ public:
     QWidget *mainWid;
     QHBoxLayout *mainLayout;
 
-    QString executeLinuxCmd(QString);
+    QString executeLinuxCmd(QString);//暂时不用
     QString strResult1;
     myWave *wave = nullptr;
 
 
     QString itemsThemeColor;//主题颜色
-    QLabel *listNum;//录音序号
+    //item的属性
+
     QLabel *recordFileName;//录音文件名
-    QLabel *listNumChangeColor;//录音序号颜色变化
+    QLabel *Record_Time;//录音时间标签
+    QString filePath;//录音存储的文件路径
+
     QLabel *recordFileNameChangeColor;//录音文件名颜色变化
+    QLabel *RecordTimeChangeColor;//录音时间标签颜色变化
 
 
     QWidget *stackWid;
@@ -96,6 +100,7 @@ public:
     QToolButton *cancelButton;//取消
     QToolButton *finishButton;//完成
     QProcess *process;
+    QProcess *processDEL;//删除时调用命令
     QString timeEditStartTime;
     QString timeEditEndTime;
     int start_Time = 0;//剪辑开始节点,默认都是0
@@ -138,6 +143,7 @@ public:
     ClipButton *rightBtn;//右箭头按钮
 
      void judgeState(enum QMediaPlayer::State,QString path);//判断播放状态
+     void delUpdateGSetting(QString fileName);
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     //bool isplay=false;
@@ -178,8 +184,8 @@ private:
 
 private:
 
-    static void _processStart(const QString &cmd , QStringList arguments = QStringList());
-    static void deleteImage(const QString &savepath);
+    void _processStart(QString cmd , QStringList arguments = QStringList());
+    void deleteImage(QString savepath);
     void processLog();//命令日志
     void initRectangleWave();//停止录音后再生成110个矩形框,防止多次初始化造成cpu占用率过高
     void deleteWaves();
@@ -204,17 +210,12 @@ private:
     void hover_ChangeState(QEvent *event);
     QPoint pressPoint;
 
-    void delUpdateGSetting(QString fileName);
-
-
-
 signals:
 
     void playingSignal(bool);//发送正在播放的信号，通知播放时不可以录音
 
     void updateGSettingSignal(QString fileName);
-public slots:
-    void updateGSettingSlot(QString fileName);
+
 private slots:
 
     void itemPlay_PauseClicked();
@@ -247,8 +248,6 @@ private slots:
     void rightBtn_ReleaseGetEndPositon_Slot(int rightButton_absolutePos,int rightButton_leftBorderOppositive,int padding);
 
     void cursorMove();
-
-
     void leftButton_rightBorderSlot(int x);
 
 public :
@@ -256,6 +255,7 @@ public :
 
 public slots:
     void getRecordingSlot(bool);
+
 
 
 };

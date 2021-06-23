@@ -106,13 +106,15 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
     if(Data->get("path").toString()== ""){
         qDebug()<<"初始配置文件为空自动填充默认路径";
-        pathLabel->setText(defaultLocation);
+        pathLabel->setText(defaultLocation+tr("Recorder"));
         Data->set("path",defaultLocation);
     }
     else{
-        pathLabel->setText(Data->get("path").toString());
+        pathLabel->setText(Data->get("path").toString()+tr("Recorder"));
     }
-    qDebug()<<"pathLabel->text()"<<pathLabel->fullText();
+    if(Data->get("recorderpath").toString()== ""){
+        Data->set("recorderpath",","+defaultLocation);
+    }
     pathLabel->setAcceptDrops(false);//禁止拖拽入
     pathLabel->setFixedSize(209,36);
     fileStoreLayout->addWidget(storelabel);
@@ -219,7 +221,7 @@ void Settings::keyPressEvent(QKeyEvent *event)
 //打开文件目录
 void Settings::openFileDialog()
 {
-//这个是选择保存文件名
+//这个是选择保存多文件格式的
 //    QString selectedFilter;
 //    QString fileType = "Mp3(*.mp3);;M4a(*.m4a);;Wav(*.wav)";
 //    fileName = QFileDialog::getSaveFileName(
@@ -233,71 +235,92 @@ void Settings::openFileDialog()
                             mainWid,
                             tr("Select a file storage directory"),
                             "/");
-    qDebug()<<"文件路径"<<selectDirPath;
-    int value = inputEditJudge(selectDirPath);
+    qDebug()<<"选择的文件目录是:"<<selectDirPath;
+    int value = inputEditJudge(selectDirPath+"/");
     if(value == 1 ){
-        pathLabel->setText(selectDirPath);
+        //正常时选择目录,要把目录集写入配置文件recorderpath中
+        pathLabel->setText(selectDirPath+"/"+tr("Recorder"));
+        QString strSaveFilePath = Data->get("recorderpath").toString();
+        if(strSaveFilePath!=""){
+            QString newFilePath=strSaveFilePath+","+selectDirPath+"/";
+            QStringList pathList = strSaveFilePath.split(",");
+            if(!pathList.contains(selectDirPath+"/")){
+                Data->set("recorderpath",newFilePath);
+            }else{
+                qDebug()<<"包含路径就不用写了";
+            }
+
+        }
+        qDebug()<<"查看一下存入的路径:"<<Data->get("recorderpath").toString();
+
     }else if (value == 0 ){
+        //命名非法时选择默认路径
         Data->set("path",defaultLocation);
-        pathLabel->setText(defaultLocation);
+        pathLabel->setText(defaultLocation+tr("Recorder"));
     }else{
+        //为空时选择默认路径
         Data->set("path",Data->get("path").toString());
-        pathLabel->setText(Data->get("path").toString());
+        pathLabel->setText(Data->get("path").toString()+tr("Recorder"));
     }
 
 }
 
 //编辑label时判断
-int Settings::inputEditJudge(QString fileName)
+int Settings::inputEditJudge(QString fileDir)
 {
-    QString str = fileName;
-    //子串中至少包含"/home/用户名/"
-    QString subStr = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)+"/";
-    QString path = str.mid(0,str.lastIndexOf("/"));
-    QFileInfo fi(path);
-    qDebug()<<"满足条件的前提"<<subStr<<"输入的是:"<<str<<"最后一个/之前的路径:"<<path;
-    if(str != "")
-    {
-        if(!str.contains(subStr)||str.contains(".")||str.contains(";")||
-                str.contains("#")||str.contains("?")||str.contains(" ")||
-               str.contains("\"")||str.contains("'")||str.contains("\\"))
+    QString str = fileDir;
+    if(fileDir != "/"){
+        qDebug()<<"输入的文件名是:"<<fileDir;
+        //子串中至少包含"/home/用户名/"
+        QString subStr = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)+"/";
+        QString path = str.mid(0,str.lastIndexOf("/"));
+        QFileInfo fi(path);
+        qDebug()<<"满足条件的前提"<<subStr<<"输入的是:"<<str<<"最后一个/之前的路径:"<<path;
+        if(str != "")
         {
-            //主要是防止非法路径头:至少包含"/home/用户名/"
-            QMessageBox::warning(mainWid,tr("Warning"),tr("This storage path is illegal!"));
-            return 0;
-        }
-        else
-        {
-            if(fi.exists())
+            if(!str.contains(subStr)||str.contains(".")||str.contains(";")||
+                    str.contains("#")||str.contains("?")||str.contains(" ")||
+                   str.contains("\"")||str.contains("'")||str.contains("\\"))
             {
-                QString name = str.split("/").last();
-                int length = name.length();
-                qDebug()<<"长度:"<<length;
-                if(length<=20){
-                    Data->set("path",fileName);
-                    return 1;
-                }else{
-                    //超过20个字符就提示命名不能超过20个字符
-                    QMessageBox::warning(mainWid,tr("Warning"),tr("The file name cannot exceed 20 characters!"));
+                //主要是防止非法路径头:至少包含"/home/用户名/"
+                QMessageBox::warning(mainWid,tr("Warning"),tr("This storage path is illegal!"));
+                return 0;
+            }
+            else
+            {
+                if(fi.exists())
+                {
+                    QString name = str.split("/").last();
+                    int length = name.length();
+                    qDebug()<<"长度:"<<length;
+                    if(length<=20){
+                        Data->set("path",fileDir);
+                        return 1;
+                    }else{
+                        //超过20个字符就提示命名不能超过20个字符
+                        QMessageBox::warning(mainWid,tr("Warning"),tr("The file name cannot exceed 20 characters!"));
+                        return 0;
+                    }
+
+                }
+                else
+                {
+                    //主要是防止非法路径尾,比如：用户自己乱写的目录/home/bjc/音乐/h/h显然此路径不存在
+                    QMessageBox::warning(mainWid,tr("Warning"),tr("This storage path is illegal!"));
                     return 0;
                 }
 
             }
-            else
-            {
-                //主要是防止非法路径尾,比如：用户自己乱写的目录/home/bjc/音乐/h/h显然此路径不存在
-                QMessageBox::warning(mainWid,tr("Warning"),tr("This storage path is illegal!"));
-                return 0;
-            }
 
         }
+        else//当点击关闭时storeEdit会为空
+        {
+            qDebug()<<"若为空则还是选择之前的路径";
+            return 2;
+        }
+    }
+    return 2;
 
-    }
-    else//当点击关闭时storeEdit会为空
-    {
-        qDebug()<<"若为空则还是选择之前的路径";
-        return 2;
-    }
 }
 
 //要提示用户不可以在QLineEdit这里修改路径，只能去规定的弹窗中修改防止用户乱改!!!

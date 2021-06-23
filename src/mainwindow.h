@@ -63,6 +63,9 @@
 #include <QDBusConnection>
 #include <QDBusInterface>
 
+#include <QScrollBar>
+
+
 #include "mywave.h"
 #include "mythread.h"
 #include "settings.h"
@@ -84,6 +87,8 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     QMessageBox *WrrMsg;
     QGSettings  *defaultPathData= nullptr;
     QGSettings *themeData=nullptr;//主题的setting
+
+
 
     QString limitThemeColor ;
     menuModule *menumodule = nullptr;
@@ -169,6 +174,14 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
 
     void processArgs(QStringList args);
     sighandler_t signal(int signum, sighandler_t handler);//信号处理
+
+
+    QFileSystemWatcher *fileWatcher;//文件变化监听
+    void monitorFileChanged(QString filepath);
+
+    int preCount = 0;
+    int nowCount = 0;
+
 private:
 
     int timeTag = 0;
@@ -177,7 +190,7 @@ private:
 
     QList<int> maxNum;//存储振幅的大小的整型列表
     bool stop=true;//停止
-    bool isFirstRun = true;
+    bool isFirstRun = true ;
 
     bool max_min=false;//最大最小化
 
@@ -267,10 +280,7 @@ private:
     void initMainWindow();//初始化MainWindow
     void setTwoPageWindow();//设置MainWindow布局
 
-
-
     QStringList argName;
-
 
 private://音频相关
 
@@ -314,7 +324,7 @@ public slots:
     void closeWindow();
 
     void handlingSlot(bool isOk);
-    void slotListItemAdd(QString fileName,int i);
+    void slotListItemAdd(QString fileName,QString recordTime);
 
 //    void fileListAdd_ByStopButton(int second);
 

@@ -22,7 +22,7 @@ public:
 
     explicit FFUtil(QObject *parent = nullptr);
     int open(QString _file);
-    int getDuration();
+    int getDuration(QString path);
     void close();
 
     void generateAudioFile(AudioFormatType formatType, QString fileName, QByteArray pcmData);
