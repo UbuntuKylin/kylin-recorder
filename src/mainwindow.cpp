@@ -54,7 +54,7 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
     mainWindow_page2(); //必须加上初始化第二个主页面(此函数有两处需要被调用:构造函数+切换页面时)
     updateGsetting_ListWidget();
 
-    qDebug()<<"主线程:"<<QThread::currentThread();
+//    qDebug()<<"主线程:"<<QThread::currentThread();
     myThread->moveToThread(thread);
     thread->start();
     //qDebug()<<"子线程:";
@@ -67,7 +67,7 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
 
     if(!argName.isEmpty())
     {
-        qDebug()<<"argName = "<<argName;
+        qDebug()<<"单例参数argName = "<<argName;
         int num = argName.size();
         switch (num) {
         case 1:
@@ -513,7 +513,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::isFileNull(int n)
 {
-    qDebug()<<"**********"<<n;
+    qDebug()<<"文件个数："<<n;
     if(n == 0)
     {
         zeroFile_Messagelb->setParent(listWid);
@@ -905,7 +905,7 @@ void MainWindow::initThemeGsetting()
 
 void MainWindow::themeStyle(QString themeColor)
 {
-    qDebug()<<themeColor;
+    qDebug()<<"主题颜色"<<themeColor;
     themeButton(themeColor);//控件类切换
     themeWindow(themeColor);//窗体类切换
 }
@@ -940,7 +940,7 @@ void MainWindow::checkSingle(QStringList path)//检查单例模式
     }
     isFirstObject = true;//我是首个对象
     argName << str;
-    qDebug()<<"argName:"<<argName<<"str:"<<str<<"path:"<<path;
+    qDebug()<<"单例参数argName:"<<argName<<"str:"<<str<<"path:"<<path;
 
 }
 
@@ -1299,7 +1299,7 @@ void MainWindow::goset()
 
 void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,传""时为应用开始时的刷新
 {
-    qDebug() <<"刷新ListWidget";
+    qDebug() <<"刷新文件列表";
     QFileInfoList fileList = Tools::getRecordingFileinfos();
     int fileCount = Tools::getRecordingFileinfos().count();
     preCount = Tools::getRecordingFileinfos().count();

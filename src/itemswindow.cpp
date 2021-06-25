@@ -666,7 +666,6 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
         qDebug()<<"存在播放"<<this->recordFileName->text();
         play_pause = true;
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
-        qDebug()<<"***********************";
     }
 }
 
@@ -689,7 +688,7 @@ void ItemsWindow::delFile()
         int x = this->parent()->findChildren<ItemsWindow*>().indexOf(this);
         this->deleteLater();//删除时,必须要加上因为一个item就是一个类
         MainWindow::mutual->list->takeItem(MainWindow::mutual->list->count()-1-x);//删除操作
-        qDebug()<<"**********路径存在，删除"<<delFilePath;
+        qDebug()<<"路径存在，删除"<<delFilePath;
         MainWindow::mutual->isFileNull(MainWindow::mutual->list->count());//传item个数
         deleteImage(delFilePath);//移入回收站
 

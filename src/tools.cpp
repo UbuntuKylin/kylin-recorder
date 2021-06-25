@@ -27,12 +27,12 @@ QString Tools::getRecordingSaveDirectory(QString dirStr)
             */
         if(locale.language() == QLocale::English)
         {
-            qDebug()<<"English Environment:"<<dirStr+tr("Recorder");
+//            qDebug()<<"English Environment:"<<dirStr+tr("Recorder");
             recordDirectory.mkdir(subDirectory);
         }
         else if(locale.language() == QLocale::Chinese)
         {
-            qDebug()<<"中文环境:"<<dirStr+tr("Recorder");
+//            qDebug()<<"中文环境:"<<dirStr+tr("Recorder");
             recordDirectory.mkdir(subDirectory);
         }
         return recordDirectory.filePath(subDirectory);
@@ -62,16 +62,16 @@ QFileInfoList Tools::getRecordingFileinfos()
     filters << "*.wav"<<"*.mp3"<<"*.m4a";
     QStringList dirList = MainWindow::mutual->
             defaultPathData->get("recorderpath").toString().split(",");
-    qDebug()<<"目录集:"<<dirList<<"个数:"<<dirList.count();
+//    qDebug()<<"目录集:"<<dirList<<"个数:"<<dirList.count();
     QFileInfoList fileInfoList ;
     for(int i = 1;i<dirList.count();i++)
     {
         QString dirStr = dirList.at(i);
-        qDebug()<<"目录"<<i<<dirStr;
+//        qDebug()<<"目录"<<i<<dirStr;
         //将不同目录下的音频文件info统统加入fileInfoList
         fileInfoList << QDir(Tools::getRecordingSaveDirectory(dirStr)).entryInfoList(filters, QDir::Files|QDir::NoDotAndDotDot);
     }
-    qDebug()<<"音频文件集:"<<fileInfoList;
+//    qDebug()<<"音频文件集:"<<fileInfoList;
     return fileInfoList;
 }
 

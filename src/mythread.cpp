@@ -42,7 +42,7 @@ struct WAVFILEHEADER
 MyThread::MyThread(QWidget *parent) : QWidget(parent)
 {
 
-    qDebug()<<"子线程id:"<<QThread::currentThreadId();
+//    qDebug()<<"子线程id:"<<QThread::currentThreadId();
 
     audioInputSound = nullptr;
     audioOutputSound = nullptr;
@@ -396,7 +396,7 @@ void MyThread::stop_btnPressed()//停止录音
             //            if( toConvertMp3( absolutionPath, (endFileName).toLocal8Bit().data())>0)
             //            {
             //如下5行代码后期重构时务必放入一个函数里...2021.01.15(重复使用的功能需放入同一函数中)
-            qDebug()<<"*********************mp3";
+            qDebug()<<"mp3";
             emit listItemAddSignal(endFileName,recordTime);
             //            }
         }
@@ -448,12 +448,12 @@ QString MyThread::setDefaultPath(QString path)
         //创建record文件夹
         if(locale.language() == QLocale::English)
         {
-            qDebug()<<"English Environment:"<<path+"/"+tr("recorder");
+//            qDebug()<<"English Environment:"<<path+"/"+tr("recorder");
             record->mkdir(path+"/"+tr("recorder"));
         }
         else if(locale.language() == QLocale::Chinese)
         {
-            qDebug()<<"中文环境:"<<path+"/"+tr("recorder");
+//            qDebug()<<"中文环境:"<<path+"/"+tr("recorder");
             record->mkdir(path+"/"+tr("recorder"));
         }
         savePath = path+"/"+tr("recorder");

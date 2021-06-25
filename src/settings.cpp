@@ -173,7 +173,7 @@ Settings::Settings(QWidget *parent) : QMainWindow(parent)
 
     if(Data->get("source").toInt() == 1)
     {
-        qDebug()<<"麦克风";
+//        qDebug()<<"麦克风";
         sourceDownList->setCurrentIndex(0);
     }
     else if(Data->get("source").toInt() == 2)//内部
