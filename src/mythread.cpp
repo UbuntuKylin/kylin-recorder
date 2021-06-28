@@ -51,6 +51,7 @@ MyThread::MyThread(QWidget *parent) : QWidget(parent)
 
     my_time=new QTimer;//延时检测
     tipTimer = new QTimer;//延时process,防止tip界面卡顿//不需要了
+
     audioRecorder = new QAudioRecorder;
     QStringList audioCodecsList = audioRecorder->supportedAudioCodecs();
     QAudioEncoderSettings settings;
@@ -218,6 +219,7 @@ void MyThread::audioConversionFinish(int isOk,QProcess::ExitStatus)
     }
 
 
+
 }
 
 QString MyThread::pathSetting()
@@ -320,7 +322,7 @@ void MyThread::updateProgress(qint64 duration)
         qDebug()<<"x="<<x<<"duration:"<<100-x+duration;
 //        return;
     }
-    qDebug()<<(tr("Recorded %1 sec").arg((duration+100-x)/1000))<<"数值"<<(duration+100-x)/1000;
+//    qDebug()<<(tr("Recorded %1 sec").arg((duration+100-x)/1000))<<"数值"<<(duration+100-x)/1000;
 }
 
 //Mp3格式
@@ -385,44 +387,12 @@ void MyThread::stop_btnPressed()//停止录音
         file->close();
 
     qDebug()<<"成功停止";
-    int ad =recordData->get("savedefault").toInt();
-    int type=recordData->get("type").toInt();
-    QString endPathStr;
-
     if(isRecordStart == true){
         isRecordStart = false;
-        if(type==1)//1代表MP3
-        {
-            //            if( toConvertMp3( absolutionPath, (endFileName).toLocal8Bit().data())>0)
-            //            {
-            //如下5行代码后期重构时务必放入一个函数里...2021.01.15(重复使用的功能需放入同一函数中)
-            qDebug()<<"mp3";
-            emit listItemAddSignal(endFileName,recordTime);
-            //            }
-        }
-        else if(type==2)//2代表M4a
-        {
-            //            if( toConvertM4a( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
-            //            {
-            //改变配置文件中的存储路径
-            emit listItemAddSignal(endFileName,recordTime);
-
-            //            }
-        }
-        else if(type==3)//3代表Wav
-        {
-            //            if( toConvertWAV( absolutionPath, (endFileName).toLocal8Bit().data() ) > 0 )
-            //            {
-            //改变配置文件中的存储路径
-            emit listItemAddSignal(endFileName,recordTime);
-
-            //            }
-        }
-
+         emit listItemAddSignal(endFileName,recordTime);
+        //990-9A0加上下面两行即可
         QTextCodec *code=QTextCodec::codecForName("gb2312");//解决中文路径保存
-        code->fromUnicode(fileName).data();
-
-
+        code->fromUnicode(endFileName).data();
 
     }
     delete audioInputFile;

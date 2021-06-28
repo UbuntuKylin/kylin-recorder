@@ -75,6 +75,8 @@
 #include "daemondbus.h"
 #include "menumodule.h"
 #include "ffutil.h"
+#include "mmediaplayer.h"
+#include "mmediaplaylist.h"
 
 #define INIT_MAINWINDOW_RECTANGLE_COUNT 130//用于初始化矩形条个数
 class MainWindow : public QWidget
@@ -164,6 +166,7 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     bool isRecording = false;//默认没有开始录音
 
     QMediaPlayer *playerCompoment;
+    MMediaPlayer *mpvPlayer;
     QMediaPlaylist *playList;
     QString tempPath = "";
 

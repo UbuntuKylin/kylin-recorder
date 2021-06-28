@@ -21,6 +21,7 @@
 #include "clipbutton.h"
 
 #include "tools.h"
+
 ItemsWindow::ItemsWindow(QWidget *parent) : QMainWindow(parent)
 {
     itemData = new QGSettings(KYLINRECORDER);
@@ -71,9 +72,9 @@ void ItemsWindow::initItemWid()//初始化主界面
     itemBottomLayout = new QHBoxLayout();//item底部布局
     itemLayout = new QVBoxLayout();//列表项布局
 
-    connect(MainWindow::mutual->playerCompoment,SIGNAL(positionChanged(qint64)),this,SLOT(positionChange(qint64)));
-    connect(MainWindow::mutual->playerCompoment,SIGNAL(durationChanged(qint64)),this,SLOT(durationChange(qint64)));
-    connect(MainWindow::mutual->playerCompoment,SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(stateChanged(QMediaPlayer::State)));
+    connect(MainWindow::mutual->mpvPlayer,SIGNAL(positionChanged(qint64)),this,SLOT(positionChange(qint64)));
+    connect(MainWindow::mutual->mpvPlayer,SIGNAL(durationChanged(qint64)),this,SLOT(durationChange(qint64)));
+    connect(MainWindow::mutual->mpvPlayer,SIGNAL(stateChanged(MMediaPlayer::State)), this, SLOT(stateChanged(MMediaPlayer::State)));
 
     connect(playSlider,&QSlider::valueChanged,this,&ItemsWindow::setPosition);
     connect(playSlider,SIGNAL(sliderPressed()),this,SLOT(slidePress()));
@@ -297,18 +298,18 @@ void ItemsWindow::themeStyle(QString themeColor)
 
 void ItemsWindow::positionChange(qint64 position)
 {
-    if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
+    if(MainWindow::mutual->mpvPlayer->state() == MMediaPlayer::PlayingState)
     {
 
         QTime currentTime(static_cast<int64_t>(position) / (60*60*1000) ,
                           static_cast<int64_t>(position) % (60*60*1000) / 60000,
                           static_cast<int64_t>((position % (60*1000)) / 1000.0));
         QString current_timeStr = currentTime.toString("hh:mm:ss");
-        if(static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()<4000000))
+        if(static_cast<int64_t>(MainWindow::mutual->mpvPlayer->duration()<4000000))
         {
-            QTime totalTime(static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()) / (60*60*1000),
-                            static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration())% (60*60*1000) / 60000,
-                            static_cast<int64_t>(MainWindow::mutual->playerCompoment->duration()% (60*1000) / 1000.0));
+            QTime totalTime(static_cast<int64_t>(MainWindow::mutual->mpvPlayer->duration()) / (60*60*1000),
+                            static_cast<int64_t>(MainWindow::mutual->mpvPlayer->duration())% (60*60*1000) / 60000,
+                            static_cast<int64_t>(MainWindow::mutual->mpvPlayer->duration()% (60*1000) / 1000.0));
 
             qDebug()<<current_timeStr + "/" + totalTime.toString("hh:mm:ss");//输出播放进度
         }
@@ -342,15 +343,14 @@ void ItemsWindow::durationChange(qint64 duration)   //更新播放进度
 
 }
 
-void ItemsWindow::stateChanged(enum QMediaPlayer::State)
+void ItemsWindow::stateChanged(enum MMediaPlayer::State)
 {
-    qDebug()<<"此时状态"<<MainWindow::mutual->playerCompoment->state();
-    if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::StoppedState)
+    qDebug()<<"此时状态"<<MainWindow::mutual->mpvPlayer->state();
+    if(MainWindow::mutual->mpvPlayer->state() == MMediaPlayer::StoppedState)
     {
         qDebug()<<"列表播放结束 停止" <<MainWindow::mutual->tempPath;
-        isPlayerEnd = 1;
-        MainWindow::mutual->playerCompoment->setMedia(QUrl::fromLocalFile(MainWindow::mutual->tempPath));
-        MainWindow::mutual->playerCompoment->stop();
+//        MainWindow::mutual->mpvPlayer->setMedia(QUrl::fromLocalFile(MainWindow::mutual->tempPath));
+//        MainWindow::mutual->mpvPlayer->stop();
         itemPlay_PauseButton->setToolTip(tr("play"));
         play_pause=false;
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
@@ -363,8 +363,8 @@ void ItemsWindow::stateChanged(enum QMediaPlayer::State)
 
 void ItemsWindow::setPosition(int position)
 {
-    if (qAbs(MainWindow::mutual->playerCompoment->position() - position) > 99)
-        MainWindow::mutual->playerCompoment->setPosition(position);
+    if (qAbs(MainWindow::mutual->mpvPlayer->position() - position) > 99)
+        MainWindow::mutual->mpvPlayer->setPosition(position);
     qDebug()<<"数值:"<<position;
 }
 bool ItemsWindow::eventFilter(QObject *obj, QEvent *event)   //鼠标滑块点击
@@ -426,7 +426,7 @@ void ItemsWindow::hover_ChangeState(QEvent *event)
         int nIndex = stackLayout->currentIndex();
         nIndex++;
         stackLayout->setCurrentIndex(1);//切换至录音按钮stackLayout
-        if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
+        if(MainWindow::mutual->mpvPlayer->state() == MMediaPlayer::PlayingState)
         {
 //            qDebug()<<"当前:"<<MainWindow::mutual->tempPath<<" "<<this->recordFileName->text();
             if(MainWindow::mutual->tempPath.contains(this->recordFileName->text()))
@@ -519,22 +519,22 @@ void ItemsWindow::actionOpenFolderSlot()
 
 void ItemsWindow::slidePress() //滑动条鼠标按下
 {
-     MainWindow::mutual->playerCompoment->pause();
+     MainWindow::mutual->mpvPlayer->pause();
 
 }
 void ItemsWindow::slideRelease()   //滑动条鼠标弹起
 {
     stopReplayer();
-    MainWindow::mutual->playerCompoment->play();
+    MainWindow::mutual->mpvPlayer->play();
     play_pause = true;
     themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
 }
 void ItemsWindow::playState()//播放状态
 {
-    if(MainWindow::mutual->playerCompoment->state()==QMediaPlayer::PlayingState)
+    if(MainWindow::mutual->mpvPlayer->state()==MMediaPlayer::PlayingState)
     {
         qDebug()<<"有正在播放的音频1";
-        MainWindow::mutual->playerCompoment->stop();
+        MainWindow::mutual->mpvPlayer->stop();
         stackLayout->setCurrentIndex(0);//切换至录音按钮stackLayout
         splitLinestackWid->setCurrentIndex(0);//2020.11.12隐藏此滑动条功能
         play_pause=false;
@@ -549,7 +549,7 @@ void ItemsWindow::isOtherClipWidOpen()
     {
         qDebug()<<"有其他剪裁界面的";
         moveTime->stop();//游标随时间移动也要停止
-        MainWindow::mutual->playerCompoment->stop();
+        MainWindow::mutual->mpvPlayer->stop();
         clipperstackWid ->setCurrentIndex(0);
         stackLayout->setCurrentIndex(0);//切换至录音按钮stackLayout
         splitLinestackWid->setCurrentIndex(0);//2020.11.12隐藏此滑动条功能
@@ -585,15 +585,15 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
         {
             qDebug()<<"不是原路径的音频文件时"<<MainWindow::mutual->tempPath<<" "<<isPlayedPath;
             MainWindow::mutual->tempPath = isPlayedPath;
-            MainWindow::mutual->playerCompoment->stop();
-            judgeState(MainWindow::mutual->playerCompoment->state(),isPlayedPath);
+            MainWindow::mutual->mpvPlayer->stop();
+            judgeState(MainWindow::mutual->mpvPlayer->state(),isPlayedPath);
             return ;
         }
         else
         {
             qDebug()<<"是原路径的音频文件时";
             //MainWindow::mutual->playerCompoment->pause();
-            judgeState(MainWindow::mutual->playerCompoment->state(),isPlayedPath);
+            judgeState(MainWindow::mutual->mpvPlayer->state(),isPlayedPath);
             return ;
         }
     }
@@ -608,7 +608,7 @@ void ItemsWindow::itemPlay_PauseClicked()//开始播放和暂停播放
 
 }
 
-void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
+void ItemsWindow::judgeState(enum MMediaPlayer::State,QString path)
 {
     /* FFUtil fu这一行-durTime这一行必须放在judgeState里,因为涉及到文件选择录音打开时
      * 会直接进这个函数进来后就要计算时间长度。而不是点击播放按钮再计算
@@ -619,11 +619,11 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
     int t_duration = fu.getDuration(path);
     durTime=t_duration>30000?(file.size()/64000):t_duration;
     qDebug()<<"你点击的路径"<<audioFilePath<<"时长"<<durTime;
-    qDebug()<<"播放状态"<<MainWindow::mutual->playerCompoment->state();
-    if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
+    qDebug()<<"播放状态"<<MainWindow::mutual->mpvPlayer->state();
+    if(MainWindow::mutual->mpvPlayer->state() == MMediaPlayer::PlayingState)
     {
         qDebug()<<"有正在播放的音频222222222222222";
-        MainWindow::mutual->playerCompoment->pause();
+        MainWindow::mutual->mpvPlayer->pause();
         qDebug()<<"存在暂停"<<this->recordFileName->text();
         play_pause=false;
         emit playingSignal(false);//点击暂停之后才可以再点击录音
@@ -631,7 +631,7 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
 
     }
-    else if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PausedState)
+    else if(MainWindow::mutual->mpvPlayer->state() == MMediaPlayer::PausedState)
     {
         qDebug()<<"这是暂停"<<path.contains(this->recordFileName->text())<<"   "<<this->recordFileName->text();
         pause = true;
@@ -642,10 +642,10 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
         }
 
         splitLinestackWid->setCurrentIndex(1);//点击播放时在显示那个进度条
-        MainWindow::mutual->playerCompoment->setVolume(50);
+        MainWindow::mutual->mpvPlayer->setVolume(50);
         stopReplayer();//先暂停再播放
         itemPlay_PauseButton->setToolTip(tr("pause"));
-        MainWindow::mutual->playerCompoment->play();
+        MainWindow::mutual->mpvPlayer->play();
         qDebug()<<"存在播放"<<this->recordFileName->text();
         play_pause = true;
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
@@ -655,14 +655,14 @@ void ItemsWindow::judgeState(enum QMediaPlayer::State,QString path)
     {
         qDebug()<<"这是停止";
         stop = true;
-        MainWindow::mutual->playerCompoment->setMedia(QUrl::fromLocalFile(path));
+        MainWindow::mutual->mpvPlayer->setMedia(QUrl::fromLocalFile(path));
         emit playingSignal(true);
         splitLinestackWid->setCurrentIndex(1);//点击播放时在显示那个进度条
-        MainWindow::mutual->playerCompoment->setVolume(50);
+        MainWindow::mutual->mpvPlayer->setVolume(50);
         stopReplayer();//先暂停再播放
         qDebug()<<"你点击的路径"<<path;
         itemPlay_PauseButton->setToolTip(tr("pause"));
-        MainWindow::mutual->playerCompoment->play();
+        MainWindow::mutual->mpvPlayer->play();
         qDebug()<<"存在播放"<<this->recordFileName->text();
         play_pause = true;
         themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
@@ -678,7 +678,7 @@ void ItemsWindow::delFile()
     qDebug()<<"文件个数："<<fileCount;
     if(Tools::fileExists(delFilePath))
     {
-        if(MainWindow::mutual->playerCompoment->state()==QMediaPlayer::PlayingState)
+        if(MainWindow::mutual->mpvPlayer->state()==MMediaPlayer::PlayingState)
         {
             QMessageBox::warning(MainWindow::mutual->mainWid,tr("Warning"),
                                  tr("Playing, please stop and delete!"));
@@ -824,10 +824,10 @@ int ItemsWindow::createCutWave()
                 //总时长、剪裁开始的时间节点和剪裁结束的时间节点记录在timelengthlb2中
                 timelengthlb2->setText(MainWindow::mutual->playerTotalTime(listRecordPath.at(i+1)));
                 //剪裁时试听start
-                MainWindow::mutual->playerCompoment->setMedia(QUrl::fromLocalFile(str));
-                MainWindow::mutual->playerCompoment->setVolume(50);
+                MainWindow::mutual->mpvPlayer->setMedia(QUrl::fromLocalFile(str));
+                MainWindow::mutual->mpvPlayer->setVolume(50);
                 stopReplayer();//先暂停再播放
-                MainWindow::mutual->playerCompoment->play();//2020/12/14暂时禁用
+                MainWindow::mutual->mpvPlayer->play();//2020/12/14暂时禁用
                 play_pause = true;
                 themeStyle(MainWindow::mutual->themeData->get("style-name").toString());//根据主题变换播放暂停图标
                 //剪裁时试听end
@@ -903,7 +903,7 @@ void ItemsWindow::cursorMove()
     }
     else
     {
-        MainWindow::mutual->playerCompoment->pause();
+        MainWindow::mutual->mpvPlayer->pause();
         moveTime->stop();
     }
 }
@@ -912,9 +912,9 @@ void ItemsWindow::cancel()
 {
     qDebug()<<"取消";
     cursorCanMove = 0;//已点击取消游标停止
-    if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
+    if(MainWindow::mutual->mpvPlayer->state() == MMediaPlayer::PlayingState)
     {
-        MainWindow::mutual->playerCompoment->pause();
+        MainWindow::mutual->mpvPlayer->pause();
         splitLinestackWid->setCurrentIndex(0);//切换至播放条布局
         clipperstackWid->setCurrentIndex(0);//切换至三个按钮的布局
 
@@ -979,7 +979,7 @@ void ItemsWindow::processFinish(int x)
 
 void ItemsWindow::pressPausePlayer_Slot()
 {
-    MainWindow::mutual->playerCompoment->pause();
+    MainWindow::mutual->mpvPlayer->pause();
 }
 void ItemsWindow::leftBtn_ReleaseStartPlayer_Slot(int leftButton_absolutePos,int leftButton_rightBorderOppositive,int padding)
 {
@@ -988,19 +988,19 @@ void ItemsWindow::leftBtn_ReleaseStartPlayer_Slot(int leftButton_absolutePos,int
         if(padding >0)
         {
             //除去两个滑块所占位置剩余的部分即为轨道,轨道宽度为wave除去两个滑块的宽度
-            int currentPlayerPos = static_cast<int>(MainWindow::mutual->playerCompoment->duration())/railWid->width()*leftButton_rightBorderOppositive;
+            int currentPlayerPos = static_cast<int>(MainWindow::mutual->mpvPlayer->duration())/railWid->width()*leftButton_rightBorderOppositive;
             qDebug()<<"左滑块右边界相对轨道的位置"<<leftButton_rightBorderOppositive
                     <<"轨道长度:"<<railWid->width()
-                    <<"当前播放歌曲的总长度"<<MainWindow::mutual->playerCompoment->duration()
+                    <<"当前播放歌曲的总长度"<<MainWindow::mutual->mpvPlayer->duration()
                     <<"当前播放位置:"<<currentPlayerPos;
             QTime currentTime(0,static_cast<int>(currentPlayerPos) / 60000, static_cast<int>((currentPlayerPos % 60000) / 1000.0));
             QString current_timeStr = currentTime.toString("hh:mm:ss");
             start_Time = currentTime.hour()*3600+currentTime.minute()*60+currentTime.second();
             timeEditStartTime = current_timeStr;
             timelengthlb2->setText(current_timeStr);//获取裁剪开始时间
-            if (qAbs(MainWindow::mutual->playerCompoment->position() - currentPlayerPos) > 99)
-                MainWindow::mutual->playerCompoment->setPosition(currentPlayerPos);
-            MainWindow::mutual->playerCompoment->play();
+            if (qAbs(MainWindow::mutual->mpvPlayer->position() - currentPlayerPos) > 99)
+                MainWindow::mutual->mpvPlayer->setPosition(currentPlayerPos);
+            MainWindow::mutual->mpvPlayer->play();
 //            qDebug()<<"左按钮右边界相对位置:"<<leftButton_rightBorderOppositive+12;
             movePos = leftButton_rightBorderOppositive+leftBtn->width();//相对位置+按钮宽度=游标的位置
             moveTime->start(time*1000/railWid->width());//左按钮移动后,游标也从左按钮移动的位置处开始
@@ -1009,7 +1009,7 @@ void ItemsWindow::leftBtn_ReleaseStartPlayer_Slot(int leftButton_absolutePos,int
     }
     if(leftButton_absolutePos > rightBtn->pos().rx())
     {
-        int currentPos = static_cast<int>(MainWindow::mutual->playerCompoment->duration())/railWid->width()*(rightBtn->pos().rx()-rightBtn->width()-5);
+        int currentPos = static_cast<int>(MainWindow::mutual->mpvPlayer->duration())/railWid->width()*(rightBtn->pos().rx()-rightBtn->width()-5);
         QTime currentTime(0,static_cast<int>(currentPos) / 60000, static_cast<int>((currentPos % 60000) / 1000.0));
         QString start_timeStr = currentTime.toString("hh:mm:ss");
         timelengthlb2->setText(start_timeStr);//获取裁剪开始时间=右按钮左边界的相对位置-5
@@ -1029,7 +1029,7 @@ void ItemsWindow::rightBtn_ReleaseGetEndPositon_Slot(int rightButton_absolutePos
     {
         if(padding >= 0)
         {
-            int currentPos = static_cast<int>(MainWindow::mutual->playerCompoment->duration())/railWid->width()*rightButton_leftBorderOppositive;
+            int currentPos = static_cast<int>(MainWindow::mutual->mpvPlayer->duration())/railWid->width()*rightButton_leftBorderOppositive;
             QTime currentTime(0,static_cast<int>(currentPos) / 60000, static_cast<int>((currentPos % 60000) / 1000.0));
             QString end_timeStr = currentTime.toString("hh:mm:ss");
             end_Time = currentTime.hour()*3600+currentTime.minute()*60+currentTime.second();
@@ -1047,8 +1047,8 @@ void ItemsWindow::rightBtn_ReleaseGetEndPositon_Slot(int rightButton_absolutePos
     //如果绝对位置>轨道长度,则剪裁结束时间为文件总时长
     if(rightButton_absolutePos>=railWid->width())
     {
-        QTime totalTime(0,(MainWindow::mutual->playerCompoment->duration()/60000) % 60,
-                       (MainWindow::mutual->playerCompoment->duration() / 1000) % 60);
+        QTime totalTime(0,(MainWindow::mutual->mpvPlayer->duration()/60000) % 60,
+                       (MainWindow::mutual->mpvPlayer->duration() / 1000) % 60);
         timelengthlb2->setText(totalTime.toString("hh:mm:ss"));//获取裁剪结束时间
         end_Time = totalTime.hour()*3600+totalTime.minute()*60+totalTime.second();
         timeEditEndTime = totalTime.toString("hh:mm:ss");
@@ -1056,7 +1056,7 @@ void ItemsWindow::rightBtn_ReleaseGetEndPositon_Slot(int rightButton_absolutePos
     //如果绝对位置<0,则剪裁结束时间为
     if(rightButton_absolutePos < 0||padding < 0)
     {
-        int currentPos = static_cast<int>(MainWindow::mutual->playerCompoment->duration())/railWid->width()*(leftBtn->pos().rx()+5);
+        int currentPos = static_cast<int>(MainWindow::mutual->mpvPlayer->duration())/railWid->width()*(leftBtn->pos().rx()+5);
         QTime currentTime(0,static_cast<int>(currentPos) / 60000, static_cast<int>((currentPos % 60000) / 1000.0));
         QString end_timeStr = currentTime.toString("hh:mm:ss");
         timelengthlb2->setText(end_timeStr);//获取裁剪结束时间=左按钮右边界的相对位置+5
@@ -1067,9 +1067,9 @@ void ItemsWindow::rightBtn_ReleaseGetEndPositon_Slot(int rightButton_absolutePos
 
 void ItemsWindow::leftButton_rightBorderSlot(int x)
 {
-    if(MainWindow::mutual->playerCompoment->state() == QMediaPlayer::PlayingState)
+    if(MainWindow::mutual->mpvPlayer->state() == MMediaPlayer::PlayingState)
     {
-       qDebug()<<"试听位置(左滑块右边界相对振幅图位置):"<<x<<"当前播放歌曲的总长度"<<MainWindow::mutual->playerCompoment->duration();
+       qDebug()<<"试听位置(左滑块右边界相对振幅图位置):"<<x<<"当前播放歌曲的总长度"<<MainWindow::mutual->mpvPlayer->duration();
     }  
 }
 

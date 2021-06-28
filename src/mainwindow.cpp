@@ -78,15 +78,14 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
         }
     }
     isFirstObject = false;//可以接收外部命令
-
     mainWid->show();
     QAudioDeviceInfo inputDevice(QAudioDeviceInfo::defaultInputDevice());
     if(inputDevice.deviceName().contains("monitor")||
        inputDevice.deviceName().contains("multichannel-input")){
-        QMessageBox::warning(mainWid,
-                             tr("Warning"),tr("No input device detected!"),QMessageBox::Ok);
         recordButton->setEnabled(false);
         mini.recordBtn->setEnabled(false);
+        QMessageBox::warning(mainWid,
+                             tr("Warning"),tr("No input device detected!"),QMessageBox::Ok);
     }else{
         recordButton->setEnabled(true);
         mini.recordBtn->setEnabled(true);
@@ -268,6 +267,7 @@ void MainWindow::setTwoPageWindow()
     controlPlay_PauseLayout = new QHBoxLayout();
     ui_2Layout = new QVBoxLayout();
     playerCompoment = new QMediaPlayer;//播放组件
+    mpvPlayer = new MMediaPlayer;//mpv播放组件
     playList = new QMediaPlaylist;//播放列表
     tipWindow = new TipWindow();
 
@@ -811,17 +811,32 @@ void MainWindow::themeButton(QString themeColor)
     }
 
 }
-//计算时长
+//ffmpeg计算时长
 QString MainWindow::playerTotalTime(QString filePath)
 {
     FFUtil fu;
     fu.open(filePath);
     int t_duration = fu.getDuration(filePath);
+    qDebug()<<"t_duration"<<t_duration;
+    QFile file(filePath);
+    qint64 fileSize;
+    qint64 time;
 
-    QString durLength = Tools::formatMillisecond(t_duration);
+    QString durLength;
+    fileSize = file.size();
+
+    if(t_duration/1000>30000){
+        qDebug()<<"ffmpeg计算出错,用文件大小计算";
+        time = fileSize/64000;
+        QTime totalTime(time/3600,(time%3600)/60,time%60);
+        durLength=totalTime.toString("hh:mm:ss");
+    }else{
+        qDebug()<<"ffmpeg解析正确";
+        durLength = Tools::formatMillisecond(t_duration);
+    }
     qDebug()<<"时长:"<<durLength<<"长度:"<<t_duration;
+    file.close();
     return durLength;
-
 }
 
 //初步配置文件
@@ -1449,14 +1464,14 @@ void MainWindow::processArgs(QStringList args)
                 {
                     qDebug()<<"不是原路径的音频文件时";
                     tempPath = selectStr;
-                    playerCompoment->stop();
-                    this->findChildren<ItemsWindow*>().at(i)->judgeState(playerCompoment->state(),selectStr);
+                    mpvPlayer->stop();
+                    this->findChildren<ItemsWindow*>().at(i)->judgeState(mpvPlayer->state(),selectStr);
                     break;
                 }
                 else
                 {
                     qDebug()<<"原路径的音频文件时";
-                    this->findChildren<ItemsWindow*>().at(i)->judgeState(playerCompoment->state(),selectStr);
+                    this->findChildren<ItemsWindow*>().at(i)->judgeState(mpvPlayer->state(),selectStr);
                     break;
                 }
 

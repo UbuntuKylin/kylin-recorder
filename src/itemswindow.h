@@ -42,6 +42,10 @@
 #include "mythread.h"
 #include "mywave.h"
 #include "clipbutton.h"
+
+#include "mmediaplayer.h"
+#include "mmediaplaylist.h"
+
 #include <QDebug>
 
 #define ITEMWINDOW_RECTANGLE_COUNT 130//用于绘制剪裁界面的矩形条个数
@@ -142,7 +146,7 @@ public:
     ClipButton *leftBtn;//左箭头按钮
     ClipButton *rightBtn;//右箭头按钮
 
-     void judgeState(enum QMediaPlayer::State,QString path);//判断播放状态
+     void judgeState(enum MMediaPlayer::State,QString path);//判断播放状态
      void delUpdateGSetting(QString fileName);
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -221,7 +225,7 @@ private slots:
     void itemPlay_PauseClicked();
     void positionChange(qint64 position);
     void durationChange(qint64 duration);
-    void stateChanged(enum QMediaPlayer::State);
+    void stateChanged(enum MMediaPlayer::State);
     void setPosition(int position);
 
 
