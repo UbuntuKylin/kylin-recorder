@@ -266,7 +266,7 @@ void MainWindow::setTwoPageWindow()
     voiceAndSliderLayout = new QHBoxLayout();
     controlPlay_PauseLayout = new QHBoxLayout();
     ui_2Layout = new QVBoxLayout();
-    playerCompoment = new QMediaPlayer;//播放组件
+//    playerCompoment = new QMediaPlayer;//播放组件
     mpvPlayer = new MMediaPlayer;//mpv播放组件
     playList = new QMediaPlaylist;//播放列表
     tipWindow = new TipWindow();
@@ -597,11 +597,21 @@ void MainWindow::MainWindowLayout()
 //    mainWid->show();
 }
 
+//最小化
 void MainWindow::minShow()
 {
     mainWid->showMinimized();
     mainWid->showNormal();//一定要加,防止点击最小化时，依次点击mini再点击复原导致原窗口不显示而还在任务栏
 }
+
+//mini模式
+void MainWindow::miniShow()
+{
+    mini.miniWid->showNormal();
+    mini.miniWid->activateWindow();
+    mainWid->hide();
+}
+
 void MainWindow::maxShow()
 {
     if(isMax)
@@ -986,11 +996,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void MainWindow::miniShow()
-{
-    mini.miniWid->showNormal();
-    mainWid->hide();
-}
+
 
 //开始和暂停
 void MainWindow::play_pause_clicked()

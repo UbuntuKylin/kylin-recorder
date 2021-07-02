@@ -410,7 +410,7 @@ QString MyThread::setDefaultPath(QString path)
     QDir *record = new QDir;
     QLocale locale = QLocale::system().name();
     QString savePath;
-    bool existEn = record->exists(path+"/recorder");
+    bool existEn = record->exists(path+"/Recorder");
     bool existCH = record->exists(path+"/录音");
     //判断是否存在此路径,若两种路径都不存在就创建一个
     if(!existEn&&!existCH)
@@ -418,21 +418,21 @@ QString MyThread::setDefaultPath(QString path)
         //创建record文件夹
         if(locale.language() == QLocale::English)
         {
-//            qDebug()<<"English Environment:"<<path+"/"+tr("recorder");
-            record->mkdir(path+"/"+tr("recorder"));
+//            qDebug()<<"English Environment:"<<path+"/"+tr("Recorder");
+            record->mkdir(path+"/"+tr("Recorder"));
         }
         else if(locale.language() == QLocale::Chinese)
         {
-//            qDebug()<<"中文环境:"<<path+"/"+tr("recorder");
-            record->mkdir(path+"/"+tr("recorder"));
+//            qDebug()<<"中文环境:"<<path+"/"+tr("Recorder");
+            record->mkdir(path+"/"+tr("Recorder"));
         }
-        savePath = path+"/"+tr("recorder");
+        savePath = path+"/"+tr("Recorder");
     }
     else
     {
         if(existEn)
         {
-            savePath = path+"/recorder";
+            savePath = path+"/Recorder";
         }
         else if(existCH)
         {

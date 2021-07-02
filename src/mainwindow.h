@@ -86,7 +86,6 @@ class MainWindow : public QWidget
 public://放在public都是有原因的因为不同类之间中调用需要公用！！
     MainWindow(QStringList str,QWidget *parent = nullptr);
     ~MainWindow();
-    QMessageBox *WrrMsg;
     QGSettings  *defaultPathData= nullptr;
     QGSettings *themeData=nullptr;//主题的setting
 
@@ -165,7 +164,7 @@ public://放在public都是有原因的因为不同类之间中调用需要公�
     bool isplaying = false;//默认文件列表播放状态为否
     bool isRecording = false;//默认没有开始录音
 
-    QMediaPlayer *playerCompoment;
+    QMediaPlayer *playerCompoment;//已经替换成mpv
     MMediaPlayer *mpvPlayer;
     QMediaPlaylist *playList;
     QString tempPath = "";

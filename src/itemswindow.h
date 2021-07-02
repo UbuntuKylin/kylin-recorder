@@ -137,7 +137,7 @@ public:
     QAction *actionSave;//另存为
     QAction *actionOpenFolder;//打开此音频所在文件夹
 
-    bool play_pause=false;
+    bool play_pause=false;//默认一开始是三角
 
     bool stop = false;
     bool pause = false;
@@ -146,7 +146,8 @@ public:
     ClipButton *leftBtn;//左箭头按钮
     ClipButton *rightBtn;//右箭头按钮
 
-     void judgeState(enum MMediaPlayer::State,QString path);//判断播放状态
+
+    void judgeState(enum MMediaPlayer::State,QString path);//判断播放状态
      void delUpdateGSetting(QString fileName);
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -157,7 +158,7 @@ private:
 
 
     QLabel *fileListlb;//文件列表
-    QSlider *playSlider;//播放划块条
+    QSlider *playSlider;//播放划块条,需要重写一下滑动条
 
 
 

@@ -4,14 +4,15 @@ MMediaPlayer::MMediaPlayer(QObject *parent)
     : QObject(parent)
 {
     createMvpplayer();
+    connect(this,&MMediaPlayer::playFinish,this,&MMediaPlayer::stop,Qt::UniqueConnection);
 }
 
 void MMediaPlayer::setPlaylist(MMediaPlaylist *playlist)
 {
     m_playList = playlist;
-    connect(this,&MMediaPlayer::playFinish,m_playList,&MMediaPlaylist::palyFinish,Qt::UniqueConnection);
-    connect(m_playList,&MMediaPlaylist::autoPlay,this,&MMediaPlayer::autoPlay,Qt::UniqueConnection);
-    connect(m_playList,&MMediaPlaylist::stop,this,&MMediaPlayer::stop,Qt::UniqueConnection);
+//    connect(this,&MMediaPlayer::playFinish,this,&MMediaPlayer::stop,Qt::UniqueConnection);
+//    connect(m_playList,&MMediaPlaylist::autoPlay,this,&MMediaPlayer::autoPlay,Qt::UniqueConnection);
+//    connect(m_playList,&MMediaPlaylist::stop,this,&MMediaPlayer::stop,Qt::UniqueConnection);
 }
 
 void MMediaPlayer::truePlay(QString startTime)
@@ -21,24 +22,23 @@ void MMediaPlayer::truePlay(QString startTime)
     }
 
     const QByteArray c_filename = m_playList->getPlayFileName().toUtf8();
-
+//    qDebug()<<"播放的文件路径是:"<<m_playList->getPlayFileName()<<"m_positionChangeed"<<m_positionChangeed;
     if (c_filename == filenameBack && m_positionChangeed == false) {
         if (filenameBack != "") {
+            qDebug()<<"暂停了，此时状态:"<<this->state();
             pause();
         }
         return;
     }
     m_positionChangeed = false;
     setProperty("start",startTime);
-    const char *args[] = {"loadfile",c_filename, NULL};
-    mpv_command_async(m_mpvPlayer, 0, args);
-
     if (c_filename == "") {
         changeState(StoppedState);
         return;
     }
     filenameBack = c_filename;
     changeState(PlayingState);
+
 }
 
 void MMediaPlayer::play()
@@ -64,8 +64,9 @@ void MMediaPlayer::stop()
 {
     filenameBack = "";
     setProperty("pause", "no");
-    const char *args[] = {"loadfile", "", NULL};
-    mpv_command_async(m_mpvPlayer, 0, args);
+    //下面注释是解决播放快到最后时如果突然切换其他音乐会先停止，再点击才会播放。导致不连贯下一首播放的问题
+//    const char *args[] = {"loadfile", "", NULL};
+//    mpv_command_async(m_mpvPlayer, 0, args);
     changeState(StoppedState);
 }
 
@@ -98,15 +99,25 @@ qint64 MMediaPlayer::duration() const
 
 void MMediaPlayer::setMedia(const MMediaContent &media)
 {
-    QUrl url =media.canonicalUrl();
+    QUrl url = media.canonicalUrl();
     if (m_tmpPlayList != nullptr) {
         m_tmpPlayList->deleteLater();
     }
     m_tmpPlayList = new MMediaPlaylist(this);
     m_tmpPlayList->addMedia(url);
-//    setPlaylist(m_tmpPlayList);
-    setProperty("pause", "yes");
-    play();
+    setPlaylist(m_tmpPlayList);
+    //结合录音实际将下列7行代码加上尤为重要，防止了音乐切换概率性需要再点击才能播放的问题
+    const QByteArray c_filename = m_tmpPlayList->getPlayFileName().toUtf8();
+    if (c_filename == "") {
+        changeState(StoppedState);
+        return;
+    }
+    const char *args[] = {"loadfile",c_filename, NULL};
+    mpv_command_async(m_mpvPlayer, 0, args);
+
+
+//    setProperty("pause", "no");
+//    play();
 }
 
 bool MMediaPlayer::isAvailable() const

@@ -16,6 +16,7 @@ QString MMediaPlaylist::getPlayFileName()
         m_index = m_playerList.length();
         return m_playerList.last().toString();
     }
+
     return m_playerList.at(m_index).toString();
 }
 
