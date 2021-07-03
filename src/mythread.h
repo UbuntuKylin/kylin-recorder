@@ -45,6 +45,9 @@
 #include <QAudioProbe>
 #include <QFile>
 #include <QIODevice>
+//文件监视器
+#include <QFileSystemWatcher>
+
 #include "settings.h"
 #include "save.h"
 #include "mp3encoder.h"
@@ -79,6 +82,8 @@ public:
     QGSettings  *recordData= nullptr;
     int i=0;
 
+    bool isRecordStart = false;
+
     QString readPathCollected();
     int readNumList();
     void writePathCollected(QString filePath);//更新配置文件
@@ -88,28 +93,30 @@ public:
     QString isSameFileName(QString endFileName);
 
     void updateAmplitudeList(int valueArray[]);//更新振幅列表
-    void test();
-
     void saveAs(QString oldFileName);//右键另存为
-    void stop_saveDefault();//关闭窗口时默认路径保存
+    void OpenFolderProcess(QString openedPath);//打开文件夹的命令
+
 
     QString absolutionPath;//raw存放的绝对路径
     QString outputFileName;//输出的文件名
+    QString recordTime;
 
-        QTimer *tipTimer;//延时执行process
+    QTimer *tipTimer;//延时执行process
 
     QAudioRecorder *audioRecorder;
     QAudioProbe *audioProbe;
+
+    int x = 0;
 
 signals:
     void recordPaint(int);
     void stopRecord();
     void changeVoicePicture();
-    void listItemAddSignal(QString fileName,int i);//更新检测到的音频振幅值到配置文件
+    void listItemAddSignal(QString fileName,QString recordTime);//更新检测到的音频振幅值到配置文件
     void handling(bool isOk);
 
 private:
-    bool isRecordStart = false;
+
     int beishu=1;//倍数
     int quzhi=0;//取值
     int xianzhi=0;//限制为110个
@@ -153,7 +160,6 @@ private:
     QIODevice *outputDevSound;
     int useVolumeSample(qreal iSample);
     int NUM=0;
-    QString listItemAdd(QString fileName);
 
     QAudioDeviceInfo monitorVoiceSource(int i);
 
@@ -161,13 +167,14 @@ private:
 
     QString pathSetting();
 
+
 private slots:
     void InitMonitor();
     void OnReadMore();
 
     void uploadStarted();//加载tips界面
 
-    //void sendCurrentRecordList(QString filePath);
+    void updateProgress(qint64 duration);//更新时间进度
 public slots:
 
 
@@ -179,14 +186,15 @@ public slots:
     void playRecord();
     void pauseRecord();
 
-    void selectMp3();//选择保存路径Mp3
-    void selectWav();//选择保存路径Wav
-    void selectM4a();//选择保存路径M4a
+
     void audioConversionFinish(int isOk,QProcess::ExitStatus);
+
+
 
     void processBuffer(const QAudioBuffer &buffer);
 
 private:
+
 
     QVector<qreal> getBufferLevels(const QAudioBuffer &buffer);
     qreal getPeakValue(const QAudioFormat& format);

@@ -205,8 +205,7 @@ bool MiniWindow::eventFilter(QObject *obj, QEvent *event)
 }
 void MiniWindow::normalShow()
 {
-
-    //一定要用showNormal()，不要用showMaximized(),防止点击最小化时，依次点击mini再点击复原导致原窗口尖角
+   // 一定要用showNormal()，不要用showMaximized(),防止点击最小化时，依次点击mini再点击复原导致原窗口尖角
     MainWindow::mutual->mainWid->showNormal();
     miniWid->hide();
     

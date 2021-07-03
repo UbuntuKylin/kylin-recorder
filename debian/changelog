@@ -1,3 +1,12 @@
+kylin-recorder (1.2.23kord~rc30) v101; urgency=medium
+
+  * BUG号：58612、41447
+  * 需求号：6528
+  * 其他改动说明：适配mpv、英文文件命名大写
+  * 影响域：回归测试条件：1.包名：kylin-recorder    2.版本：>=1.2.23kord~rc30
+
+ -- baijincheng <baijincheng@kylinos.cn>  Fri, 02 Jul 2021 19:20:00 +0800
+
 kylin-recorder (1.2.23kord~rc29) v101; urgency=medium
 
   * BUG号：无

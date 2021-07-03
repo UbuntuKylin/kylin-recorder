@@ -24,11 +24,23 @@ FFUtil::FFUtil(QObject *parent) : QObject(parent)
     avdevice_register_all();//注册设备
 }
 
-int FFUtil::getDuration()
+int FFUtil::getDuration(QString path)
 {
-    if(!pFormatCtx)
-        return 0;
-    return pFormatCtx->duration/1000000;
+    int64_t duration = 0;
+
+    av_register_all();
+    AVFormatContext *pFormatCtx = avformat_alloc_context();
+    avformat_open_input(&pFormatCtx, path.toStdString().c_str(), NULL, NULL);
+
+    if (pFormatCtx) {
+        avformat_find_stream_info(pFormatCtx, NULL);
+        duration = pFormatCtx->duration / 1000;
+    }
+
+    avformat_close_input(&pFormatCtx);
+    avformat_free_context(pFormatCtx);
+
+    return duration;
 }
 int FFUtil::open(QString _file)
 {

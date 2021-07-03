@@ -94,7 +94,7 @@ private:
     QString fileName;
     QString selectDirPath;
 
-    int inputEditJudge(QString filePath);//文本框编辑或编程使其改变时要判断非法字符
+    int inputEditJudge(QString fileDir);//文本框编辑或编程使其改变时要判断非法字符
 public slots:
 
     void openFileDialog();//点击文本框时触发
