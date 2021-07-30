@@ -186,6 +186,7 @@ int main(int argc, char *argv[])
             str3 = argv[3];
         }
     }
+    qDebug()<<"str = "<<strList;
     if (str != "")
     {
         if(str=="--help"||str=="--h")//帮助

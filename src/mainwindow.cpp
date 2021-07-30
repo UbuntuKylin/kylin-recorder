@@ -27,6 +27,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
+#include "tools.h"
 #include "xatom-helper.h"
 #define BufferSize         35280
 //const qint64 TIME_TRANSFORM = 1000 * 1000;              // 微妙转秒;
@@ -41,10 +42,8 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
     // 用户手册功能
     mDaemonIpcDbus = new DaemonDbus();
 
+
     checkSingle(str);//检查单例模式
-    qDebug()<<"sssssssssssss"<<str;
-
-
     initDbus();//初始化插拔信号和s3/s4的dbus
     initMainWindow();//初始化主界面
     setTwoPageWindow();//设置点击按钮切换的第二个页面
@@ -55,8 +54,7 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
     mainWindow_page2(); //必须加上初始化第二个主页面(此函数有两处需要被调用:构造函数+切换页面时)
     updateGsetting_ListWidget();
 
-
-    qDebug()<<"主线程:"<<QThread::currentThread();
+//    qDebug()<<"主线程:"<<QThread::currentThread();
     myThread->moveToThread(thread);
     thread->start();
     //qDebug()<<"子线程:";
@@ -69,7 +67,7 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
 
     if(!argName.isEmpty())
     {
-        qDebug()<<"argName1111111"<<argName;
+        qDebug()<<"单例参数argName = "<<argName;
         int num = argName.size();
         switch (num) {
         case 1:
@@ -80,16 +78,17 @@ MainWindow::MainWindow(QStringList str,QWidget *parent)
         }
     }
     isFirstObject = false;//可以接收外部命令
-
     mainWid->show();
     QAudioDeviceInfo inputDevice(QAudioDeviceInfo::defaultInputDevice());
     if(inputDevice.deviceName().contains("monitor")||
        inputDevice.deviceName().contains("multichannel-input")){
+        recordButton->setEnabled(false);
+        mini.recordBtn->setEnabled(false);
         QMessageBox::warning(mainWid,
                              tr("Warning"),tr("No input device detected!"),QMessageBox::Ok);
-        recordButton->setEnabled(false);
     }else{
         recordButton->setEnabled(true);
+        mini.recordBtn->setEnabled(true);
     }
 }
 
@@ -267,7 +266,8 @@ void MainWindow::setTwoPageWindow()
     voiceAndSliderLayout = new QHBoxLayout();
     controlPlay_PauseLayout = new QHBoxLayout();
     ui_2Layout = new QVBoxLayout();
-    playerCompoment = new QMediaPlayer;//播放组件
+//    playerCompoment = new QMediaPlayer;//播放组件
+    mpvPlayer = new MMediaPlayer;//mpv播放组件
     playList = new QMediaPlaylist;//播放列表
     tipWindow = new TipWindow();
 
@@ -288,6 +288,9 @@ void MainWindow::setTwoPageWindow()
     list->setSortingEnabled(true);
     list->sortItems(Qt::DescendingOrder);
     list->setViewMode(QListView::ListMode);
+    fileWatcher = new QFileSystemWatcher();
+//    fileWatcher->addPath(Tools::getRecordingSaveDirectory());
+
 
     //开始时也要把数组都初始化为0，2020.11.12先隐藏此功能
 //    for(int i=0;i<INIT_MAINWINDOW_RECTANGLE_COUNT;i++)
@@ -395,8 +398,10 @@ void MainWindow::inputDevice_get(QString str)
        inputDevice.deviceName().contains("multichannel-input")){
         stop_clicked();//此处解决台式机，在录音时暂停，之后拔出耳机卡死。
         recordButton->setEnabled(false);
+        mini.recordBtn->setEnabled(false);
     }else{
         recordButton->setEnabled(true);
+        mini.recordBtn->setEnabled(true);
     }
     if(isRecording)
     {
@@ -492,18 +497,23 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 MainWindow::~MainWindow()
 {
-    delete itemswindow;
+    qDebug()<<"进入析构";
+    QList<ItemsWindow*> itemList = this->findChildren<ItemsWindow*>();
+    for(ItemsWindow* item:itemList)
+    {
+        item->deleteLater();
+    }
     QList<myWave*> list = this->findChildren<myWave*>();
     for(myWave* tmp:list)
     {
         tmp->deleteLater();
     }
-    delete tipWindow;
+    tipWindow->deleteLater();
 }
 
 void MainWindow::isFileNull(int n)
 {
-    qDebug()<<"**********"<<n;
+    qDebug()<<"文件个数："<<n;
     if(n == 0)
     {
         zeroFile_Messagelb->setParent(listWid);
@@ -587,11 +597,21 @@ void MainWindow::MainWindowLayout()
 //    mainWid->show();
 }
 
+//最小化
 void MainWindow::minShow()
 {
     mainWid->showMinimized();
     mainWid->showNormal();//一定要加,防止点击最小化时，依次点击mini再点击复原导致原窗口不显示而还在任务栏
 }
+
+//mini模式
+void MainWindow::miniShow()
+{
+    mini.miniWid->showNormal();
+    mini.miniWid->activateWindow();
+    mainWid->hide();
+}
+
 void MainWindow::maxShow()
 {
     if(isMax)
@@ -801,56 +821,32 @@ void MainWindow::themeButton(QString themeColor)
     }
 
 }
-//计算时长
+//ffmpeg计算时长
 QString MainWindow::playerTotalTime(QString filePath)
 {
     FFUtil fu;
     fu.open(filePath);
-    int t_duration = fu.getDuration();
-    qDebug()<<"时长:"<<t_duration;
-
+    int t_duration = fu.getDuration(filePath);
+    qDebug()<<"t_duration"<<t_duration;
     QFile file(filePath);
-    QFileInfo fileinfo(filePath);
     qint64 fileSize;
     qint64 time;
-    QString timeStr;
-    if (file.open(QIODevice::ReadOnly))
-    {
-        if(fileinfo.suffix().contains("mp3"))
-        {
-            fileSize = file.size();
-            qDebug()<<file.size()<<"后缀:mp3余数"<<fileSize%16000;
-//            time = fileSize/16000;//时间长度=文件大小/每秒字节数
-            time = t_duration;
-            if(t_duration>30000)
-                time = fileSize/64000;
-            QTime totalTime(time/3600,(time%3600)/60,time%60);
-            timeStr=totalTime.toString("hh:mm:ss");
-        }
-        else if(fileinfo.suffix().contains("m4a"))
-        {
-            fileSize = file.size();
-//            time = fileSize/16000;//时间长度=文件大小/每秒字节数
-            time = t_duration;
-            if(t_duration>30000)
-                time = fileSize/64000;
-            QTime totalTime(time/3600,(time%3600)/60,time%60);
-            timeStr=totalTime.toString("hh:mm:ss");
-            qDebug()<<"文件大小:"<<fileSize<<"时长:"<<timeStr;
-        }
-        else if(fileinfo.suffix().contains("wav"))
-        {
-            fileSize = file.size();
-//            time = fileSize/64000;//时间长度=文件大小/每秒字节数
-            time = t_duration;
-            if(t_duration>30000)
-                time = fileSize/64000;
-            QTime totalTime(time/3600,(time%3600)/60,time%60);
-            timeStr=totalTime.toString("hh:mm:ss");
-        }
-        file.close();
-        return timeStr;
+
+    QString durLength;
+    fileSize = file.size();
+
+    if(t_duration/1000>30000){
+        qDebug()<<"ffmpeg计算出错,用文件大小计算";
+        time = fileSize/64000;
+        QTime totalTime(time/3600,(time%3600)/60,time%60);
+        durLength=totalTime.toString("hh:mm:ss");
+    }else{
+        qDebug()<<"ffmpeg解析正确";
+        durLength = Tools::formatMillisecond(t_duration);
     }
+    qDebug()<<"时长:"<<durLength<<"长度:"<<t_duration;
+    file.close();
+    return durLength;
 }
 
 //初步配置文件
@@ -880,61 +876,61 @@ void MainWindow::initThemeGsetting()
 
 }
 
-void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,传""时为应用开始时的刷新
-{
-    qDebug() <<"初始化";
-    int  m=myThread->readNumList();
-    //qDebug()<<m;
-    QStringList listRecordPath = myThread->readPathCollected().split(",");
-    qDebug()<<listRecordPath;
-//    QStringList listAmplitude = defaultPathData->get("amplitude").toString().split(";");
-    for(int i=1;i<m;i++)
-    {
-        QString str="";
-        str = listRecordPath.at(i);
-        qDebug()<<listRecordPath.at(i);
-        QFileInfo fileinfo(str);
-        QString filesuffix = fileinfo.suffix();//判断文件后缀
-        //qDebug()<<fileinfo.isFile();//判断是否为文件，是文件就存在了,因为在本地删除后，同步文件列表下才打开时那个文件也没了
-        //qDebug()<<filesuffix;
-        QFileInfo fi(str);
-        if(fi.exists())
-        {
-            if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
-            {
-               slotListItemAdd(str,i);//每当配置文件中有路径时就在list中更新一下
-            }
-        }
-        else
-        {
-            qDebug()<<str<<"MainWindow:文件或被删除！";
-            QString subStr=","+str;//子串
-            /*
-             * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
-             */
-            QString oldStr=defaultPathData->get("recorderpath").toString();
-            int pos=oldStr.indexOf(subStr);
-            //qDebug()<<pos<<" "<<oldStr;
-            //qDebug()<<oldStr.mid(pos,str.length()+1);
-            QString newStr = oldStr.remove(pos,str.length()+1);
-            myThread->writePathCollected(newStr);
-            myThread->writeNumList(myThread->readNumList()-1);
-            qDebug()<<myThread->readPathCollected();
-        }
+//void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,传""时为应用开始时的刷新
+//{
+//    qDebug() <<"刷新ListWidget";
+//    int  m=myThread->readNumList();
+//    //qDebug()<<m;
+//    QStringList listRecordPath = myThread->readPathCollected().split(",");
+//    qDebug()<<listRecordPath;
+////    QStringList listAmplitude = defaultPathData->get("amplitude").toString().split(";");
+//    for(int i=1;i<m;i++)
+//    {
+//        QString str="";
+//        str = listRecordPath.at(i);
+//        qDebug()<<listRecordPath.at(i);
+//        QFileInfo fileinfo(str);
+//        QString filesuffix = fileinfo.suffix();//判断文件后缀
+//        //qDebug()<<fileinfo.isFile();//判断是否为文件，是文件就存在了,因为在本地删除后，同步文件列表下才打开时那个文件也没了
+//        //qDebug()<<filesuffix;
+//        QFileInfo fi(str);
+//        if(fi.exists())
+//        {
+//            if(fileinfo.isFile()&&(filesuffix.contains("wav")||filesuffix.contains("mp3")||filesuffix.contains("m4a")))
+//            {
+//               slotListItemAdd(str,i);//每当配置文件中有路径时就在list中更新一下
+//            }
+//        }
+//        else
+//        {
+//            qDebug()<<str<<"MainWindow:文件或被删除！";
+//            QString subStr=","+str;//子串
+//            /*
+//             * 若文件路径已经消失,但配置文件里存在此路径。要更新配置文件中的路径字符串内容
+//             */
+//            QString oldStr=defaultPathData->get("recorderpath").toString();
+//            int pos=oldStr.indexOf(subStr);
+//            //qDebug()<<pos<<" "<<oldStr;
+//            //qDebug()<<oldStr.mid(pos,str.length()+1);
+//            QString newStr = oldStr.remove(pos,str.length()+1);
+//            myThread->writePathCollected(newStr);
+//            myThread->writeNumList(myThread->readNumList()-1);
+//            qDebug()<<myThread->readPathCollected();
+//        }
 
-    }
-    if(defaultPathData->get("recorderpath").toString()=="")
-    {
-        qDebug()<<"路径集为空:"<<defaultPathData->get("recorderpath").toString();
-        isFileNull(0);
-    }
-    isFirstRun = false;//所有文件都显示全才置为false;
+//    }
+//    if(defaultPathData->get("recorderpath").toString()=="")
+//    {
+//        qDebug()<<"路径集为空:"<<defaultPathData->get("recorderpath").toString();
+//        isFileNull(0);
+//    }
+//    isFirstRun = false;//所有文件都显示全才置为false;
 
-}
+//}
 
 void MainWindow::themeStyle(QString themeColor)
 {
-    qDebug()<<themeColor;
+    qDebug()<<"主题颜色"<<themeColor;
     themeButton(themeColor);//控件类切换
     themeWindow(themeColor);//窗体类切换
 }
@@ -969,7 +965,7 @@ void MainWindow::checkSingle(QStringList path)//检查单例模式
     }
     isFirstObject = true;//我是首个对象
     argName << str;
-    qDebug()<<"argName:"<<argName<<"str:"<<str<<"path:"<<path;
+    qDebug()<<"单例参数argName:"<<argName<<"str:"<<str<<"path:"<<path;
 
 }
 
@@ -1000,11 +996,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void MainWindow::miniShow()
-{
-    mini.miniWid->showNormal();
-    mainWid->hide();
-}
+
 
 //开始和暂停
 void MainWindow::play_pause_clicked()
@@ -1096,23 +1088,13 @@ void MainWindow::recordPaint(int value)
 
 void MainWindow::stop_clicked()//停止按钮
 {
-    /*注:只能在stop_clicked()里加；
-     *修复录音结束时,再点击开始录制会出现上一次的尾部波形图;
-     * */
-    for (int i=0;i<rectangleCount;i++)//频率直方图
-    {
-        if(mywave.at(i)!=nullptr){
-            mywave.at(i)->setValue(0);
-        }
-    }
     if(stop)
     {
         isRecording = false;//停止录音时此值为false,其为false时Item的悬浮特效可以被开启
+        emit stopRecord();
 //        limitTimer->stop();//0609暂时去掉限制时长
         pTimer->stop();//计时停止
         mini.pTimer->stop();
-        emit stopRecord();
-
         if(strat_pause)
         {
             strat_pause = false;
@@ -1141,6 +1123,15 @@ void MainWindow::stop_clicked()//停止按钮
         m_pStackedWidget->setCurrentIndex(0);
         mini.recordStackedWidget->setCurrentIndex(0);
         timeTag = 0;//只有在停止时让计时归零
+    }
+    /*注:只能在stop_clicked()里加；
+     *修复录音结束时,再点击开始录制会出现上一次的尾部波形图;
+     * */
+    for (int i=0;i<rectangleCount;i++)//频率直方图
+    {
+        if(mywave.at(i)!=nullptr){
+            mywave.at(i)->setValue(0);
+        }
     }
 
 }
@@ -1327,32 +1318,79 @@ void MainWindow::goset()
 
 }
 
-void MainWindow::slotListItemAdd(QString fileName,int i)
+void MainWindow::updateGsetting_ListWidget()//初始化时配置文件刷新出,传""时为应用开始时的刷新
 {
-    qDebug()<<"更新";
-    itemswindow = new ItemsWindow(this);//初始化Item录音文件类必须加this,
-                                        //因为后期要判断子类的子控件
-//    ItemsWindow *itemswindow = new ItemsWindow(this);
-    itemswindow->listNum->setText(tr("recorder")+QString::number(i));
-    //添加当前录音文件的文件名(以时间命名)
-    itemswindow->recordFileName->setText(fileName.split("/").last());
-    //添加当前录音文件的时长,要判断一下是按了停止按钮还是应用重启时的刷新
-    if(isFirstRun){
-        //首次
-        itemswindow->timelengthlb->setText(playerTotalTime(fileName));
-    }else{
-        //非首次:根据showTimelb设置timelengthlb显示的内容
-        itemswindow->timelengthlb->setText(showTimelb->text());
+    qDebug() <<"刷新文件列表";
+    QFileInfoList fileList = Tools::getRecordingFileinfos();
+    int fileCount = Tools::getRecordingFileinfos().count();
+    preCount = Tools::getRecordingFileinfos().count();
+    qDebug()<<"文件夹里文件有:"<<fileList<<"共计:"<<preCount<<"个";
+    isFileNull(preCount);
+    for(int i = 0;i <preCount;i++)
+    {
+        QString filepath = fileList.at(i).absoluteFilePath();
+        QString name = filepath.split("/").last();
+        QString timeStr = name.mid(0,14);
+        QDateTime date = QDateTime::fromString( timeStr,"yyyyMMddhhmmss");
+        QString str = date.toString("yyyy-MM-dd hh:mm:ss");
+        qDebug()<<"时间:"<<str;
+        slotListItemAdd(filepath,str);//每当配置文件中有路径时就在list中更新一下
     }
-    QListWidgetItem *aItem = new QListWidgetItem(list);//添加自定义的item
-    list->setItemWidget(aItem,itemswindow->clipperstackWid);
-    //list->addItem(aItem);
-    aItem->setSizeHint(QSize(0,60));
-    isFileNull(list->count());//item个数从0开始增加时文件列表不应该显示"文件列表空"的字样
+
+}
+
+void MainWindow::monitorFileChanged(QString dirStr)
+{
+    qDebug()<<"变化的目录是:"<<dirStr;
+    nowCount = Tools::getRecordingFileinfos().count();
+//    qDebug()<<"此时的preCount:"<<preCount<<"此时的nowCount:"<<nowCount;
+    QFileInfoList fileList = Tools::getRecordingFileinfos();
+
+//    if(preCount >= nowCount && nowCount!=0){//文件数量减少时再刷新，重新增加
+//        list->disconnect();
+//        list->clear();
+//        qDebug()<<"此时的preCount:"<<preCount<<"此时的nowCount:"<<nowCount;
+//        for(int i = 0 ;i< nowCount;i++)
+//        {
+//            QString path = fileList.at(i).absoluteFilePath();
+//            if(Tools::fileExists(path))
+//            {
+//                slotListItemAdd(path,i+1);//每当配置文件中有路径时就在list中更新一下
+//                isFileNull(nowCount);
+//            }
+//        }
+
+//    }
+//    preCount = nowCount;//一定加上
+//    if(nowCount == 0){//注意播放时突然删除要先停止播放
+//        list->disconnect();
+//        list->clear();
+//        qDebug()<<"是否闪退2";
+//        isFileNull(0);
+//    }
+
 
 }
 
 
+void MainWindow::slotListItemAdd(QString fileName,QString recordTime)
+{
+    qDebug()<<"更新";
+    itemswindow = new ItemsWindow(this);//初始化Item录音文件类必须加this,
+                                        //因为后期要判断子类的子控件
+    //添加当前录音文件的文件名(以时间命名)
+    itemswindow->filePath = fileName;//对每一个类的路径属性赋值
+    itemswindow->recordFileName->setText(tr("Recording")+fileName.split("/").last());
+    itemswindow->Record_Time->setText(recordTime);
+
+    itemswindow->timelengthlb->setText(playerTotalTime(fileName));
+    QListWidgetItem *aItem = new QListWidgetItem(list);//添加自定义的item
+    list->addItem(aItem);
+    list->setItemWidget(aItem,itemswindow->clipperstackWid);
+    aItem->setSizeHint(QSize(0,60));
+    isFileNull(list->count());//item个数从0开始增加时文件列表不应该显示"文件列表空"的字样
+
+}
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
@@ -1409,20 +1447,22 @@ void MainWindow::wheelEvent(QWheelEvent *wheel)
 void MainWindow::processArgs(QStringList args)
 {
     //kwin接口唤醒
-    qDebug()<<"窗口置顶";
+    qDebug()<<"先窗口置顶";
     KWindowSystem::forceActiveWindow(mainWid->winId());
 
     qDebug()<<"选择的音频路径为:"<<args;
     qDebug()<<"Items有:"<<this->findChildren<ItemsWindow*>()
            <<"共有"<<this->findChildren<ItemsWindow*>().count()<<"个";
+    int fileCount = Tools::getRecordingFileinfos().count();//获取不同目录下的所有文件个数
+    QFileInfoList fileList = Tools::getRecordingFileinfos();
     if(!args.isEmpty())
     {
         QString selectStr = args.at(0);//选择串
         QString tempStr ;//临时比对串
         int i = 0;
-        for(i = 0;i < this->findChildren<ItemsWindow*>().count();i++)
+        for(i = 0;i < fileCount;i++)
         {
-            tempStr = this->findChildren<ItemsWindow*>().at(i)->recordFileName->text();
+            tempStr = fileList.at(i).absoluteFilePath();
             if(selectStr.contains(tempStr))
             {
                 qDebug()<<"1111选择的Item是:"<<tempStr<<"  "<<i;
@@ -1430,14 +1470,14 @@ void MainWindow::processArgs(QStringList args)
                 {
                     qDebug()<<"不是原路径的音频文件时";
                     tempPath = selectStr;
-                    playerCompoment->stop();
-                    this->findChildren<ItemsWindow*>().at(i)->judgeState(playerCompoment->state(),selectStr);
+                    mpvPlayer->stop();
+                    this->findChildren<ItemsWindow*>().at(i)->judgeState(mpvPlayer->state(),selectStr);
                     break;
                 }
                 else
                 {
                     qDebug()<<"原路径的音频文件时";
-                    this->findChildren<ItemsWindow*>().at(i)->judgeState(playerCompoment->state(),selectStr);
+                    this->findChildren<ItemsWindow*>().at(i)->judgeState(mpvPlayer->state(),selectStr);
                     break;
                 }
 
@@ -1453,7 +1493,3 @@ void MainWindow::processArgs(QStringList args)
         }
     }
 }
-
-
-
-

@@ -42,6 +42,10 @@
 #include "mythread.h"
 #include "mywave.h"
 #include "clipbutton.h"
+
+#include "mmediaplayer.h"
+#include "mmediaplaylist.h"
+
 #include <QDebug>
 
 #define ITEMWINDOW_RECTANGLE_COUNT 130//用于绘制剪裁界面的矩形条个数
@@ -60,16 +64,20 @@ public:
     QWidget *mainWid;
     QHBoxLayout *mainLayout;
 
-    QString executeLinuxCmd(QString);
+    QString executeLinuxCmd(QString);//暂时不用
     QString strResult1;
     myWave *wave = nullptr;
 
 
     QString itemsThemeColor;//主题颜色
-    QLabel *listNum;//录音序号
+    //item的属性
+
     QLabel *recordFileName;//录音文件名
-    QLabel *listNumChangeColor;//录音序号颜色变化
+    QLabel *Record_Time;//录音时间标签
+    QString filePath;//录音存储的文件路径
+
     QLabel *recordFileNameChangeColor;//录音文件名颜色变化
+    QLabel *RecordTimeChangeColor;//录音时间标签颜色变化
 
 
     QWidget *stackWid;
@@ -96,6 +104,7 @@ public:
     QToolButton *cancelButton;//取消
     QToolButton *finishButton;//完成
     QProcess *process;
+    QProcess *processDEL;//删除时调用命令
     QString timeEditStartTime;
     QString timeEditEndTime;
     int start_Time = 0;//剪辑开始节点,默认都是0
@@ -128,7 +137,7 @@ public:
     QAction *actionSave;//另存为
     QAction *actionOpenFolder;//打开此音频所在文件夹
 
-    bool play_pause=false;
+    bool play_pause=false;//默认一开始是三角
 
     bool stop = false;
     bool pause = false;
@@ -137,7 +146,9 @@ public:
     ClipButton *leftBtn;//左箭头按钮
     ClipButton *rightBtn;//右箭头按钮
 
-     void judgeState(enum QMediaPlayer::State,QString path);//判断播放状态
+
+    void judgeState(enum MMediaPlayer::State,QString path);//判断播放状态
+     void delUpdateGSetting(QString fileName);
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     //bool isplay=false;
@@ -147,7 +158,7 @@ private:
 
 
     QLabel *fileListlb;//文件列表
-    QSlider *playSlider;//播放划块条
+    QSlider *playSlider;//播放划块条,需要重写一下滑动条
 
 
 
@@ -178,8 +189,8 @@ private:
 
 private:
 
-    static void _processStart(const QString &cmd , QStringList arguments = QStringList());
-    static void deleteImage(const QString &savepath);
+    void _processStart(QString cmd , QStringList arguments = QStringList());
+    void deleteImage(QString savepath);
     void processLog();//命令日志
     void initRectangleWave();//停止录音后再生成110个矩形框,防止多次初始化造成cpu占用率过高
     void deleteWaves();
@@ -204,23 +215,18 @@ private:
     void hover_ChangeState(QEvent *event);
     QPoint pressPoint;
 
-    void delUpdateGSetting(QString fileName);
-
-
-
 signals:
 
     void playingSignal(bool);//发送正在播放的信号，通知播放时不可以录音
 
     void updateGSettingSignal(QString fileName);
-public slots:
-    void updateGSettingSlot(QString fileName);
+
 private slots:
 
     void itemPlay_PauseClicked();
     void positionChange(qint64 position);
     void durationChange(qint64 duration);
-    void stateChanged(enum QMediaPlayer::State);
+    void stateChanged(enum MMediaPlayer::State);
     void setPosition(int position);
 
 
@@ -247,8 +253,6 @@ private slots:
     void rightBtn_ReleaseGetEndPositon_Slot(int rightButton_absolutePos,int rightButton_leftBorderOppositive,int padding);
 
     void cursorMove();
-
-
     void leftButton_rightBorderSlot(int x);
 
 public :
@@ -256,6 +260,7 @@ public :
 
 public slots:
     void getRecordingSlot(bool);
+
 
 
 };

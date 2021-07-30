@@ -15,6 +15,10 @@ TRANSLATIONS    += ./translations/kylin-recorder_zh_CN.ts
 QT += multimedia multimediawidgets
 TARGET = kylin-recorder
 TEMPLATE = app
+
+INCLUDEPATH += /usr/include/mpv/
+LIBS += -lmpv \
+
 #ffmpeg需要的东西都是
 LIBS += -lmp3lame -lavformat -lavdevice -lavcodec -lavutil -lswscale -lswresample
 
@@ -75,6 +79,8 @@ SOURCES += \
         src/mainwindow.cpp \
         src/menumodule.cpp \
         src/miniwindow.cpp \
+        src/mmediaplayer.cpp \
+        src/mmediaplaylist.cpp \
         src/mp3encoder.cpp \
         src/mylabel.cpp \
         src/mythread.cpp \
@@ -82,6 +88,7 @@ SOURCES += \
         src/save.cpp \
         src/settings.cpp \
         src/tipwindow.cpp \
+        src/tools.cpp \
         src/xatom-helper.cpp
 
 HEADERS += \
@@ -93,6 +100,8 @@ HEADERS += \
         src/mainwindow.h \
         src/menumodule.h \
         src/miniwindow.h \
+        src/mmediaplayer.h \
+        src/mmediaplaylist.h \
         src/mp3encoder.h \
         src/mylabel.h \
         src/mythread.h \
@@ -100,6 +109,7 @@ HEADERS += \
         src/save.h \
         src/settings.h \
         src/tipwindow.h \
+        src/tools.h \
         src/xatom-helper.h
 
 RESOURCES += \
